@@ -59,10 +59,13 @@ def stock_detail(ticker):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
+    # Query to get the stock details and portfolio value
     query = """
-        SELECT a.ticker, a.name, a.last_closing_price, a.expected_return, a.num_analysts, p.date, p.total_value
+        SELECT r.name AS stock_name, a.last_closing_price, a.expected_return, 
+               a.num_analysts, p.date, p.total_value
         FROM analysis a
         JOIN portfolio p ON a.ticker = p.ticker
+        JOIN ratings r ON a.ticker = r.ticker
         WHERE a.ticker = %s
         ORDER BY p.date DESC
     """
