@@ -153,6 +153,11 @@ def subscribe():
 
     return redirect(url_for('portfolio'))
 
+@app.route('/investment-strategy')
+def investment_strategy():
+    return render_template('investment_strategy.html')
+
+
 if __name__ == '__main__':
     app.debug = True
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
