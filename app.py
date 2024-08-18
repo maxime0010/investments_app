@@ -30,7 +30,8 @@ def get_top_stocks(latest_date):
 
     query = """
         SELECT p.ticker, MAX(r.name) as name, a.last_closing_price AS last_price, 
-               a.expected_return, a.num_analysts, MAX(p.ranking) as ranking
+               a.expected_return, a.num_analysts, MAX(p.ranking) as ranking, 
+               MAX(a.average_price_target) as target_price
         FROM portfolio p
         JOIN analysis a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
@@ -45,6 +46,7 @@ def get_top_stocks(latest_date):
     cursor.close()
     conn.close()
     return top_stocks
+
 
 @app.route('/portfolio')
 def portfolio():
