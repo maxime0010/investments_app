@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Top 10 Stocks in Portfolio</h1>
+    <h1>Portfolio - Updated on {{ last_updated.strftime('%Y-%m-%d') }}</h1>
 
-    <p><strong>Last Updated:</strong> {{ last_updated.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-
-    <table class="table">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Stock Name</th>
                 <th>Last Price</th>
-                <th>Expected Return (%)</th>
+                <th>Target Price</th>
+                <th>Expected Return</th>
                 <th>Number of Analysts</th>
             </tr>
         </thead>
@@ -19,6 +18,7 @@
             <tr>
                 <td><a href="{{ url_for('stock_detail', ticker=stock['ticker']) }}">{{ stock['name'] }}</a></td>
                 <td>${{ stock['last_price'] | int }}</td>
+                <td>${{ stock['target_price'] | int }}</td>
                 <td>{{ stock['expected_return'] | int }}%</td>
                 <td>{{ stock['num_analysts'] }}</td>
             </tr>
