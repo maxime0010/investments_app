@@ -14,7 +14,7 @@
         {% for record in performance %}
         <tr>
             <td>{{ record.date }}</td>
-            <td>{{ record.total_portfolio_value | default(0) | round(2) }}</td>
+            <td>{{ record.total_portfolio_value if record.total_portfolio_value is not none else 0 | round(2) }}</td>
         </tr>
         {% endfor %}
     </tbody>
