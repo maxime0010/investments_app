@@ -1,9 +1,10 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
-from datetime import datetime
 import os
+from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
 # Database connection configuration
 db_config = {
@@ -43,7 +44,6 @@ def get_top_stocks(latest_date):
     cursor.close()
     conn.close()
     return top_stocks
-
 
 @app.route('/portfolio')
 def portfolio():
@@ -126,6 +126,26 @@ def performance():
 
     return render_template('performance.html', dates=dates, values=values, 
                            return_30_days=return_30_days, return_12_months=return_12_months)
+
+@app.route('/subscribe', methods=['POST'])
+def subscribe():
+    email = request.form['email']
+
+    # Save the email to the database
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("INSERT INTO subscriptions (email) VALUES (%s)", (email,))
+        conn.commit()
+        flash('Thank you for subscribing to our newsletter!', 'success')
+    except mysql.connector.Error as err:
+        flash(f"An error occurred: {err}", 'danger')
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('portfolio'))
 
 if __name__ == '__main__':
     app.debug = True
