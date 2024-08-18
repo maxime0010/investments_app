@@ -1,22 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Performance{% endblock %}
-
 {% block content %}
-<table>
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Total Portfolio Value ($)</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for record in performance %}
-        <tr>
-            <td>{{ record.date }}</td>
-            <td>{{ record.total_portfolio_value if record.total_portfolio_value is not none else 0 | round(2) }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <h1>Portfolio Performance</h1>
+
+    <div>
+        <h3>Returns:</h3>
+        <p>Last 30 Days: {{ return_30_days | default(0) }}%</p>
+        <p>Last 12 Months: {{ return_12_months | default(0) }}%</p>
+    </div>
+
+    <div>
+        <canvas id="performanceChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('performanceChart').getContext('2d');
+        var performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ dates | tojson }},
+                datasets: [{
+                    label: 'Total Portfolio Value',
+                    data: {{ values | tojson }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: { display: true, title: { display: true, text: 'Date' }},
+                    y: { display: true, title: { display: true, text: 'Portfolio Value ($)' }}
+                }
+            }
+        });
+    </script>
 {% endblock %}
