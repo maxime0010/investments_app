@@ -11,6 +11,28 @@
     <h3>Stock Prices Over the Last 12 Months</h3>
     <canvas id="priceChart"></canvas>
 
+    <h3>Analyst Recommendations</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Analyst Name</th>
+                <th>Bank</th>
+                <th>Latest Price Target</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for analyst in analysts %}
+            <tr>
+                <td>{{ analyst['analyst_name'] }}</td>
+                <td>{{ analyst['analyst'] }}</td>
+                <td>${{ analyst['adjusted_pt_current'] | int }}</td>
+                <td>{{ analyst['action_company'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         var ctx = document.getElementById('priceChart').getContext('2d');
