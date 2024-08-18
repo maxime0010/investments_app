@@ -28,7 +28,7 @@ def get_top_stocks(latest_date):
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return, a.num_analysts, p.name
+        SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return, a.num_analysts, a.name
         FROM portfolio p
         JOIN analysis a ON p.ticker = a.ticker
         WHERE p.date = %s
