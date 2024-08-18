@@ -1,93 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Investor - Portfolio</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        .container {
-            max-width: 900px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-        h1 {
-            text-align: center;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-        h2 {
-            text-align: center;
-            font-size: 1.2em;
-            margin-bottom: 20px;
-            color: #666;
-        }
-        nav {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        nav a {
-            margin: 0 15px;
-            text-decoration: none;
-            color: #4CAF50;
-            font-weight: bold;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border-bottom: 1px solid #ddd;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-            font-weight: 600;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>AI Investor</h1>
-        <h2>Portfolio (Beta Version)</h2>
-        <nav>
-            <a href="#">Manifesto</a>
-            <a href="/">Portfolio</a>
-            <a href="/performance">Performance</a>
-            <a href="#">Team</a>
-        </nav>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ticker</th>
-                    <th>Last Price</th>
-                    <th>Expected Return (%)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stock in stocks %}
-                <tr>
-                    <td>{{ stock.ticker }}</td>
-                    <td>{{ stock.last_price }}</td>
-                    <td>{{ stock.expected_return }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Portfolio{% endblock %}
+
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Last Price</th>
+            <th>Expected Return (%)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in stocks %}
+        <tr>
+            <td>{{ stock.ticker }}</td>
+            <td>{{ stock.last_price }}</td>
+            <td>{{ stock.expected_return }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
