@@ -14,11 +14,18 @@ db_config = {
     'port': 25060
 }
 
-def get_top_stocks():
+def get_latest_portfolio_date():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    cursor.execute("SELECT MAX(date) FROM portfolio")
+    latest_date = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+    return latest_date
+
+def get_top_stocks(latest_date):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-
-    current_date = datetime.now().date()
 
     query = """
         SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return
@@ -28,7 +35,7 @@ def get_top_stocks():
         ORDER BY p.ranking
         LIMIT 10
     """
-    cursor.execute(query, (current_date,))
+    cursor.execute(query, (latest_date,))
     top_stocks = cursor.fetchall()
 
     cursor.close()
@@ -37,7 +44,8 @@ def get_top_stocks():
 
 @app.route('/')
 def index():
-    top_stocks = get_top_stocks()
+    latest_date = get_latest_portfolio_date()
+    top_stocks = get_top_stocks(latest_date)
     return render_template('index.html', stocks=top_stocks)
 
 @app.route('/performance')
