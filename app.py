@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 import mysql.connector
 from datetime import datetime
 import os
@@ -28,7 +28,7 @@ def get_top_stocks(latest_date):
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return
+        SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return, a.num_analysts, p.name
         FROM portfolio p
         JOIN analysis a ON p.ticker = a.ticker
         WHERE p.date = %s
@@ -42,11 +42,40 @@ def get_top_stocks(latest_date):
     conn.close()
     return top_stocks
 
-@app.route('/')
-def index():
+@app.route('/portfolio')
+def portfolio():
     latest_date = get_latest_portfolio_date()
     top_stocks = get_top_stocks(latest_date)
-    return render_template('index.html', stocks=top_stocks)
+    return render_template('portfolio.html', stocks=top_stocks)
+
+@app.route('/stock/<ticker>')
+def stock_detail(ticker):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT a.ticker, a.name, a.last_closing_price, a.expected_return, a.num_analysts, p.date, p.total_value
+        FROM analysis a
+        JOIN portfolio p ON a.ticker = p.ticker
+        WHERE a.ticker = %s
+        ORDER BY p.date DESC
+    """
+    cursor.execute(query, (ticker,))
+    stock_details = cursor.fetchall()
+
+    # Fetch stock prices over the last 12 months
+    cursor.execute("""
+        SELECT date, close
+        FROM prices
+        WHERE ticker = %s AND date >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        ORDER BY date
+    """, (ticker,))
+    stock_prices = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('stock_detail.html', stock=stock_details, prices=stock_prices)
 
 @app.route('/performance')
 def performance():
@@ -62,10 +91,14 @@ def performance():
     cursor.execute(query)
     performance_data = cursor.fetchall()
 
-    dates = [entry['date'].strftime('%Y-%m-%d') for entry in performance_data]
-    values = [entry['total_portfolio_value'] for entry in performance_data]
+    dates = [entry['date'].strftime('%Y-%m-%d') for entry in performance_data if entry['date'] is not None]
+    values = [entry['total_portfolio_value'] for entry in performance_data if entry['total_portfolio_value'] is not None]
 
-    # Calculate returns
+    if not dates:
+        dates = ["No data"]
+    if not values:
+        values = [0]
+
     if len(values) >= 30:
         return_30_days = round(((values[-1] - values[-30]) / values[-30]) * 100, 2)
     else:
