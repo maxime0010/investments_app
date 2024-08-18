@@ -40,6 +40,7 @@ def index():
     top_stocks = get_top_stocks()
     return render_template('index.html', stocks=top_stocks)
 
-# Run the Flask app
+# Run the Flask app with debugging enabled
 if __name__ == '__main__':
+    app.debug = True
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
