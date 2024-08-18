@@ -17,10 +17,8 @@ def get_top_stocks():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Get today's date
     current_date = datetime.now().date()
 
-    # Query to get the top 10 stocks from the portfolio table
     query = """
         SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return
         FROM portfolio p
@@ -41,5 +39,5 @@ def index():
     top_stocks = get_top_stocks()
     return render_template('index.html', stocks=top_stocks)
 
-# Run the Flask app
-app.run(debug=True)
+if __name__ != '__main__': 
+    app.run()
