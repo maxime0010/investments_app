@@ -40,7 +40,24 @@ def index():
     top_stocks = get_top_stocks()
     return render_template('index.html', stocks=top_stocks)
 
-# Run the Flask app with debugging enabled
+@app.route('/performance')
+def performance():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    # Query to get the total portfolio value for each day
+    query = """
+        SELECT date, SUM(total_value) as total_portfolio_value
+        FROM portfolio
+        GROUP BY date
+        ORDER BY date
+    """
+    cursor.execute(query)
+    performance_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+    return render_template('performance.html', performance=performance_data)
+
 if __name__ == '__main__':
-    app.debug = True
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
