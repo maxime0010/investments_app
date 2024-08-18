@@ -74,10 +74,19 @@ def stock_detail(ticker):
     """, (ticker,))
     stock_prices = cursor.fetchall()
 
+    # Fetch analyst recommendations
+    cursor.execute("""
+        SELECT analyst_name, analyst, adjusted_pt_current, action_company
+        FROM ratings
+        WHERE ticker = %s
+        ORDER BY date DESC
+    """, (ticker,))
+    analysts = cursor.fetchall()
+
     cursor.close()
     conn.close()
 
-    return render_template('stock_detail.html', stock=stock_details, prices=stock_prices)
+    return render_template('stock_detail.html', stock=stock_details, prices=stock_prices, analysts=analysts)
 
 @app.route('/performance')
 def performance():
