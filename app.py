@@ -46,7 +46,7 @@ def get_top_stocks(latest_date):
 def portfolio():
     latest_date = get_latest_portfolio_date()
     top_stocks = get_top_stocks(latest_date)
-    return render_template('portfolio.html', stocks=top_stocks)
+    return render_template('portfolio.html', stocks=top_stocks, last_updated=latest_date)
 
 @app.route('/stock/<ticker>')
 def stock_detail(ticker):
