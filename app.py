@@ -105,29 +105,31 @@ def performance():
     cursor.execute(query)
     performance_data = cursor.fetchall()
 
-    dates = [entry['date'].strftime('%Y-%m-%d') for entry in performance_data if entry['date'] is not None]
-    values = [entry['total_portfolio_value'] for entry in performance_data if entry['total_portfolio_value'] is not None]
+    dates = [entry['date'].strftime('%Y-%m-%d') for entry in performance_data if entry['date']]
+    values = [entry['total_portfolio_value'] for entry in performance_data if entry['total_portfolio_value']]
 
+    # Ensure we have valid data for the chart
     if not dates:
         dates = ["No data"]
     if not values:
         values = [0]
 
+    # Calculate returns
+    return_30_days = None
+    return_12_months = None
+
     if len(values) >= 30:
         return_30_days = round(((values[-1] - values[-30]) / values[-30]) * 100, 2)
-    else:
-        return_30_days = None
     
     if len(values) >= 365:
         return_12_months = round(((values[-1] - values[-365]) / values[-365]) * 100, 2)
-    else:
-        return_12_months = None
 
     cursor.close()
     conn.close()
 
     return render_template('performance.html', dates=dates, values=values, 
                            return_30_days=return_30_days, return_12_months=return_12_months)
+
 
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
