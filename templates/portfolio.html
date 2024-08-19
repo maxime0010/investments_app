@@ -1,32 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h1 class="my-4">Top 10 Stocks</h1>
-    <div class="d-flex justify-content-between align-items-center">
-        <small class="text-muted">Updated on {{ last_updated }}</small>
-    </div>
-    <div class="row">
-        {% for stock in stocks %}
-        <div class="col-md-4">
-            <div class="card mb-4 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">{{ stock.name }}</h5>
-                    <p class="card-text">
-                        <strong>Ticker:</strong> {{ stock.ticker }}<br>
-                        <strong>Last Price:</strong> ${{ stock.last_price }}<br>
-                        <strong>Target Price:</strong> ${{ stock.average_price_target }}<br>
-                        <strong>Expected Return:</strong> {{ stock.expected_return | round(2) }}%<br>
-                        <strong>Analysts:</strong> {{ stock.num_analysts }}
-                    </p>
-                    <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-primary">View Details</a>
-                </div>
-                <div class="card-footer">
-                    <small class="text-muted">Updated on {{ stock.last_update | safe }}</small>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
+    <h1>Portfolio - Updated on {{ last_updated.strftime('%Y-%m-%d') }}</h1>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Stock Name</th>
+                <th>Last Price</th>
+                <th>Target Price</th>
+                <th>Expected Return</th>
+                <th>Number of Analysts</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+            <tr>
+                <td><a href="{{ url_for('stock_detail', ticker=stock['ticker']) }}">{{ stock['name'] }}</a></td>
+                <td>${{ stock['last_price'] | int }}</td>
+                <td>${{ stock['target_price'] | int }}</td>
+                <td>{{ stock['expected_return'] | int }}%</td>
+                <td>{{ stock['num_analysts'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
