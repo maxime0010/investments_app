@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
 import os
+import requests
 from datetime import datetime
 
 app = Flask(__name__)
@@ -14,6 +15,24 @@ db_config = {
     'database': 'defaultdb',
     'port': 25060
 }
+
+def fetch_stock_prices(ticker):
+    api_key = "KG8F3YBYGVL0HFFU"
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={ticker}&outputsize=compact&apikey={api_key}"
+    response = requests.get(url)
+    data = response.json()
+    
+    # Process the API response
+    prices = []
+    if 'Time Series (Daily)' in data:
+        time_series = data['Time Series (Daily)']
+        for date, values in time_series.items():
+            prices.append({
+                'date': date,
+                'close': float(values['5. adjusted close'])
+            })
+    
+    return prices
 
 def get_latest_portfolio_date():
     conn = mysql.connector.connect(**db_config)
@@ -61,7 +80,6 @@ def stock_detail(ticker):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Query to get the stock details and portfolio value
     query = """
         SELECT r.name AS stock_name, a.last_closing_price, a.expected_return, 
                a.num_analysts, p.date, p.total_value
@@ -74,16 +92,9 @@ def stock_detail(ticker):
     cursor.execute(query, (ticker,))
     stock_details = cursor.fetchall()
 
-    # Fetch stock prices over the last 12 months
-    cursor.execute("""
-        SELECT date, close
-        FROM prices
-        WHERE ticker = %s AND date >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-        ORDER BY date
-    """, (ticker,))
-    stock_prices = cursor.fetchall()
+    # Fetch stock prices from Alpha Vantage API
+    stock_prices = fetch_stock_prices(ticker)
 
-    # Fetch analyst recommendations
     cursor.execute("""
         SELECT analyst_name, analyst, adjusted_pt_current, action_company
         FROM ratings
@@ -96,6 +107,7 @@ def stock_detail(ticker):
     conn.close()
 
     return render_template('stock_detail.html', stock=stock_details, prices=stock_prices, analysts=analysts)
+
 
 @app.route('/performance')
 def performance():
