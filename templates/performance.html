@@ -3,30 +3,56 @@
 {% block content %}
 <div class="container">
     <h1 class="my-4">Portfolio Performance</h1>
+    <div class="row">
+        <div class="col-md-12">
+            <h5>Performance Graph</h5>
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h6>Last 30 Days Return: {{ last_30_days_return }}%</h6>
+        </div>
+        <div class="col-md-6">
+            <h6>Last 12 Months Return: {{ last_12_months_return }}%</h6>
+        </div>
+    </div>
+</div>
 
-    <canvas id="performanceChart" width="400" height="200"></canvas>
-    <script>
-        var ctx = document.getElementById('performanceChart').getContext('2d');
-        var chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {{ dates | default([]) | tojson }},
-                datasets: [{
-                    label: 'Portfolio Value',
-                    data: {{ values | default([]) | tojson }},
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    fill: false
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('performanceChart').getContext('2d');
+    var performanceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ dates | tojson }},
+            datasets: [{
+                label: 'Total Portfolio Value',
+                data: {{ portfolio_values | tojson }},
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Portfolio Value'
                     }
                 }
             }
-        });
-    </script>
-</div>
+        }
+    });
+</script>
 {% endblock %}
