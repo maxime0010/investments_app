@@ -131,6 +131,7 @@ def performance():
                            return_30_days=return_30_days, return_12_months=return_12_months)
 
 
+
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.form['email']
