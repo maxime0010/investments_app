@@ -47,9 +47,6 @@ def get_top_stocks(latest_date):
     conn.close()
     return top_stocks
 
-
-
-
 @app.route('/portfolio')
 def portfolio():
     latest_date = get_latest_portfolio_date()
@@ -61,7 +58,6 @@ def stock_detail(ticker):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Query to get the stock details and portfolio value
     query = """
         SELECT r.name AS stock_name, a.last_closing_price, a.expected_return, 
                a.num_analysts, p.date, p.total_value
@@ -74,7 +70,6 @@ def stock_detail(ticker):
     cursor.execute(query, (ticker,))
     stock_details = cursor.fetchall()
 
-    # Fetch stock prices over the last 12 months
     cursor.execute("""
         SELECT date, close
         FROM prices
@@ -83,7 +78,6 @@ def stock_detail(ticker):
     """, (ticker,))
     stock_prices = cursor.fetchall()
 
-    # Fetch analyst recommendations
     cursor.execute("""
         SELECT analyst_name, analyst, adjusted_pt_current, action_company
         FROM ratings
@@ -114,13 +108,11 @@ def performance():
     dates = [entry['date'].strftime('%Y-%m-%d') for entry in performance_data if entry['date'] is not None]
     values = [entry['total_portfolio_value'] for entry in performance_data if entry['total_portfolio_value'] is not None]
 
-    # Ensure we have valid data for the chart
     if not dates:
         dates = ["No data"]
     if not values:
         values = [0]
 
-    # Calculate returns
     if len(values) >= 30:
         return_30_days = round(((values[-1] - values[-30]) / values[-30]) * 100, 2)
     else:
@@ -141,7 +133,6 @@ def performance():
 def subscribe():
     email = request.form['email']
 
-    # Save the email to the database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
@@ -160,7 +151,6 @@ def subscribe():
 @app.route('/investment-strategy')
 def investment_strategy():
     return render_template('investment_strategy.html')
-
 
 if __name__ == '__main__':
     app.debug = True
