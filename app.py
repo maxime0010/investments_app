@@ -132,6 +132,7 @@ def performance():
 
 
 
+
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.form['email']
