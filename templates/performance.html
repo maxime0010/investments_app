@@ -4,28 +4,6 @@
 <div class="container">
     <h1 class="my-4">Portfolio Performance</h1>
 
-    <div class="row">
-        <div class="col-md-6">
-            <h5>Returns</h5>
-            <ul class="list-group">
-                <li class="list-group-item">Last 30 Days: 
-                    {% if return_30_days is not None %} 
-                        {{ return_30_days }}% 
-                    {% else %} 
-                        N/A 
-                    {% endif %}
-                </li>
-                <li class="list-group-item">Last 12 Months: 
-                    {% if return_12_months is not None %} 
-                        {{ return_12_months }}% 
-                    {% else %} 
-                        N/A 
-                    {% endif %}
-                </li>
-            </ul>
-        </div>
-    </div>
-
     <canvas id="performanceChart" width="400" height="200"></canvas>
     <script>
         var ctx = document.getElementById('performanceChart').getContext('2d');
