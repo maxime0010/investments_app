@@ -19,12 +19,13 @@ def get_top_stocks(latest_date):
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return_combined_criteria AS expected_return, 
-               a.average_price_target, a.num_combined_criteria AS num_analysts, a.last_update_date
+        SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return_combined_criteria AS expected_return,
+               a.num_combined_criteria AS num_analysts
         FROM portfolio p
         JOIN analysis a ON p.ticker = a.ticker
         WHERE p.date = %s
-        ORDER BY a.expected_return_combined_criteria DESC
+        GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, a.num_combined_criteria
+        ORDER BY expected_return_combined_criteria DESC
         LIMIT 10
     """
     cursor.execute(query, (latest_date,))
