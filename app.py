@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
 import os
+import requests  # Add this import to use the requests library
 from datetime import datetime
 
 app = Flask(__name__)
