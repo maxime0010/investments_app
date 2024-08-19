@@ -114,11 +114,13 @@ def performance():
     dates = [entry['date'].strftime('%Y-%m-%d') for entry in performance_data if entry['date'] is not None]
     values = [entry['total_portfolio_value'] for entry in performance_data if entry['total_portfolio_value'] is not None]
 
+    # Ensure we have valid data for the chart
     if not dates:
         dates = ["No data"]
     if not values:
         values = [0]
 
+    # Calculate returns
     if len(values) >= 30:
         return_30_days = round(((values[-1] - values[-30]) / values[-30]) * 100, 2)
     else:
