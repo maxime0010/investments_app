@@ -21,8 +21,10 @@ def fetch_stock_prices(ticker):
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={ticker}&outputsize=compact&apikey={api_key}"
     response = requests.get(url)
     data = response.json()
-    
-    # Process the API response
+
+    # Debug: Print the entire API response to check its structure
+    print("API Response:", data)
+
     prices = []
     if 'Time Series (Daily)' in data:
         time_series = data['Time Series (Daily)']
@@ -33,6 +35,10 @@ def fetch_stock_prices(ticker):
             })
     
     return prices
+
+    
+
+    
 
 def get_latest_portfolio_date():
     conn = mysql.connector.connect(**db_config)
