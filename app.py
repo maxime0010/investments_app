@@ -36,7 +36,7 @@ def get_top_stocks(latest_date):
         JOIN analysis a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         WHERE p.date = %s
-        GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, a.num_analysts
+        GROUP BY p.ticker, a.last_closing_price, a.expected_return, a.num_analysts
         ORDER BY ranking
         LIMIT 10
     """
@@ -46,6 +46,7 @@ def get_top_stocks(latest_date):
     cursor.close()
     conn.close()
     return top_stocks
+
 
 @app.route('/portfolio')
 def portfolio():
@@ -58,6 +59,7 @@ def stock_detail(ticker):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
+    # Query to get the stock details and portfolio value
     query = """
         SELECT r.name AS stock_name, a.last_closing_price, a.expected_return, 
                a.num_analysts, p.date, p.total_value
@@ -70,6 +72,7 @@ def stock_detail(ticker):
     cursor.execute(query, (ticker,))
     stock_details = cursor.fetchall()
 
+    # Fetch stock prices over the last 12 months
     cursor.execute("""
         SELECT date, close
         FROM prices
@@ -78,6 +81,7 @@ def stock_detail(ticker):
     """, (ticker,))
     stock_prices = cursor.fetchall()
 
+    # Fetch analyst recommendations
     cursor.execute("""
         SELECT analyst_name, analyst, adjusted_pt_current, action_company
         FROM ratings
@@ -105,24 +109,23 @@ def performance():
     cursor.execute(query)
     performance_data = cursor.fetchall()
 
-    dates = [entry['date'].strftime('%Y-%m-%d') for entry in performance_data if entry['date']]
-    values = [entry['total_portfolio_value'] for entry in performance_data if entry['total_portfolio_value']]
+    dates = [entry['date'].strftime('%Y-%m-%d') for entry in performance_data if entry['date'] is not None]
+    values = [entry['total_portfolio_value'] for entry in performance_data if entry['total_portfolio_value'] is not None]
 
-    # Ensure we have valid data for the chart
     if not dates:
         dates = ["No data"]
     if not values:
         values = [0]
 
-    # Calculate returns
-    return_30_days = None
-    return_12_months = None
-
     if len(values) >= 30:
         return_30_days = round(((values[-1] - values[-30]) / values[-30]) * 100, 2)
+    else:
+        return_30_days = None
     
     if len(values) >= 365:
         return_12_months = round(((values[-1] - values[-365]) / values[-365]) * 100, 2)
+    else:
+        return_12_months = None
 
     cursor.close()
     conn.close()
@@ -130,13 +133,11 @@ def performance():
     return render_template('performance.html', dates=dates, values=values, 
                            return_30_days=return_30_days, return_12_months=return_12_months)
 
-
-
-
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.form['email']
 
+    # Save the email to the database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
@@ -155,6 +156,7 @@ def subscribe():
 @app.route('/investment-strategy')
 def investment_strategy():
     return render_template('investment_strategy.html')
+
 
 if __name__ == '__main__':
     app.debug = True
