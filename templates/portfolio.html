@@ -1,28 +1,21 @@
-{% extends "base.html" %}
-
-{% block content %}
-    <h1>Portfolio - Updated on {{ last_updated.strftime('%Y-%m-%d') }}</h1>
-
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Stock Name</th>
-                <th>Last Price</th>
-                <th>Target Price</th>
-                <th>Expected Return</th>
-                <th>Number of Analysts</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for stock in stocks %}
-            <tr>
-                <td><a href="{{ url_for('stock_detail', ticker=stock['ticker']) }}">{{ stock['name'] }}</a></td>
-                <td>${{ stock['last_price'] | int }}</td>
-                <td>${{ stock['target_price'] | int }}</td>
-                <td>{{ stock['expected_return'] | int }}%</td>
-                <td>{{ stock['num_analysts'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% endblock %}
+<div class="container mt-4">
+    <div class="row">
+        {% for stock in stocks %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ stock.name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ stock.ticker }}</h6>
+                    <p class="card-text">
+                        Last Price: <strong>${{ stock.last_price }}</strong><br>
+                        Target Price: <strong>${{ stock.target_price }}</strong><br>
+                        Expected Return: <strong>{{ stock.expected_return }}%</strong><br>
+                        <small class="text-muted">Updated on {{ stock.last_update | date('Y-m-d') }}</small>
+                    </p>
+                    <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-primary">Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
