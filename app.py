@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
 import os
-import requests
 from datetime import datetime
 
 app = Flask(__name__)
@@ -43,29 +42,43 @@ def get_latest_portfolio_date():
     conn.close()
     return latest_date
 
+def get_logo_url(ticker):
+    # Using Logo.dev to get the logo based on the ticker
+    url = f"https://logo.clearbit.com/{ticker}.logo.dev"
+    
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        return url
+    return None
+
 def get_top_stocks(latest_date):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
     query = """
         SELECT p.ticker, MAX(r.name) as name, a.last_closing_price AS last_price, 
-               a.expected_return_combined_criteria AS expected_return, 
-               a.num_combined_criteria AS num_analysts, MAX(p.ranking) as ranking, 
-               MAX(a.avg_combined_criteria) as target_price
+               a.expected_return, a.num_analysts, MAX(p.ranking) as ranking, 
+               MAX(a.average_price_target) as target_price
         FROM portfolio p
         JOIN analysis a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         WHERE p.date = %s
-        GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, a.num_combined_criteria
+        GROUP BY p.ticker, a.last_closing_price, a.expected_return, a.num_analysts
         ORDER BY ranking
         LIMIT 10
     """
     cursor.execute(query, (latest_date,))
     top_stocks = cursor.fetchall()
 
+    for stock in top_stocks:
+        stock['logo_url'] = get_logo_url(stock['ticker'])
+
     cursor.close()
     conn.close()
     return top_stocks
+
+
 
 
 
