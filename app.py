@@ -20,7 +20,7 @@ def get_top_stocks(latest_date):
 
     query = """
         SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return_combined_criteria AS expected_return, 
-               a.average_price_target, a.num_combined_criteria AS num_analysts, a.last_update_date
+               a.average_price_target, a.num_combined_criteria AS num_analysts, a.avg_days_since_last_update
         FROM portfolio p
         JOIN analysis a ON p.ticker = a.ticker
         WHERE p.date = %s
