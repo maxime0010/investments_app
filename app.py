@@ -20,7 +20,7 @@ def get_top_stocks(latest_date):
 
     query = """
         SELECT p.ticker, a.last_closing_price AS last_price, a.expected_return_combined_criteria AS expected_return, 
-               a.average_price_target, a.num_combined_criteria AS num_analysts, a.avg_days_since_last_update
+               a.average_price_target, a.num_combined_criteria AS num_analysts, a.last_update_date
         FROM portfolio p
         JOIN analysis a ON p.ticker = a.ticker
         WHERE p.date = %s
@@ -43,12 +43,31 @@ def portfolio():
     cursor.execute("SELECT MAX(date) FROM portfolio")
     latest_date = cursor.fetchone()[0]
 
-    # Format the date using Python's strftime
-    formatted_date = latest_date.strftime('%Y-%m-%d') if latest_date else None
-
     top_stocks = get_top_stocks(latest_date)
 
+    formatted_date = latest_date.strftime('%Y-%m-%d') if latest_date else None
     return render_template('portfolio.html', stocks=top_stocks, last_updated=formatted_date)
+
+@app.route('/performance')
+def performance():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT date, SUM(total_value) as total_portfolio_value
+        FROM portfolio
+        GROUP BY date
+        ORDER BY date
+    """
+    try:
+        cursor.execute(query)
+        performance_data = cursor.fetchall()
+    except Exception as e:
+        return f"An error occurred: {e}"
+
+    cursor.close()
+    conn.close()
+    return render_template('performance.html', performance=performance_data)
 
 if __name__ == '__main__':
     app.debug = True
