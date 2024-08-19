@@ -10,13 +10,14 @@
         {% for stock in stocks %}
         <div class="col-md-4 mb-4">
             <div class="card h-100 shadow-sm border-0">
+                <img src="https://logo.clearbit.com/{{ stock.name | lower | replace(' ', '') }}.com" class="card-img-top" alt="{{ stock.name }} Logo">
                 <div class="card-body">
                     <h5 class="card-title">{{ stock.name }}</h5>
                     <p class="card-text">
                         <strong>Ticker:</strong> {{ stock.ticker }}<br>
-                        <strong>Last Price:</strong> ${{ stock.last_price }}<br>
-                        <strong>Target Price:</strong> ${{ stock.target_price }}<br>
-                        <strong>Expected Return:</strong> <span class="text-success">{{ stock.expected_return | round(2) }}%</span><br>
+                        <strong>Last Price:</strong> ${{ stock.last_price | round(0) }}<br>
+                        <strong>Target Price:</strong> ${{ stock.target_price | round(0) }}<br>
+                        <strong>Expected Return:</strong> <span class="text-success">{{ stock.expected_return | round(0) }}%</span><br>
                         <strong>Analysts:</strong> {{ stock.num_analysts }}
                     </p>
                 </div>
