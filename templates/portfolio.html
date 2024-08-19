@@ -3,30 +3,30 @@
 {% block content %}
 <div class="container">
     <h1 class="my-4">Top 10 Stocks</h1>
-    <small class="text-muted">Updated on {{ last_updated }}</small>
-    <table class="table table-hover mt-3">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Ticker</th>
-                <th>Last Price</th>
-                <th>Target Price</th>
-                <th>Expected Return (%)</th>
-                <th>Number of Analysts</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for stock in stocks %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ stock.ticker }}</td>
-                <td>${{ stock.last_price }}</td>
-                <td>${{ stock.average_price_target }}</td>
-                <td>{{ stock.expected_return | round(2) }}%</td>
-                <td>{{ stock.num_analysts }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="d-flex justify-content-between align-items-center">
+        <small class="text-muted">Updated on {{ last_updated }}</small>
+    </div>
+    <div class="row">
+        {% for stock in stocks %}
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ stock.name }}</h5>
+                    <p class="card-text">
+                        <strong>Ticker:</strong> {{ stock.ticker }}<br>
+                        <strong>Last Price:</strong> ${{ stock.last_price }}<br>
+                        <strong>Target Price:</strong> ${{ stock.average_price_target }}<br>
+                        <strong>Expected Return:</strong> {{ stock.expected_return | round(2) }}%<br>
+                        <strong>Analysts:</strong> {{ stock.num_analysts }}
+                    </p>
+                    <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-primary">View Details</a>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Updated on {{ stock.last_update | date('Y-m-d') }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
