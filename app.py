@@ -191,6 +191,15 @@ def subscribe():
 def why():
     return render_template('why.html')
 
+# Flask example
+@app.route('/weekly_updates')
+def weekly_updates():
+    return render_template('weekly_updates.html')
+
+@app.route('/weekly_update/2024_08_25')
+def update_2024_08_25():
+    return render_template('weekly_update/update_2024_08_25.html')
+
 
 if __name__ == '__main__':
     app.debug = True
