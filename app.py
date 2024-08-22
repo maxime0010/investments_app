@@ -191,14 +191,22 @@ def subscribe():
 def why():
     return render_template('why.html')
 
-# Flask example
+# Example data structure for updates
+updates = [
+    {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
+    {"date": "August 18th, 2024", "title": "Weekly Update: August 18th, 2024", "content": "<p>Details about the update for August 18th, 2024.</p>"},
+    # Add more updates here
+]
+
 @app.route('/weekly_updates')
 def weekly_updates():
-    return render_template('weekly_updates.html')
+    latest_update = updates[0]  # Assuming the latest update is the first in the list
+    return render_template('weekly_updates.html', updates=updates, latest_update=latest_update)
 
-@app.route('/weekly_update/2024_08_25')
-def update_2024_08_25():
-    return render_template('weekly_update/update_2024_08_25.html')
+@app.route('/weekly_update/<date>')
+def update(date):
+    selected_update = next((update for update in updates if update["date"] == date), None)
+    return render_template('update_detail.html', update=selected_update)
 
 
 if __name__ == '__main__':
