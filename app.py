@@ -187,9 +187,9 @@ def subscribe():
 
     return redirect(url_for('portfolio'))
 
-@app.route('/investment-strategy')
-def investment_strategy():
-    return render_template('investment_strategy.html')
+@app.route('/why')
+def why():
+    return render_template('why.html')
 
 
 if __name__ == '__main__':
