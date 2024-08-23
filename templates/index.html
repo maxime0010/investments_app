@@ -31,15 +31,18 @@
     }
 
     .hero-text {
-        background-color: rgba(0, 0, 0, 0.6);
+        background-color: rgba(0, 0, 0, 0.6); /* Ensure text is readable over the image */
         padding: 2rem;
         border-radius: 10px;
+        max-width: 600px; /* Limit the width to avoid text spreading too wide */
+        width: 100%;
     }
 
     .hero-text h1 {
         font-size: 2rem;
         margin-bottom: 1.5rem;
         font-weight: bold;
+        line-height: 1.3;
     }
 
     .hero-text .btn {
