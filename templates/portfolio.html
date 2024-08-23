@@ -20,9 +20,12 @@
                         <strong>Last Price:</strong> ${{ stock.last_price | int }}<br>
                         <strong>Target Price:</strong> ${{ stock.target_price | int }}<br>
                         <strong>Expected Return:</strong> {{ stock.expected_return_combined_criteria | round(2) }}%<br>
-                        <strong>Analysts:</strong> {{ stock.num_analysts }}
+                        <strong>Combined Criteria:</strong> {{ stock.num_combined_criteria }}
                     </p>
-                    <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-dark">View Details</a> <!-- Aligned button styling -->
+                    <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-dark">View Details</a>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Index: {{ stock.indices }}</small>
                 </div>
             </div>
         </div>
