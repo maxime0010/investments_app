@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Join the Club - Good Life{% endblock %}
+
+{% block content %}
+<div class="hero-image">
+    <div class="hero-text">
+        <h1>Cutting-edge tools used by top-performing investors made available to retail investors</h1>
+        <a href="#" class="btn">Apply to join the club</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_styles %}
+<style>
+    body, html {
+        height: 100%;
+        margin: 0;
+    }
+
+    .hero-image {
+        background-image: url('https://static01.nyt.com/images/2014/11/30/nyregion/One-World/One-World-superJumbo.jpg?quality=75&auto=webp');
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+    }
+
+    .hero-text {
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 2rem;
+        border-radius: 10px;
+    }
+
+    .hero-text h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: bold;
+    }
+
+    .hero-text .btn {
+        font-size: 1.2rem;
+        padding: 0.8rem 2rem;
+        border-radius: 30px;
+        background-color: #fff;
+        color: #000;
+        font-weight: bold;
+        border: none;
+        text-transform: uppercase;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        text-decoration: none;
+    }
+
+    .hero-text .btn:hover {
+        background-color: #ccc;
+        color: #000;
+    }
+</style>
+{% endblock %}
