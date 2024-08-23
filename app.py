@@ -213,9 +213,32 @@ def update(date):
     selected_update = next((update for update in updates if update["date"] == date), None)
     return render_template('update_detail.html', update=selected_update)
 
+def get_ratings_statistics():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+
+    # Get the number of reports (rows in the ratings table)
+    cursor.execute("SELECT COUNT(*) FROM ratings")
+    num_reports = cursor.fetchone()[0]
+
+    # Get the number of unique analysts
+    cursor.execute("SELECT COUNT(DISTINCT analyst_name) FROM ratings")
+    num_analysts = cursor.fetchone()[0]
+
+    # Get the number of unique investment banks
+    cursor.execute("SELECT COUNT(DISTINCT analyst) FROM ratings")
+    num_banks = cursor.fetchone()[0]
+
+    cursor.close()
+    conn.close()
+
+    return num_reports, num_analysts, num_banks
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    num_reports, num_analysts, num_banks = get_ratings_statistics()
+    return render_template('index.html', num_reports=num_reports, num_analysts=num_analysts, num_banks=num_banks)
+
 
 
 if __name__ == '__main__':
