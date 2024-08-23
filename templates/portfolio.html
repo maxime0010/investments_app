@@ -2,7 +2,10 @@
 
 {% block content %}
 <div class="container">
-    <h1 class="my-4">Top 10 Stocks</h1>
+    <h1 class="my-4">Portfolio Optimized Using Proprietary AI Technology</h1> <!-- Updated heading -->
+
+    <p class="text-muted">Last update: {{ last_updated }}</p> <!-- Last update date -->
+
     <div class="row">
         {% for stock in stocks %}
         <div class="col-md-4">
@@ -19,10 +22,7 @@
                         <strong>Expected Return:</strong> {{ stock.expected_return | round(2) }}%<br>
                         <strong>Analysts:</strong> {{ stock.num_analysts }}
                     </p>
-                    <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-primary">View Details</a>
-                </div>
-                <div class="card-footer">
-                    <small class="text-muted">Updated on {{ last_updated }}</small>
+                    <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-dark">View Details</a> <!-- Aligned button styling -->
                 </div>
             </div>
         </div>
