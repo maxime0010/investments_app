@@ -61,8 +61,8 @@
         .hero-image {
             width: 100%;
             height: auto;
-            max-height: 600px; /* Limit the height to prevent the image from being too tall */
-            object-fit: cover; /* Ensure the image covers the space without distortion */
+            max-height: 600px;
+            object-fit: cover;
         }
 
         /* Text Section */
@@ -95,6 +95,47 @@
         .text-section .btn:hover {
             background-color: #444;
             color: #fff;
+        }
+
+        /* Value Proposition Section */
+        .value-proposition-section {
+            background-color: #f8f9fa;
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+
+        .value-proposition-section h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .value-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem auto;
+        }
+
+        .value-item img.value-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 1rem;
+        }
+
+        .value-item .value-text {
+            text-align: left;
+        }
+
+        .value-item h4 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .value-item p {
+            font-size: 1rem;
+            margin: 0;
         }
     </style>
 </head>
