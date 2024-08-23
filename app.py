@@ -208,6 +208,10 @@ def update(date):
     selected_update = next((update for update in updates if update["date"] == date), None)
     return render_template('update_detail.html', update=selected_update)
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 
 if __name__ == '__main__':
     app.debug = True
