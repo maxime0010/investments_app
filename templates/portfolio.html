@@ -19,7 +19,7 @@
                         <strong>Ticker:</strong> {{ stock.ticker }}<br>
                         <strong>Last Price:</strong> ${{ stock.last_price | int }}<br>
                         <strong>Target Price:</strong> ${{ stock.target_price | int }}<br>
-                        <strong>Expected Return:</strong> {{ stock.expected_return | round(2) }}%<br>
+                        <strong>Expected Return:</strong> {{ stock.expected_return_combined_criteria | round(2) }}%<br>
                         <strong>Analysts:</strong> {{ stock.num_analysts }}
                     </p>
                     <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-dark">View Details</a> <!-- Aligned button styling -->
