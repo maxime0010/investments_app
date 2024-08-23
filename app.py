@@ -37,9 +37,6 @@ def fetch_stock_prices(ticker):
     return prices
 
     
-
-    
-
 def get_latest_portfolio_date():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
@@ -50,13 +47,21 @@ def get_latest_portfolio_date():
     return latest_date
 
 def get_logo_url(ticker):
-    # Using Logo.dev to get the logo based on the ticker
-    url = f"https://logo.clearbit.com/{ticker}.logo.dev"
-    
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        return url
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    # Query to fetch the website URL based on the stock ticker
+    cursor.execute("SELECT website FROM stock WHERE ticker = %s", (ticker,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if result and 'website' in result:
+        website = result['website']
+        # Assuming the website URLs are in the format www.example.com
+        domain = website.replace("https://", "").replace("http://", "").split('/')[0]
+        return f"https://img.logo.dev/{domain}?token=pk_AH6v4ZrySsaUljPEULQWXw"
     return None
 
 def get_top_stocks(latest_date):
