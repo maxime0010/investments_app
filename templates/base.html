@@ -10,6 +10,9 @@
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             color: #333;
             background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         .navbar {
             background-color: #fff;
@@ -37,18 +40,17 @@
         .container {
             max-width: 1200px;
             padding-top: 20px;
+            flex: 1;
         }
         .footer {
             background-color: #f8f9fa;
             color: #333;
-            padding: 2rem 0;
+            padding: 1rem 0;
             text-align: center;
         }
-        .footer h5, .footer p {
+        .footer p {
             color: #333;
-        }
-        .footer form input, .footer form button {
-            margin-top: 10px;
+            margin: 0;
         }
     </style>
 </head>
@@ -73,12 +75,7 @@
 
     <footer class="footer mt-auto">
         <div class="container">
-            <h5>Subscribe to Our Newsletter</h5>
-            <p>Receive weekly updates with suggested changes to optimize your portfolio.</p>
-            <form action="{{ url_for('subscribe') }}" method="post" class="form-inline justify-content-center">
-                <input type="email" name="email" class="form-control mb-2 mr-sm-2" placeholder="Enter your email" required>
-                <button type="submit" class="btn btn-primary mb-2">Subscribe</button>
-            </form>
+            <p>&copy; 2024 Good Life 💵. All rights reserved.</p>
         </div>
     </footer>
 
