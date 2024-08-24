@@ -233,12 +233,13 @@ def subscribe():
 def membership_step1():
     if request.method == 'POST':
         email = request.form['email']
+        username = request.form['username']  # Add this line to get the username from the form
         password = request.form['password']
         password_hash = generate_password_hash(password)
 
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, password_hash))
+        cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)", (username, email, password_hash))  # Include username in the INSERT statement
         conn.commit()
 
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
@@ -253,6 +254,7 @@ def membership_step1():
             return redirect(url_for('membership_step2'))
 
     return render_template('membership_step1.html')
+
 
 @app.route('/membership-step2')
 @login_required
