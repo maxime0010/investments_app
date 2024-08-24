@@ -10,9 +10,10 @@
     <form id="payment-form">
         <div id="card-element"><!-- Stripe Elements will be inserted here. --></div>
         <button id="submit" class="btn btn-dark mt-4">Subscribe for $5/month</button>
-        <p id="card-error" role="alert"></p>
-        <p class="result-message hidden">Payment succeeded, see the result in your
-            <a href="#">Stripe dashboard.</a> Refresh the page to pay again.
+        <p id="card-error" role="alert" style="color: red;"></p>
+        <p id="success-message" class="result-message hidden" style="display:none; color: green;">
+            Payment succeeded, see the result in your <a href="https://dashboard.stripe.com/test/payments">Stripe dashboard</a>.
+            Refresh the page to pay again.
         </p>
     </form>
 </div>
@@ -21,24 +22,28 @@
 {% block custom_scripts %}
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    var stripe = Stripe('pk_test_51PrFkhDIMC3D1ZmetdSor1oLr6XfLOKHMgZ5QkHNjlHg5wjgodPf5Xz2upJhQavy1qDmqeHQjAB4qRrXgCXp6Oeg00bV7Mv5ln');
+    var stripe = Stripe('pk_test_51PrFkhDIMC3D1ZmetdSor1oLr6XfLOKHMgZ5QkHNjlHg5wjgodPf5Xz2upJhQavy1qDmqeHQjAB4qRrXgCXp6Oeg00bV7Mv5ln');  // Replace with your actual Stripe publishable key
     var elements = stripe.elements();
     var card = elements.create('card');
     card.mount('#card-element');
 
     var form = document.getElementById('payment-form');
+    var submitButton = document.getElementById('submit');
+    var errorElement = document.getElementById('card-error');
+    var successMessage = document.getElementById('success-message');
+
     form.addEventListener('submit', function(event) {
         event.preventDefault();
+        submitButton.disabled = true;
 
         stripe.createPaymentMethod({
             type: 'card',
             card: card,
         }).then(function(result) {
             if (result.error) {
-                // Show error in payment form
-                document.getElementById('card-error').textContent = result.error.message;
+                errorElement.textContent = result.error.message;
+                submitButton.disabled = false;
             } else {
-                // Send the token to your server
                 fetch("/create-subscription", {
                     method: "POST",
                     headers: {
@@ -47,14 +52,19 @@
                     body: JSON.stringify({
                         payment_method: result.paymentMethod.id
                     })
-                }).then(function(result) {
-                    return result.json();
+                }).then(function(response) {
+                    return response.json();
                 }).then(function(subscription) {
                     if (subscription.error) {
-                        document.getElementById('card-error').textContent = subscription.error;
+                        errorElement.textContent = subscription.error;
+                        submitButton.disabled = false;
                     } else {
-                        document.querySelector(".result-message").classList.remove("hidden");
+                        successMessage.style.display = 'block';
+                        errorElement.textContent = '';
                     }
+                }).catch(function(error) {
+                    errorElement.textContent = "An error occurred. Please try again.";
+                    submitButton.disabled = false;
                 });
             }
         });
