@@ -92,6 +92,7 @@ def get_logo_url(ticker):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
+    # Query to fetch the website URL based on the stock ticker
     cursor.execute("SELECT website FROM stock WHERE ticker = %s", (ticker,))
     result = cursor.fetchone()
 
@@ -100,6 +101,7 @@ def get_logo_url(ticker):
 
     if result and 'website' in result:
         website = result['website']
+        # Assuming the website URLs are in the format www.example.com
         domain = website.replace("https://", "").replace("http://", "").split('/')[0]
         return f"https://img.logo.dev/{domain}?token=pk_AH6v4ZrySsaUljPEULQWXw"
     return None
@@ -156,6 +158,7 @@ def stock_detail(ticker):
     cursor.execute(query, (ticker,))
     stock_details = cursor.fetchall()
 
+    # Fetch stock prices from Alpha Vantage API
     stock_prices = fetch_stock_prices(ticker)
 
     cursor.execute("""
@@ -213,6 +216,7 @@ def performance():
 def subscribe():
     email = request.form['email']
 
+    # Save the email to the database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
@@ -283,16 +287,41 @@ def index():
     num_reports, num_analysts, num_banks = get_ratings_statistics()
     return render_template('index.html', num_reports=num_reports, num_analysts=num_analysts, num_banks=num_banks)
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user and check_password_hash(user['password_hash'], password):
+            user_obj = User(user['id'], user['username'], user['email'], user['is_member'])
+            login_user(user_obj)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid email or password', 'danger')
+
+    return render_template('login.html')
+
 def get_ratings_statistics():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
+    # Get the number of reports (rows in the ratings table)
     cursor.execute("SELECT COUNT(*) FROM ratings")
     num_reports = cursor.fetchone()[0]
 
+    # Get the number of unique analysts
     cursor.execute("SELECT COUNT(DISTINCT analyst_name) FROM ratings")
     num_analysts = cursor.fetchone()[0]
 
+    # Get the number of unique investment banks
     cursor.execute("SELECT COUNT(DISTINCT analyst) FROM ratings")
     num_banks = cursor.fetchone()[0]
 
