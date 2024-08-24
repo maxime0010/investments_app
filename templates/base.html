@@ -13,56 +13,79 @@
             color: #333;
             background-color: #fff;
         }
+
+        /* Topbar */
+        .topbar {
+            background-color: #ff9800;  /* Orange color */
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 0.9rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
         .navbar {
             background-color: #fff;
             padding: 0.5rem 1rem;
             border-bottom: 1px solid #eaeaea;
         }
+
         .navbar-brand {
             font-size: 1.25rem;
             color: #000;
             font-weight: bold;
             margin-right: 1.5rem;
         }
+
         .navbar-nav {
             margin-left: 0;
         }
+
         .nav-link {
             color: #000 !important;
             font-size: 1rem;
             margin-right: 1rem;
             padding: 0.5rem 0;
         }
+
         .nav-link:hover {
             color: #555 !important;
         }
+
         .navbar-toggler {
             border: none;
             font-size: 1.25rem;
             color: #000;
         }
+
         .navbar-toggler:focus {
             outline: none;
         }
+
         .right-links {
             margin-left: auto;
             display: flex;
             align-items: center;
         }
+
         .right-links .nav-link {
             margin-left: 1rem;
         }
+
         .container {
             max-width: 1200px;
             padding-top: 20px;
             flex: 1;
         }
+
         .footer {
             background-color: #f8f9fa;
             color: #333;
             padding: 1rem 0;
             text-align: center;
         }
+
         .footer p {
             color: #333;
             margin: 0;
@@ -231,6 +254,9 @@
     </style>
 </head>
 <body>
+    <div class="topbar">
+        BETA VERSION
+    </div>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">Good Life 💵</a>
