@@ -11,16 +11,17 @@
         <div class="col-md-4">
             <div class="card mb-4 shadow-sm {% if not current_user.is_member and not loop.first %}overlay-card{% endif %}">
                 <div class="card-body position-relative">
-                    <!-- Ranking Number Inside the Card -->
-                    <div class="ranking-number">{{ loop.index }}</div>
-
+                    <div class="d-flex align-items-center">
+                        <!-- Ranking Number to the Left of the Stock Name -->
+                        <div class="ranking-number">{{ loop.index }}</div>
+                        <h5 class="card-title ml-3">
+                            <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="text-dark">{{ stock.name }}</a>
+                        </h5>
+                    </div>
                     {% if stock.logo_url %}
                     <img src="{{ stock.logo_url }}" alt="{{ stock.name }} logo" class="card-img-top" style="width: 50px; height: 50px; position: absolute; top: 15px; right: 15px;">
                     {% endif %}
-                    <h5 class="card-title">
-                        <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="text-dark">{{ stock.name }}</a>
-                    </h5>
-                    <p class="card-text">
+                    <p class="card-text mt-3">
                         <strong>Ticker:</strong> {{ stock.ticker }}<br>
                         <strong>Last Price:</strong> ${{ stock.last_price | int }}<br>
                         <strong>Target Price:</strong> ${{ stock.target_price | int }}<br>
