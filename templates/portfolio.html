@@ -10,6 +10,9 @@
         {% for stock in stocks %}
         <div class="col-md-4">
             <div class="card mb-4 shadow-sm {% if not current_user.is_member and not loop.first %}overlay-card{% endif %}">
+                <!-- Ranking Number -->
+                <div class="ranking-number">{{ loop.index }}</div>
+
                 <div class="card-body">
                     {% if stock.logo_url %}
                     <img src="{{ stock.logo_url }}" alt="{{ stock.name }} logo" class="card-img-top" style="width: 50px; height: 50px; position: absolute; top: 15px; right: 15px;">
@@ -35,7 +38,6 @@
                 <div class="overlay">
                     <div class="overlay-content">
                         <p>You need to be a member to see this content</p>
-                        <a href="{{ url_for('membership') }}" class="btn btn-dark">Join the Club</a>
                     </div>
                 </div>
                 {% endif %}
