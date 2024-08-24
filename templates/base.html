@@ -218,7 +218,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7); /* Semi-opaque overlay */
+            background-color: rgba(0, 0, 0, 0.9); /* 90% opacity */
             color: white;
             display: flex;
             justify-content: center;
@@ -229,27 +229,26 @@
 
         .overlay-content {
             z-index: 2;
-        }
-
-        .overlay-content p {
-            margin-bottom: 1rem;
             font-size: 1.2rem;
             font-weight: bold;
         }
 
-        .overlay-content .btn {
-            color: #fff;
-            background-color: #000;
-            border: none;
-            padding: 0.5rem 1.5rem;
-            border-radius: 25px;
-            text-transform: uppercase;
-            transition: background-color 0.3s ease;
-            text-decoration: none;
-        }
-
-        .overlay-content .btn:hover {
-            background-color: #444;
+        /* Ranking Number Style */
+        .ranking-number {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            background-color: #ff9800;  /* Orange color */
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            z-index: 10;  /* Ensure it stays on top */
         }
     </style>
 </head>
