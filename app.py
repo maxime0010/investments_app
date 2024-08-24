@@ -6,6 +6,7 @@ from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import stripe
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -48,6 +49,16 @@ def load_user(user_id):
     if user:
         return User(user['id'], user['username'], user['email'], user['is_member'])
     return None
+
+# Decorator to restrict access to members-only content
+def members_only(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_member:
+            flash('You need to be a member to access this page.', 'warning')
+            return redirect(url_for('membership'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # User Registration Route
 @app.route('/register', methods=['GET', 'POST'])
@@ -153,6 +164,8 @@ def portfolio():
 
 # Stock Detail Route
 @app.route('/stock/<ticker>')
+@login_required
+@members_only
 def stock_detail(ticker):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
