@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
 # Stripe configuration
-stripe.api_key = 'your-stripe-secret-key'  # Replace with your Stripe secret key
+stripe.api_key = os.getenv('STRIPE_SECRET')
 
 # Database connection configuration
 db_config = {
