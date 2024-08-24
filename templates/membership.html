@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Join the Membership - Good Life{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Become a Member</h1>
+    <p>Join our investment club for just $5 per month to access premium features and exclusive insights.</p>
+
+    <form id="payment-form">
+        <div id="card-element"><!-- Stripe Elements will be inserted here. --></div>
+        <button id="submit" class="btn btn-dark mt-4">Subscribe for $5/month</button>
+        <p id="card-error" role="alert"></p>
+        <p class="result-message hidden">Payment succeeded, see the result in your
+            <a href="#">Stripe dashboard.</a> Refresh the page to pay again.
+        </p>
+    </form>
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    var stripe = Stripe('your-publishable-key');
+    var elements = stripe.elements();
+    var card = elements.create('card');
+    card.mount('#card-element');
+
+    var form = document.getElementById('payment-form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        stripe.createPaymentMethod({
+            type: 'card',
+            card: card,
+        }).then(function(result) {
+            if (result.error) {
+                // Show error in payment form
+                document.getElementById('card-error').textContent = result.error.message;
+            } else {
+                // Send the token to your server
+                fetch("/create-subscription", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        payment_method: result.paymentMethod.id
+                    })
+                }).then(function(result) {
+                    return result.json();
+                }).then(function(subscription) {
+                    if (subscription.error) {
+                        document.getElementById('card-error').textContent = subscription.error;
+                    } else {
+                        document.querySelector(".result-message").classList.remove("hidden");
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}
