@@ -9,7 +9,7 @@ import stripe
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = os.getenv('STRIPE_SECRET')
+app.secret_key = 'your_secret_key'
 
 # Stripe configuration
 stripe.api_key = 'your-stripe-secret-key'  # Replace with your Stripe secret key
@@ -60,100 +60,79 @@ def members_only(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# User Registration Route
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
+def fetch_stock_prices(ticker):
+    api_key = "KG8F3YBYGVL0HFFU"
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={ticker}&outputsize=compact&apikey={api_key}"
+    response = requests.get(url)
+    data = response.json()
 
-        password_hash = generate_password_hash(password)
+    # Debug: Print the entire API response to check its structure
+    print("API Response:", data)
 
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)",
-                       (username, email, password_hash))
-        conn.commit()
-        cursor.close()
-        conn.close()
+    prices = []
+    if 'Time Series (Daily)' in data:
+        time_series = data['Time Series (Daily)']
+        for date, values in time_series.items():
+            prices.append({
+                'date': date,
+                'close': float(values['5. adjusted close'])
+            })
+    
+    return prices
 
-        flash('Registration successful. Please log in.', 'success')
-        return redirect(url_for('login'))
+def get_latest_portfolio_date():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    cursor.execute("SELECT MAX(date) FROM portfolio")
+    latest_date = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+    return latest_date
 
-    return render_template('register.html')
+def get_logo_url(ticker):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
 
-# User Login Route
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+    # Query to fetch the website URL based on the stock ticker
+    cursor.execute("SELECT website FROM stock WHERE ticker = %s", (ticker,))
+    result = cursor.fetchone()
 
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()
-        cursor.close()
-        conn.close()
+    cursor.close()
+    conn.close()
 
-        if user and check_password_hash(user['password_hash'], password):
-            user_obj = User(user['id'], user['username'], user['email'], user['is_member'])
-            login_user(user_obj)
-            return redirect(url_for('index'))
-        else:
-            flash('Invalid email or password', 'danger')
+    if result and 'website' in result:
+        website = result['website']
+        # Assuming the website URLs are in the format www.example.com
+        domain = website.replace("https://", "").replace("http://", "").split('/')[0]
+        return f"https://img.logo.dev/{domain}?token=pk_AH6v4ZrySsaUljPEULQWXw"
+    return None
 
-    return render_template('login.html')
+def get_top_stocks(latest_date):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
 
-# User Logout Route
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
+    query = """
+        SELECT p.ticker, MAX(r.name) as name, a.last_closing_price AS last_price, 
+               a.expected_return_combined_criteria, a.num_combined_criteria, MAX(p.ranking) as ranking, 
+               MAX(a.avg_combined_criteria) as target_price, s.indices
+        FROM portfolio p
+        JOIN analysis a ON p.ticker = a.ticker
+        JOIN ratings r ON r.ticker = p.ticker
+        JOIN stock s ON s.ticker = p.ticker
+        WHERE p.date = %s
+        GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, a.num_combined_criteria, s.indices
+        ORDER BY ranking
+        LIMIT 10
+    """
+    cursor.execute(query, (latest_date,))
+    top_stocks = cursor.fetchall()
 
-# Membership Page Route
-@app.route('/membership')
-def membership():
-    return render_template('membership.html')
+    for stock in top_stocks:
+        stock['logo_url'] = get_logo_url(stock['ticker'])
 
-# Create Subscription Route
-@app.route('/create-subscription', methods=['POST'])
-@login_required
-def create_subscription():
-    data = request.json
-
-    try:
-        customer = stripe.Customer.create(
-            payment_method=data['payment_method'],
-            email=current_user.email,
-            invoice_settings={
-                'default_payment_method': data['payment_method'],
-            },
-        )
-
-        subscription = stripe.Subscription.create(
-            customer=customer.id,
-            items=[{'price': 'your-price-id'}],  # Replace with your actual price ID
-            expand=['latest_invoice.payment_intent'],
-        )
-
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO members (user_id, stripe_customer_id, stripe_subscription_id, subscription_status) VALUES (%s, %s, %s, %s)",
-                       (current_user.id, customer.id, subscription.id, subscription.status))
-        conn.commit()
-
-        cursor.execute("UPDATE users SET is_member = TRUE WHERE id = %s", (current_user.id,))
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-
-        return jsonify(subscription)
-    except Exception as e:
-        return jsonify(error=str(e)), 403
+    cursor.close()
+    conn.close()
+    return top_stocks
 
 # Portfolio Page Route
 @app.route('/portfolio')
@@ -258,10 +237,47 @@ def subscribe():
 
     return redirect(url_for('portfolio'))
 
-# Why Page Route
-@app.route('/why')
-def why():
-    return render_template('why.html')
+# Membership Page Route
+@app.route('/membership')
+def membership():
+    return render_template('membership.html')
+
+# Create Subscription Route
+@app.route('/create-subscription', methods=['POST'])
+@login_required
+def create_subscription():
+    data = request.json
+
+    try:
+        customer = stripe.Customer.create(
+            payment_method=data['payment_method'],
+            email=current_user.email,
+            invoice_settings={
+                'default_payment_method': data['payment_method'],
+            },
+        )
+
+        subscription = stripe.Subscription.create(
+            customer=customer.id,
+            items=[{'price': 'your-price-id'}],  # Replace with your actual price ID
+            expand=['latest_invoice.payment_intent'],
+        )
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO members (user_id, stripe_customer_id, stripe_subscription_id, subscription_status) VALUES (%s, %s, %s, %s)",
+                       (current_user.id, customer.id, subscription.id, subscription.status))
+        conn.commit()
+
+        cursor.execute("UPDATE users SET is_member = TRUE WHERE id = %s", (current_user.id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(subscription)
+    except Exception as e:
+        return jsonify(error=str(e)), 403
 
 # Weekly Updates Routes
 @app.route('/weekly_updates')
@@ -279,13 +295,6 @@ def update(date):
 def index():
     num_reports, num_analysts, num_banks = get_ratings_statistics()
     return render_template('index.html', num_reports=num_reports, num_analysts=num_analysts, num_banks=num_banks)
-
-# Example data structure for updates
-updates = [
-    {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
-    {"date": "August 18th, 2024", "title": "Weekly Update: August 18th, 2024", "content": "<p>Details about the update for August 18th, 2024.</p>"},
-    # Add more updates here
-]
 
 # Get Ratings Statistics Function
 def get_ratings_statistics():
