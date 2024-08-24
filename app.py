@@ -296,6 +296,28 @@ def index():
     num_reports, num_analysts, num_banks = get_ratings_statistics()
     return render_template('index.html', num_reports=num_reports, num_analysts=num_analysts, num_banks=num_banks)
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user and check_password_hash(user['password_hash'], password):
+            user_obj = User(user['id'], user['username'], user['email'], user['is_member'])
+            login_user(user_obj)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid email or password', 'danger')
+
+    return render_template('login.html')
+
 # Get Ratings Statistics Function
 def get_ratings_statistics():
     conn = mysql.connector.connect(**db_config)
