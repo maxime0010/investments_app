@@ -2,14 +2,14 @@
 
 {% block content %}
 <div class="container">
-    <h1 class="my-4">Portfolio Optimized Using Proprietary AI Technology</h1> <!-- Updated heading -->
+    <h1 class="my-4">Portfolio Optimized Using Proprietary AI Technology</h1>
 
-    <p class="text-muted">Last update: {{ last_updated }}</p> <!-- Last update date -->
+    <p class="text-muted">Last update: {{ last_updated }}</p>
 
     <div class="row">
         {% for stock in stocks %}
         <div class="col-md-4">
-            <div class="card mb-4 shadow-sm">
+            <div class="card mb-4 shadow-sm {% if not user.is_member and not loop.first %}overlay-card{% endif %}">
                 <div class="card-body">
                     {% if stock.logo_url %}
                     <img src="{{ stock.logo_url }}" alt="{{ stock.name }} logo" class="card-img-top" style="width: 50px; height: 50px; position: absolute; top: 15px; right: 15px;">
@@ -31,6 +31,14 @@
                         <span class="badge badge-tag">{{ index }}</span>
                     {% endfor %}
                 </div>
+                {% if not user.is_member and not loop.first %}
+                <div class="overlay">
+                    <div class="overlay-content">
+                        <p>You need to be a member to see this content</p>
+                        <a href="{{ url_for('membership') }}" class="btn btn-dark">Join the Club</a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
