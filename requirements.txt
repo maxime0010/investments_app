@@ -1,3 +1,4 @@
 flask
 mysql-connector-python
 requests
+flask-login==0.6.2  # Ensure you use the correct version
