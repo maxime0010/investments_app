@@ -21,7 +21,7 @@
 {% block custom_scripts %}
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    var stripe = Stripe('your-publishable-key');
+    var stripe = Stripe('pk_test_51PrFkhDIMC3D1ZmetdSor1oLr6XfLOKHMgZ5QkHNjlHg5wjgodPf5Xz2upJhQavy1qDmqeHQjAB4qRrXgCXp6Oeg00bV7Mv5ln');
     var elements = stripe.elements();
     var card = elements.create('card');
     card.mount('#card-element');
