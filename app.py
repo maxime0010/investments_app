@@ -9,7 +9,7 @@ import stripe
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 
 # Stripe configuration
 stripe.api_key = os.getenv('STRIPE_SECRET')
