@@ -1,11 +1,17 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import mysql.connector
 import os
-import requests  # Add this import to use the requests library
+import requests
 from datetime import datetime
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+import stripe
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+
+# Stripe configuration
+stripe.api_key = 'your-stripe-secret-key'  # Replace with your Stripe secret key
 
 # Database connection configuration
 db_config = {
@@ -16,89 +22,136 @@ db_config = {
     'port': 25060
 }
 
-def fetch_stock_prices(ticker):
-    api_key = "KG8F3YBYGVL0HFFU"
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={ticker}&outputsize=compact&apikey={api_key}"
-    response = requests.get(url)
-    data = response.json()
+# Flask-Login setup
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
-    # Debug: Print the entire API response to check its structure
-    print("API Response:", data)
+class User(UserMixin):
+    def __init__(self, id, username, email, is_member):
+        self.id = id
+        self.username = username
+        self.email = email
+        self.is_member = is_member
 
-    prices = []
-    if 'Time Series (Daily)' in data:
-        time_series = data['Time Series (Daily)']
-        for date, values in time_series.items():
-            prices.append({
-                'date': date,
-                'close': float(values['5. adjusted close'])
-            })
-    
-    return prices
+    def get_id(self):
+        return self.id
 
-    
-def get_latest_portfolio_date():
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor()
-    cursor.execute("SELECT MAX(date) FROM portfolio")
-    latest_date = cursor.fetchone()[0]
-    cursor.close()
-    conn.close()
-    return latest_date
-
-def get_logo_url(ticker):
+@login_manager.user_loader
+def load_user(user_id):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-
-    # Query to fetch the website URL based on the stock ticker
-    cursor.execute("SELECT website FROM stock WHERE ticker = %s", (ticker,))
-    result = cursor.fetchone()
-
+    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
     cursor.close()
     conn.close()
-
-    if result and 'website' in result:
-        website = result['website']
-        # Assuming the website URLs are in the format www.example.com
-        domain = website.replace("https://", "").replace("http://", "").split('/')[0]
-        return f"https://img.logo.dev/{domain}?token=pk_AH6v4ZrySsaUljPEULQWXw"
+    if user:
+        return User(user['id'], user['username'], user['email'], user['is_member'])
     return None
 
-def get_top_stocks(latest_date):
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
+# User Registration Route
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
 
-    query = """
-        SELECT p.ticker, MAX(r.name) as name, a.last_closing_price AS last_price, 
-               a.expected_return_combined_criteria, a.num_combined_criteria, MAX(p.ranking) as ranking, 
-               MAX(a.avg_combined_criteria) as target_price, s.indices
-        FROM portfolio p
-        JOIN analysis a ON p.ticker = a.ticker
-        JOIN ratings r ON r.ticker = p.ticker
-        JOIN stock s ON s.ticker = p.ticker
-        WHERE p.date = %s
-        GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, a.num_combined_criteria, s.indices
-        ORDER BY ranking
-        LIMIT 10
-    """
-    cursor.execute(query, (latest_date,))
-    top_stocks = cursor.fetchall()
+        password_hash = generate_password_hash(password)
 
-    for stock in top_stocks:
-        stock['logo_url'] = get_logo_url(stock['ticker'])
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)",
+                       (username, email, password_hash))
+        conn.commit()
+        cursor.close()
+        conn.close()
 
-    cursor.close()
-    conn.close()
-    return top_stocks
+        flash('Registration successful. Please log in.', 'success')
+        return redirect(url_for('login'))
 
+    return render_template('register.html')
 
+# User Login Route
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
 
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user and check_password_hash(user['password_hash'], password):
+            user_obj = User(user['id'], user['username'], user['email'], user['is_member'])
+            login_user(user_obj)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid email or password', 'danger')
+
+    return render_template('login.html')
+
+# User Logout Route
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+# Membership Page Route
+@app.route('/membership')
+def membership():
+    return render_template('membership.html')
+
+# Create Subscription Route
+@app.route('/create-subscription', methods=['POST'])
+@login_required
+def create_subscription():
+    data = request.json
+
+    try:
+        customer = stripe.Customer.create(
+            payment_method=data['payment_method'],
+            email=current_user.email,
+            invoice_settings={
+                'default_payment_method': data['payment_method'],
+            },
+        )
+
+        subscription = stripe.Subscription.create(
+            customer=customer.id,
+            items=[{'price': 'your-price-id'}],  # Replace with your actual price ID
+            expand=['latest_invoice.payment_intent'],
+        )
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO members (user_id, stripe_customer_id, stripe_subscription_id, subscription_status) VALUES (%s, %s, %s, %s)",
+                       (current_user.id, customer.id, subscription.id, subscription.status))
+        conn.commit()
+
+        cursor.execute("UPDATE users SET is_member = TRUE WHERE id = %s", (current_user.id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(subscription)
+    except Exception as e:
+        return jsonify(error=str(e)), 403
+
+# Portfolio Page Route
 @app.route('/portfolio')
 def portfolio():
     latest_date = get_latest_portfolio_date()
     top_stocks = get_top_stocks(latest_date)
     return render_template('portfolio.html', stocks=top_stocks, last_updated=latest_date)
 
+# Stock Detail Route
 @app.route('/stock/<ticker>')
 def stock_detail(ticker):
     conn = mysql.connector.connect(**db_config)
@@ -132,7 +185,7 @@ def stock_detail(ticker):
 
     return render_template('stock_detail.html', stock=stock_details, prices=stock_prices, analysts=analysts)
 
-
+# Performance Page Route
 @app.route('/performance')
 def performance():
     conn = mysql.connector.connect(**db_config)
@@ -171,6 +224,7 @@ def performance():
     return render_template('performance.html', dates=dates, values=values, 
                            return_30_days=return_30_days, return_12_months=return_12_months)
 
+# Subscription Route
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.form['email']
@@ -191,17 +245,12 @@ def subscribe():
 
     return redirect(url_for('portfolio'))
 
+# Why Page Route
 @app.route('/why')
 def why():
     return render_template('why.html')
 
-# Example data structure for updates
-updates = [
-    {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
-    {"date": "August 18th, 2024", "title": "Weekly Update: August 18th, 2024", "content": "<p>Details about the update for August 18th, 2024.</p>"},
-    # Add more updates here
-]
-
+# Weekly Updates Routes
 @app.route('/weekly_updates')
 def weekly_updates():
     latest_update = updates[0]  # Assuming the latest update is the first in the list
@@ -212,6 +261,20 @@ def update(date):
     selected_update = next((update for update in updates if update["date"] == date), None)
     return render_template('update_detail.html', update=selected_update)
 
+# Index Page Route
+@app.route('/')
+def index():
+    num_reports, num_analysts, num_banks = get_ratings_statistics()
+    return render_template('index.html', num_reports=num_reports, num_analysts=num_analysts, num_banks=num_banks)
+
+# Example data structure for updates
+updates = [
+    {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
+    {"date": "August 18th, 2024", "title": "Weekly Update: August 18th, 2024", "content": "<p>Details about the update for August 18th, 2024.</p>"},
+    # Add more updates here
+]
+
+# Get Ratings Statistics Function
 def get_ratings_statistics():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
@@ -232,13 +295,6 @@ def get_ratings_statistics():
     conn.close()
 
     return num_reports, num_analysts, num_banks
-
-@app.route('/')
-def index():
-    num_reports, num_analysts, num_banks = get_ratings_statistics()
-    return render_template('index.html', num_reports=num_reports, num_analysts=num_analysts, num_banks=num_banks)
-
-
 
 if __name__ == '__main__':
     app.debug = True
