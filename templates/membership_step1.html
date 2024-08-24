@@ -7,6 +7,10 @@
     <h1 class="my-4">Create Your Account</h1>
     <form method="POST" action="{{ url_for('membership_step1') }}">
         <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>  <!-- Add this field -->
+        </div>
+        <div class="form-group">
             <label for="email">Email address</label>
             <input type="email" class="form-control" id="email" name="email" required>
         </div>
