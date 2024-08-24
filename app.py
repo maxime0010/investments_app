@@ -57,7 +57,7 @@ def members_only(f):
     def decorated_function(*args, **kwargs):
         if not current_user.is_member:
             flash('You need to be a member to access this page.', 'warning')
-            return redirect(url_for('membership'))
+            return redirect(url_for('membership_step1'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -233,12 +233,12 @@ def subscribe():
 def membership_step1():
     if request.method == 'POST':
         email = request.form['email']
-        username = request.form['username']  # Capture the username from the form
+        username = request.form['username']
         password = request.form['password']
         password_hash = generate_password_hash(password)
 
         conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)  # Use dictionary=True
+        cursor = conn.cursor(dictionary=True)
         cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)", (username, email, password_hash))
         conn.commit()
 
@@ -254,8 +254,6 @@ def membership_step1():
             return redirect(url_for('membership_step2'))
 
     return render_template('membership_step1.html')
-
-
 
 @app.route('/membership-step2')
 @login_required
@@ -278,7 +276,7 @@ def create_subscription():
 
         subscription = stripe.Subscription.create(
             customer=customer.id,
-            items=[{'price': os.getenv('STRIPE_PRICE_ID')}],  # Ensure STRIPE_PRICE_ID is set in your environment
+            items=[{'price': os.getenv('STRIPE_PRICE_ID')}],
             expand=['latest_invoice.payment_intent'],
         )
 
@@ -300,7 +298,7 @@ def create_subscription():
 
 @app.route('/weekly_updates')
 def weekly_updates():
-    latest_update = updates[0]  # Assuming the latest update is the first in the list
+    latest_update = updates[0]
     return render_template('weekly_updates.html', updates=updates, latest_update=latest_update)
 
 @app.route('/weekly_update/<date>')
@@ -353,7 +351,6 @@ def get_ratings_statistics():
 
     return num_reports, num_analysts, num_banks
 
-# Example data structure for updates
 updates = [
     {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
     {"date": "August 18th, 2024", "title": "Weekly Update: August 18th, 2024", "content": "<p>Details about the update for August 18th, 2024.</p>"},
