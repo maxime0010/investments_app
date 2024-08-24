@@ -5,253 +5,250 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Good Life 💵 - Beta{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #333;
-            background-color: #fff;
-        }
+<style>
+    body, html {
+        height: 100%;
+        margin: 0;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #333;
+        background-color: #fff;
+    }
 
-        /* Topbar */
-        .topbar {
-            background-color: #ff9800;  /* Orange color */
-            color: white;
-            text-align: center;
-            padding: 5px 0;
-            font-size: 0.9rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
+    /* Topbar */
+    .topbar {
+        background-color: #ff9800;
+        color: white;
+        text-align: center;
+        padding: 5px 0;
+        font-size: 0.9rem;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
 
-        .navbar {
-            background-color: #fff;
-            padding: 0.5rem 1rem;
-            border-bottom: 1px solid #eaeaea;
-        }
+    .navbar {
+        background-color: #fff;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid #eaeaea;
+    }
 
-        .navbar-brand {
-            font-size: 1.25rem;
-            color: #000;
-            font-weight: bold;
-            margin-right: 1.5rem;
-        }
+    .navbar-brand {
+        font-size: 1.25rem;
+        color: #000;
+        font-weight: bold;
+        margin-right: 1.5rem;
+    }
 
-        .navbar-nav {
-            margin-left: 0;
-        }
+    .navbar-nav {
+        margin-left: 0;
+    }
 
-        .nav-link {
-            color: #000 !important;
-            font-size: 1rem;
-            margin-right: 1rem;
-            padding: 0.5rem 0;
-        }
+    .nav-link {
+        color: #000 !important;
+        font-size: 1rem;
+        margin-right: 1rem;
+        padding: 0.5rem 0;
+    }
 
-        .nav-link:hover {
-            color: #555 !important;
-        }
+    .nav-link:hover {
+        color: #555 !important;
+    }
 
-        .navbar-toggler {
-            border: none;
-            font-size: 1.25rem;
-            color: #000;
-        }
+    .navbar-toggler {
+        border: none;
+        font-size: 1.25rem;
+        color: #000;
+    }
 
-        .navbar-toggler:focus {
-            outline: none;
-        }
+    .navbar-toggler:focus {
+        outline: none;
+    }
 
-        .right-links {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-        }
+    .right-links {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+    }
 
-        .right-links .nav-link {
-            margin-left: 1rem;
-        }
+    .right-links .nav-link {
+        margin-left: 1rem;
+    }
 
-        .container {
-            max-width: 1200px;
-            padding-top: 20px;
-            flex: 1;
-        }
+    .container {
+        max-width: 1200px;
+        padding-top: 20px;
+        flex: 1;
+    }
 
-        .footer {
-            background-color: #f8f9fa;
-            color: #333;
-            padding: 1rem 0;
-            text-align: center;
-        }
+    .footer {
+        background-color: #f8f9fa;
+        color: #333;
+        padding: 1rem 0;
+        text-align: center;
+    }
 
-        .footer p {
-            color: #333;
-            margin: 0;
-        }
+    .footer p {
+        color: #333;
+        margin: 0;
+    }
 
-        /* Image Section */
-        .image-section {
-            width: 100%;
-            margin-bottom: 2rem;
-        }
+    /* Image Section */
+    .image-section {
+        width: 100%;
+        margin-bottom: 2rem;
+    }
 
-        .hero-image {
-            width: 100%;
-            height: auto;
-            max-height: 600px;
-            object-fit: cover;
-        }
+    .hero-image {
+        width: 100%;
+        height: auto;
+        max-height: 600px;
+        object-fit: cover;
+    }
 
-        /* Text Section */
-        .text-section {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-            text-align: center;
-        }
+    /* Text Section */
+    .text-section {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        text-align: center;
+    }
 
-        .text-section h1 {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
-        }
+    .text-section h1 {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+    }
 
-        .text-section .btn {
-            font-size: 1rem;
-            padding: 0.8rem 2rem;
-            border-radius: 30px;
-            background-color: #000;
-            color: #fff;
-            font-weight: bold;
-            border: none;
-            text-transform: uppercase;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            text-decoration: none;
-        }
+    .text-section .btn {
+        font-size: 1rem;
+        padding: 0.8rem 2rem;
+        border-radius: 30px;
+        background-color: #000;
+        color: #fff;
+        font-weight: bold;
+        border: none;
+        text-transform: uppercase;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        text-decoration: none;
+    }
 
-        .text-section .btn:hover {
-            background-color: #444;
-            color: #fff;
-        }
+    .text-section .btn:hover {
+        background-color: #444;
+        color: #fff;
+    }
 
-        /* What We Do Section */
-        .value-proposition-section {
-            background-color: #f8f9fa;
-            padding: 3rem 1rem;
-            width: 100%;
-            margin: 0;
-        }
+    /* What We Do Section */
+    .value-proposition-section {
+        background-color: #f8f9fa;
+        padding: 3rem 1rem;
+        width: 100%;
+        margin: 0;
+    }
 
-        .value-proposition-section h2 {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
+    .value-proposition-section h2 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
 
-        .value-item {
-            margin-bottom: 2rem;
-            max-width: 800px;
-            margin: 0 auto 2rem auto;
-            text-align: left;
-        }
+    .value-item {
+        margin-bottom: 2rem;
+        max-width: 800px;
+        margin: 0 auto 2rem auto;
+        text-align: left;
+    }
 
-        .value-item h4 {
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
+    .value-item h4 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
 
-        .value-item p {
-            font-size: 1rem;
-            margin: 0;
-        }
+    .value-item p {
+        font-size: 1rem;
+        margin: 0;
+    }
 
-        /* Why This Investment Club Section */
-        .why-investment-club-section {
-            background-color: #fff;
-            padding: 3rem 1rem;
-            width: 100%;
-            margin: 0;
-        }
+    /* Why This Investment Club Section */
+    .why-investment-club-section {
+        background-color: #fff;
+        padding: 3rem 1rem;
+        width: 100%;
+        margin: 0;
+    }
 
-        .why-investment-club-section h2 {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
+    .why-investment-club-section h2 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
 
-        .why-investment-club-section p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            text-align: justify;
-        }
+    .why-investment-club-section p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        text-align: justify;
+    }
 
-        /* Badge Styles for Indices */
-        .badge-tag {
-            background-color: #007bff;
-            color: #fff;
-            padding: 0.3rem 0.6rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            margin-left: 0.5rem;
-            display: inline-block;
-        }
-        .badge-tag:nth-child(2) {
-            background-color: #28a745;
-        }
-        .badge-tag:nth-child(3) {
-            background-color: #dc3545;
-        }
+    /* Badge Styles for Indices */
+    .badge-tag {
+        background-color: #007bff;
+        color: #fff;
+        padding: 0.3rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        margin-left: 0.5rem;
+        display: inline-block;
+    }
+    .badge-tag:nth-child(2) {
+        background-color: #28a745;
+    }
+    .badge-tag:nth-child(3) {
+        background-color: #dc3545;
+    }
 
-        /* Overlay Styles for Non-Members */
-        .overlay-card {
-            position: relative;
-            overflow: hidden;
-        }
+    /* Overlay Styles for Non-Members */
+    .overlay-card {
+        position: relative;
+        overflow: hidden;
+    }
 
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5); /* 50% opacity */
-            backdrop-filter: blur(8px); /* Blurry effect */
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            opacity: 1;
-        }
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5); /* 50% opacity */
+        backdrop-filter: blur(8px); /* Blurry effect */
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        opacity: 1;
+    }
 
-        .overlay-content {
-            z-index: 2;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
+    .overlay-content {
+        z-index: 2;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
 
-        /* Ranking Number Style */
-        .ranking-number {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: #ff9800;  /* Orange color */
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.25rem;
-            font-weight: bold;
-            z-index: 10;
-        }
-    </style>
+    /* Ranking Number Style (Next to Stock Name) */
+    .ranking-number {
+        background-color: #ff9800;  /* Orange color */
+        color: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+</style>
+
 </head>
 <body>
     <div class="topbar">
