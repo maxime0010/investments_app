@@ -66,7 +66,6 @@ def fetch_stock_prices(ticker):
     response = requests.get(url)
     data = response.json()
 
-    # Debug: Print the entire API response to check its structure
     print("API Response:", data)
 
     prices = []
@@ -93,7 +92,6 @@ def get_logo_url(ticker):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Query to fetch the website URL based on the stock ticker
     cursor.execute("SELECT website FROM stock WHERE ticker = %s", (ticker,))
     result = cursor.fetchone()
 
@@ -102,7 +100,6 @@ def get_logo_url(ticker):
 
     if result and 'website' in result:
         website = result['website']
-        # Assuming the website URLs are in the format www.example.com
         domain = website.replace("https://", "").replace("http://", "").split('/')[0]
         return f"https://img.logo.dev/{domain}?token=pk_AH6v4ZrySsaUljPEULQWXw"
     return None
@@ -134,14 +131,12 @@ def get_top_stocks(latest_date):
     conn.close()
     return top_stocks
 
-# Portfolio Page Route
 @app.route('/portfolio')
 def portfolio():
     latest_date = get_latest_portfolio_date()
     top_stocks = get_top_stocks(latest_date)
     return render_template('portfolio.html', stocks=top_stocks, last_updated=latest_date)
 
-# Stock Detail Route
 @app.route('/stock/<ticker>')
 @login_required
 @members_only
@@ -161,7 +156,6 @@ def stock_detail(ticker):
     cursor.execute(query, (ticker,))
     stock_details = cursor.fetchall()
 
-    # Fetch stock prices from Alpha Vantage API
     stock_prices = fetch_stock_prices(ticker)
 
     cursor.execute("""
@@ -177,7 +171,6 @@ def stock_detail(ticker):
 
     return render_template('stock_detail.html', stock=stock_details, prices=stock_prices, analysts=analysts)
 
-# Performance Page Route
 @app.route('/performance')
 def performance():
     conn = mysql.connector.connect(**db_config)
@@ -216,12 +209,10 @@ def performance():
     return render_template('performance.html', dates=dates, values=values, 
                            return_30_days=return_30_days, return_12_months=return_12_months)
 
-# Subscription Route
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     email = request.form['email']
 
-    # Save the email to the database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
@@ -237,12 +228,10 @@ def subscribe():
 
     return redirect(url_for('portfolio'))
 
-# Membership Page Route
 @app.route('/membership')
 def membership():
     return render_template('membership.html')
 
-# Create Subscription Route
 @app.route('/create-subscription', methods=['POST'])
 @login_required
 def create_subscription():
@@ -259,7 +248,7 @@ def create_subscription():
 
         subscription = stripe.Subscription.create(
             customer=customer.id,
-            items=[{'price': 'your-price-id'}],  # Replace with your actual price ID
+            items=[{'price': os.getenv('STRIPE_PRICE_ID')}],  # Replace with your actual price ID
             expand=['latest_invoice.payment_intent'],
         )
 
@@ -279,7 +268,6 @@ def create_subscription():
     except Exception as e:
         return jsonify(error=str(e)), 403
 
-# Weekly Updates Routes
 @app.route('/weekly_updates')
 def weekly_updates():
     latest_update = updates[0]  # Assuming the latest update is the first in the list
@@ -290,48 +278,21 @@ def update(date):
     selected_update = next((update for update in updates if update["date"] == date), None)
     return render_template('update_detail.html', update=selected_update)
 
-# Index Page Route
 @app.route('/')
 def index():
     num_reports, num_analysts, num_banks = get_ratings_statistics()
     return render_template('index.html', num_reports=num_reports, num_analysts=num_analysts, num_banks=num_banks)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()
-        cursor.close()
-        conn.close()
-
-        if user and check_password_hash(user['password_hash'], password):
-            user_obj = User(user['id'], user['username'], user['email'], user['is_member'])
-            login_user(user_obj)
-            return redirect(url_for('index'))
-        else:
-            flash('Invalid email or password', 'danger')
-
-    return render_template('login.html')
-
-# Get Ratings Statistics Function
 def get_ratings_statistics():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
-    # Get the number of reports (rows in the ratings table)
     cursor.execute("SELECT COUNT(*) FROM ratings")
     num_reports = cursor.fetchone()[0]
 
-    # Get the number of unique analysts
     cursor.execute("SELECT COUNT(DISTINCT analyst_name) FROM ratings")
     num_analysts = cursor.fetchone()[0]
 
-    # Get the number of unique investment banks
     cursor.execute("SELECT COUNT(DISTINCT analyst) FROM ratings")
     num_banks = cursor.fetchone()[0]
 
@@ -340,6 +301,12 @@ def get_ratings_statistics():
 
     return num_reports, num_analysts, num_banks
 
+# Example data structure for updates
+updates = [
+    {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
+    {"date": "August 18th, 2024", "title": "Weekly Update: August 18th, 2024", "content": "<p>Details about the update for August 18th, 2024.</p>"},
+]
+
 if __name__ == '__main__':
     app.debug = True
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
