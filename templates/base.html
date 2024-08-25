@@ -164,21 +164,20 @@
         {% block content %}{% endblock %}
     </div>
 
-    <footer class="footer">
-        <div class="container">
-            <!-- Footer Top: Menu Links -->
-            <div class="footer-top">
+    <div class="container">
+
                 <div class="footer-menu">
                     <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
                     <a href="{{ url_for('privacy_notice') }}">Privacy Notice</a>
                     <a href="{{ url_for('refund_policy') }}">Refund Policy</a>
                     <a href="mailto:hello@goodlife.money">Contact</a>
                 </div>
-            </div>
-            <!-- Footer Bottom: Copyright -->
-            <div class="footer-bottom">
+        
+    </div>
+    
+    <footer class="footer mt-auto">
+        <div class="container">
                 <p>&copy; 2024 Good Life 💵. All rights reserved.</p>
-            </div>
         </div>
     </footer>
 
