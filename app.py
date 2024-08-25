@@ -238,15 +238,25 @@ def subscribe():
 def membership_step1():
     if request.method == 'POST':
         email = request.form['email']
-        username = request.form['username']
         password = request.form['password']
         password_hash = generate_password_hash(password)
 
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)", (username, email, password_hash))
+
+        # Check if the email is already registered
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            flash('Email is already registered. Please sign in.', 'danger')
+            return redirect(url_for('login'))
+
+        # Insert new user into the database
+        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, password_hash))
         conn.commit()
 
+        # Fetch the newly created user to log them in
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
@@ -254,11 +264,12 @@ def membership_step1():
         conn.close()
 
         if user:
-            send_confirmation_email(user['email'], user['id'])
-            flash('A confirmation email has been sent. Please confirm your account.', 'success')
-            return redirect(url_for('login'))
+            user_obj = User(user['id'], email=user['email'], username=user['email'], is_member=user['is_member'])
+            login_user(user_obj)
+            return redirect(url_for('membership_step2'))
 
     return render_template('membership_step1.html')
+
 
 def send_confirmation_email(email, user_id):
     confirmation_url = url_for('confirm_email', user_id=user_id, _external=True)
