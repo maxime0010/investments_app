@@ -16,7 +16,7 @@
 {% block custom_scripts %}
 <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
 <script>
-    Paddle.Setup({ vendor: '22225' });  // Replace with your Paddle Vendor ID
+    Paddle.Setup({ vendor: 22225 });  // Replace with your Paddle Vendor ID
 
     Paddle.Checkout.open({
         product: 'pro_01j64xprc12a5ngkskpnrwpteq',  // Replace with your Paddle Product ID
@@ -28,6 +28,12 @@
         frameTarget: 'checkout-container',  // Embed the checkout in this div
         frameInitialHeight: 415,
         frameStyle: 'width:100%; min-width:300px; max-width:600px; border:none; background-color:none;',
+        loadCallback: function(data) {
+            console.log('Paddle checkout loaded', data);
+        },
+        closeCallback: function(data) {
+            console.log('Paddle checkout closed', data);
+        }
     });
 </script>
 {% endblock %}
