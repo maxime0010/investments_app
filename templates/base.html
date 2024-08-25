@@ -89,32 +89,13 @@
             width: 100%;
         }
 
-        .footer-top {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eaeaea;
-        }
-
-        .footer-menu {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-menu a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        .footer-menu a:hover {
-            text-decoration: underline;
-        }
-
         .footer-bottom {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
             text-align: center;
-            margin-top: 1rem;
         }
 
         .footer-bottom p {
@@ -161,21 +142,18 @@
     </nav>
 
     <div class="container">
-    
+        {% block content %}{% endblock %}
+    </div>
 
-
-                <div>
-                    <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
-                    <a href="{{ url_for('privacy_notice') }}">Privacy Notice</a>
-                    <a href="{{ url_for('refund_policy') }}">Refund Policy</a>
-                    <a href="mailto:hello@goodlife.money">Contact</a>
-                </div>
-
-        </div>
-    
     <footer class="footer mt-auto">
         <div class="container">
+            <!-- Footer Bottom: Copyright and Links -->
+            <div class="footer-bottom">
                 <p>&copy; 2024 Good Life 💵. All rights reserved.</p>
+                <a href="{{ url_for('terms_of_service') }}">Terms of Service</a>
+                <a href="{{ url_for('privacy_notice') }}">Privacy Notice</a>
+                <a href="mailto:hello@goodlife.money">Contact</a>
+            </div>
         </div>
     </footer>
 
