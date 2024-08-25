@@ -411,6 +411,28 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/create-portal-session', methods=['POST'])
+@login_required
+def create_portal_session():
+    session_id = request.form.get('session_id')
+    
+    # Assuming you have stored the Stripe customer ID in the user session or database
+    customer_id = session.get('stripe_customer_id')
+
+    if customer_id:
+        portal_session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=url_for('index', _external=True),
+        )
+        return redirect(portal_session.url)
+    else:
+        return "Customer ID not found", 400
+
+@app.route('/success')
+def success():
+    return render_template('success.html', session_id=request.args.get('session_id'))
+
+
 @app.route('/terms-of-service')
 def terms_of_service():
     return render_template('terms_of_service.html')
