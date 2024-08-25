@@ -53,8 +53,9 @@ def load_user(user_id):
     cursor.close()
     conn.close()
     if user:
-        return User(user['id'], user['username'], user['email'], user['is_member'])
+        return User(user['id'], email=user['email'], username=user['email'], is_member=user['is_member'])
     return None
+
 
 # Decorator to restrict access to members-only content
 def members_only(f):
