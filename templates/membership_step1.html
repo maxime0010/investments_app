@@ -1,20 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Join the Club - Step 1{% endblock %}
+{% block title %}Join Good Life Pro - Create Account{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="my-4">Create Your Account</h1>
-    <form method="POST" action="{{ url_for('membership_step1') }}">
-        <div class="form-group">
-            <label for="email">Email address</label>
-            <input type="email" class="form-control" id="email" name="email" required>
+<div class="container text-center my-5">
+    <h1 class="display-4">Join Good Life Pro</h1>
+    <p class="lead mt-4">Start your journey to smarter investing today. Create your account below.</p>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">Create Your Account</h3>
+                    <form method="POST" action="{{ url_for('membership_step1') }}" class="mt-4">
+                        <div class="form-group">
+                            <label for="email" class="h5">Email Address</label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group mt-4">
+                            <label for="password" class="h5">Password</label>
+                            <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="Create a password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg btn-block mt-4">Continue</button>
+                        <p class="text-muted mt-3">Already have an account? <a href="{{ url_for('login') }}">Sign in here</a>.</p>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-dark mt-4">Next: Payment Details</button>
-    </form>
+    </div>
 </div>
 {% endblock %}
