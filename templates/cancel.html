@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout Canceled - Good Life{% endblock %}
+
+{% block content %}
+<div class="container text-center my-5">
+    <h1 class="display-4">Checkout Canceled</h1>
+    <p class="lead mt-4">Picked the wrong subscription? Shop around and come back to pay!</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg mt-4">Return to Home</a>
+</div>
+{% endblock %}
