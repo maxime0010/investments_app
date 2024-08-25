@@ -5,6 +5,5 @@ Werkzeug==2.0.3
 Flask-Mail==0.9.1
 Flask-SQLAlchemy==2.5.1
 mysql-connector-python==8.0.26
-stripe==2.56.0
 Werkzeug==2.0.3
 sib-api-v3-sdk==8.5.0  # Brevo (Sendinblue) API SDK
