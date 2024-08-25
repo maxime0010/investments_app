@@ -7,5 +7,3 @@ Flask-SQLAlchemy==2.5.1
 mysql-connector-python==8.0.26
 Werkzeug==2.0.3
 sib-api-v3-sdk
-pip install Flask-Dance
-pip install oauthlib
