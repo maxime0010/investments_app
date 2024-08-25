@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Go Pro - Good Life{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <h1 class="my-4">Unlock Premium Features with Good Life Pro</h1>
+    <p>Upgrade to Good Life Pro to access exclusive tools, in-depth analysis, and much more.</p>
+
+    <ul class="list-unstyled">
+        <li><strong>Feature 1:</strong> Detailed stock analysis with real-time updates.</li>
+        <li><strong>Feature 2:</strong> Access to top-performing portfolios and investment strategies.</li>
+        <li><strong>Feature 3:</strong> Priority customer support.</li>
+        <li><strong>Feature 4:</strong> Ad-free experience.</li>
+        <!-- Add more features as needed -->
+    </ul>
+
+    <a href="{{ url_for('membership_step1') }}" class="btn btn-primary btn-lg mt-4">Get Started Now</a>
+</div>
+{% endblock %}
