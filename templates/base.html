@@ -172,6 +172,51 @@
             background-color: #dc3545; /* Another different color */
         }
         /* Add more colors as needed for additional tags */
+
+
+                /* Overlay Styles for Non-Members */
+        .overlay-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* 50% opacity */
+            backdrop-filter: blur(8px); /* Blurry effect */
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            opacity: 1;
+        }
+
+        .overlay-content {
+            z-index: 2;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Ranking Number Style (Next to Stock Name) */
+        .ranking-number {
+            background-color: #ff9800;  /* Orange color */
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        
     </style>
 </head>
 <body>
