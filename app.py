@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import mysql.connector
 import os
+import stripe
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,6 +10,9 @@ from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
+
+# Stripe configuration
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp-relay.sendinblue.com'
@@ -216,24 +220,6 @@ def performance():
     return render_template('performance.html', dates=dates, values=values, 
                            return_30_days=return_30_days, return_12_months=return_12_months)
 
-@app.route('/subscribe', methods=['POST'])
-def subscribe():
-    email = request.form['email']
-
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute("INSERT INTO subscriptions (email) VALUES (%s)", (email,))
-        conn.commit()
-        flash('Thank you for subscribing to our newsletter!', 'success')
-    except mysql.connector.Error as err:
-        flash(f"An error occurred: {err}", 'danger')
-    finally:
-        cursor.close()
-        conn.close()
-
-    return redirect(url_for('portfolio'))
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
 def membership_step1():
@@ -298,21 +284,36 @@ def confirm_email(user_id):
 def membership_step2():
     return render_template('membership_step2.html')
 
-@app.route('/paddle-webhook', methods=['POST'])
-def paddle_webhook():
-    data = request.form.to_dict()
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    try:
+        # Replace this with your actual lookup key (Price ID)
+        lookup_key = request.form.get('lookup_key')
+        
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price': lookup_key,  # Price ID from Stripe Dashboard
+                    'quantity': 1,
+                },
+            ],
+            mode='subscription',  # Set to 'payment' for one-time purchases
+            success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('cancel', _external=True),
+        )
+        return redirect(session.url, code=303)
+    except Exception as e:
+        return jsonify(error=str(e)), 403
 
-    if data['alert_name'] == 'subscription_created':
-        user_id = int(data['passthrough'])
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET is_member = TRUE WHERE id = %s", (user_id,))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return jsonify({'status': 'success'})
+@app.route('/success')
+def success():
+    return "Payment was successful!"
 
-    return jsonify({'status': 'ignored'})
+@app.route('/cancel')
+def cancel():
+    return "Payment was canceled."
+
 
 @app.route('/logout')
 @login_required
