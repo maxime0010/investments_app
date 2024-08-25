@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Join the Club - Payment{% endblock %}
+{% block title %}Join Good Life Pro - Payment{% endblock %}
 
 {% block content %}
-<div class="container text-center">
-    <h1 class="my-4">Complete Your Payment</h1>
-    <p>To access Good Life Pro, please complete your payment.</p>
+<div class="container text-center my-5">
+    <h1 class="display-4">Complete Your Payment</h1>
+    <p class="lead mt-4">Unlock premium features and start making smarter investment decisions.</p>
 
-    <button id="checkout-btn" class="btn btn-dark mt-4">Subscribe for $5/month</button>
+    <div id="checkout-container" class="mt-5">
+        <!-- The Paddle checkout form will be embedded here -->
+    </div>
 </div>
 {% endblock %}
 
@@ -16,14 +18,16 @@
 <script>
     Paddle.Setup({ vendor: 22225 });  // Replace with your Paddle Vendor ID
 
-    document.getElementById('checkout-btn').addEventListener('click', function() {
-        Paddle.Checkout.open({
-            product: pro_01j64xprc12a5ngkskpnrwpteq,  // Replace with your Paddle Product ID
-            email: "{{ current_user.email }}",  // Pre-fill the user's email
-            passthrough: JSON.stringify({
-                user_id: "{{ current_user.id }}"  // Send the user ID as passthrough data
-            })
-        });
+    Paddle.Checkout.open({
+        product: 'pro_01j64xprc12a5ngkskpnrwpteq',  // Replace with your Paddle Product ID
+        email: "{{ current_user.email }}",  // Pre-fill the user's email
+        passthrough: JSON.stringify({
+            user_id: "{{ current_user.id }}"  // Send the user ID as passthrough data
+        }),
+        method: 'inline',  // Use inline method
+        frameTarget: 'checkout-container',  // Embed the checkout in this div
+        frameInitialHeight: 415,
+        frameStyle: 'width:100%; min-width:300px; max-width:600px; border:none; background-color:none;',
     });
 </script>
 {% endblock %}
