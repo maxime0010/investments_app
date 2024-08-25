@@ -36,6 +36,11 @@
         .nav-link:hover {
             color: #555 !important;
         }
+        .right-links {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
         .container {
             max-width: 1200px;
             padding-top: 20px;
@@ -179,6 +184,15 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('performance') }}">Performance</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('weekly_updates') }}">Weekly Updates</a></li>
                 </ul>
+                <div class="right-links">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('profile') }}" class="nav-link">Profile</a>
+                        <a href="{{ url_for('logout') }}" class="nav-link">Log Out</a>
+                    {% else %}
+                        <a href="{{ url_for('membership_step1') }}" class="nav-link">Join the Club</a>
+                        <a href="{{ url_for('login') }}" class="nav-link">Sign In</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
