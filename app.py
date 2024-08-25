@@ -310,10 +310,6 @@ def create_checkout_session():
     except Exception as e:
         return jsonify(error=str(e)), 403
 
-@app.route('/success')
-def success():
-    return "Payment was successful!"
-
 @app.route('/cancel')
 def cancel():
     return "Payment was canceled."
