@@ -4,23 +4,18 @@ import os
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-import stripe
 from flask_mail import Mail, Message
 from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 
-# Stripe configuration
-stripe.api_key = os.getenv('STRIPE_SECRET')
-stripe_publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
-
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp-relay.sendinblue.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv('BREVO_EMAIL')  # Your Brevo email
-app.config['MAIL_PASSWORD'] = os.getenv('BREVO_PASSWORD')  # Your Brevo SMTP password
+app.config['MAIL_USERNAME'] = os.getenv('BREVO_EMAIL')
+app.config['MAIL_PASSWORD'] = os.getenv('BREVO_PASSWORD')
 
 mail = Mail(app)
 
@@ -288,43 +283,23 @@ def confirm_email(user_id):
 @app.route('/membership-step2')
 @login_required
 def membership_step2():
-    return render_template('membership_step2.html', stripe_publishable_key=stripe_publishable_key)
+    return render_template('membership_step2.html')
 
-@app.route('/create-subscription', methods=['POST'])
-@login_required
-def create_subscription():
-    data = request.json
+@app.route('/paddle-webhook', methods=['POST'])
+def paddle_webhook():
+    data = request.form.to_dict()
 
-    try:
-        customer = stripe.Customer.create(
-            payment_method=data['payment_method'],
-            email=current_user.email,
-            invoice_settings={
-                'default_payment_method': data['payment_method'],
-            },
-        )
-
-        subscription = stripe.Subscription.create(
-            customer=customer.id,
-            items=[{'price': os.getenv('STRIPE_PRICE_ID')}],
-            expand=['latest_invoice.payment_intent'],
-        )
-
+    if data['alert_name'] == 'subscription_created':
+        user_id = int(data['passthrough'])
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO members (user_id, stripe_customer_id, stripe_subscription_id, subscription_status) VALUES (%s, %s, %s, %s)",
-                       (current_user.id, customer.id, subscription.id, subscription.status))
+        cursor.execute("UPDATE users SET is_member = TRUE WHERE id = %s", (user_id,))
         conn.commit()
-
-        cursor.execute("UPDATE users SET is_member = TRUE WHERE id = %s", (current_user.id,))
-        conn.commit()
-
         cursor.close()
         conn.close()
+        return jsonify({'status': 'success'})
 
-        return jsonify(subscription)
-    except Exception as e:
-        return jsonify(error=str(e)), 403
+    return jsonify({'status': 'ignored'})
 
 @app.route('/logout')
 @login_required
@@ -421,18 +396,6 @@ def login():
             flash('Invalid email or password', 'danger')
 
     return render_template('login.html')
-
-@app.route('/terms-of-service')
-def terms_of_service():
-    return render_template('terms_of_service.html')
-
-@app.route('/privacy-notice')
-def privacy_notice():
-    return render_template('privacy_notice.html')
-
-@app.route('/refund-policy')
-def refund_policy():
-    return render_template('refund_policy.html')
 
 def get_ratings_statistics():
     conn = mysql.connector.connect(**db_config)
