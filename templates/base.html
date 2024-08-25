@@ -219,7 +219,7 @@
         
     </style>
 </head>
-<body>
+<body {% block body_attributes %}{% endblock %}>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">Good Life 💵</a>
