@@ -1,9 +1,5 @@
 {% extends "base.html" %}
 
-{% block body_attributes %}
-onLoad="openCheckout(monthItemsList)"
-{% endblock %}
-
 {% block title %}Join Good Life Pro - Payment{% endblock %}
 
 {% block content %}
@@ -11,43 +7,31 @@ onLoad="openCheckout(monthItemsList)"
     <h1 class="display-4">Complete Your Payment</h1>
     <p class="lead mt-4">Unlock premium features and start making smarter investment decisions.</p>
 
-    <!-- Paddle checkout form will be embedded here -->
-    <div class="checkout-container mt-5"></div>
+    <!-- Stripe checkout form -->
+    <section>
+        <div class="product">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="14px" height="16px" viewBox="0 0 14 16" version="1.1">
+                <defs/>
+                <g id="Flow" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g id="0-Default" transform="translate(-121.000000, -40.000000)" fill="#E184DF">
+                        <path d="M127,50 L126,50 C123.238576,50 121,47.7614237 121,45 C121,42.2385763 123.238576,40 126,40 L135,40 L135,56 L133,56 L133,42 L129,42 L129,56 L127,56 L127,50 Z M127,48 L127,42 L126,42 C124.343146,42 123,43.3431458 123,45 C123,46.6568542 124.343146,48 126,48 L127,48 Z" id="Pilcrow"/>
+                    </g>
+                </g>
+            </svg>
+            <div class="description">
+                <h3>Good Life Pro</h3>
+                <h5>$20.00 / month</h5>
+            </div>
+        </div>
+        <form action="/create-checkout-session" method="POST">
+            <!-- Add a hidden field with the lookup_key of your Price -->
+            <input type="hidden" name="lookup_key" value="Good_Life_Pro-3f8fe57" />
+            <button id="checkout-and-portal-button" type="submit" class="btn btn-primary btn-lg">Checkout</button>
+        </form>
+    </section>
 </div>
 {% endblock %}
 
 {% block custom_scripts %}
-<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
-<script type="text/javascript">
-    // Set the environment, can be "sandbox" or "production"
-    Paddle.Environment.set("sandbox");  // Use "production" when ready to go live
-
-    // Initialize Paddle with your client-side token
-    Paddle.Initialize({
-        token: "test_a5cb9a6d57e6495b160b60658fc",  // Replace with your actual client-side token
-        checkout: {
-            settings: {
-                displayMode: "inline",  // Set display mode to inline
-                frameTarget: "checkout-container",  // Match the class name of your <div>
-                frameInitialHeight: "450",  // Set the initial height of the iframe
-                frameStyle: "width: 100%; min-width: 312px; background-color: transparent; border: none;"
-            }
-        }
-    });
-
-    // Define the single item to be included in the checkout
-    let monthItemsList = [
-        {
-            priceId: 'pri_01j64xqb3g8p5twpc9h5r0mjra',  // Replace with the actual Paddle Price ID
-            quantity: 1
-        }
-    ];
-
-    // Function to open the Paddle checkout with items
-    function openCheckout(items) {
-        Paddle.Checkout.open({
-            items: items
-        });
-    }
-</script>
+<script src="https://js.stripe.com/v3/"></script>
 {% endblock %}
