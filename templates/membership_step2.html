@@ -5,79 +5,25 @@
 {% block content %}
 <div class="container">
     <h1 class="my-4">Complete Your Payment</h1>
-    <p>Your account has been created. Please enter your payment details to activate your membership.</p>
+    <p>Your account has been created. Please proceed with the payment to activate your membership.</p>
 
-    <form id="payment-form">
-        <div id="card-element"><!-- Stripe Elements will be inserted here. --></div>
-        <button id="submit" class="btn btn-dark mt-4">Subscribe for $5/month</button>
-        <p id="card-error" role="alert" style="color: red;"></p>
-        <p id="success-message" class="result-message hidden" style="display:none; color: green;">
-            Payment succeeded, see the result in your <a href="https://dashboard.stripe.com/test/payments">Stripe dashboard</a>.
-            Refresh the page to pay again.
-        </p>
-    </form>
+    <!-- Paddle Button to trigger overlay checkout -->
+    <button id="checkout-btn" class="btn btn-dark mt-4">Subscribe for $5/month</button>
 </div>
 {% endblock %}
 
 {% block custom_scripts %}
-<script src="https://js.stripe.com/v3/"></script>
+<script src="https://cdn.paddle.com/paddle/paddle.js"></script>
 <script>
-    console.log('Stripe script loaded');
+    Paddle.Setup({ vendor: YOUR_VENDOR_ID });  // Replace with your Paddle Vendor ID
 
-    var stripe = Stripe('{{ stripe_publishable_key }}');  // Publishable key passed from Flask
-    var elements = stripe.elements();
-    var card = elements.create('card');
-    card.mount('#card-element');
-
-    console.log('Stripe Elements initialized');
-
-    var form = document.getElementById('payment-form');
-    var submitButton = document.getElementById('submit');
-    var errorElement = document.getElementById('card-error');
-    var successMessage = document.getElementById('success-message');
-
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        console.log('Submit button clicked');
-        submitButton.disabled = true;
-
-        stripe.createPaymentMethod({
-            type: 'card',
-            card: card,
-        }).then(function(result) {
-            if (result.error) {
-                console.error('Error creating payment method:', result.error.message);
-                errorElement.textContent = result.error.message;
-                submitButton.disabled = false;
-            } else {
-                console.log('Payment method created:', result.paymentMethod.id);
-                fetch("/create-subscription", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        payment_method: result.paymentMethod.id
-                    })
-                }).then(function(response) {
-                    console.log('Server response received');
-                    return response.json();
-                }).then(function(subscription) {
-                    if (subscription.error) {
-                        console.error('Server-side error:', subscription.error);
-                        errorElement.textContent = subscription.error;
-                        submitButton.disabled = false;
-                    } else {
-                        console.log('Subscription succeeded:', subscription);
-                        successMessage.style.display = 'block';
-                        errorElement.textContent = '';
-                    }
-                }).catch(function(error) {
-                    console.error('Fetch error:', error);
-                    errorElement.textContent = "An error occurred. Please try again.";
-                    submitButton.disabled = false;
-                });
-            }
+    document.getElementById('checkout-btn').addEventListener('click', function() {
+        Paddle.Checkout.open({
+            product: YOUR_PRODUCT_ID,  // Replace with your Paddle Product ID
+            email: "{{ current_user.email }}",  // Pre-fill the user's email
+            passthrough: JSON.stringify({
+                user_id: "{{ current_user.id }}"  // Send the user ID as passthrough data
+            })
         });
     });
 </script>
