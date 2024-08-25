@@ -264,7 +264,7 @@ def send_confirmation_email(email, user_id):
     confirmation_url = url_for('confirm_email', user_id=user_id, _external=True)
     subject = "Confirm your account"
     html = render_template('email/confirm.html', confirmation_url=confirmation_url)
-    msg = Message(subject, recipients=[email], html=html)
+    msg = Message(subject, recipients=[email], html=html, sender=os.getenv('MAIL_DEFAULT_SENDER', 'hello@goodlife.money'))
     mail.send(msg)
 
 @app.route('/confirm/<int:user_id>')
