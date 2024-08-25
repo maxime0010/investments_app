@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import mysql.connector
 import os
-import requests
 from datetime import datetime
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import stripe
+from flask_mail import Mail, Message
 from functools import wraps
 
 app = Flask(__name__)
@@ -14,6 +14,15 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 # Stripe configuration
 stripe.api_key = os.getenv('STRIPE_SECRET')
 stripe_publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
+
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = 'smtp-relay.sendinblue.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('BREVO_EMAIL')  # Your Brevo email
+app.config['MAIL_PASSWORD'] = os.getenv('BREVO_PASSWORD')  # Your Brevo SMTP password
+
+mail = Mail(app)
 
 # Database connection configuration
 db_config = {
@@ -249,11 +258,32 @@ def membership_step1():
         conn.close()
 
         if user:
-            user_obj = User(user['id'], user['username'], user['email'], user['is_member'])
-            login_user(user_obj)
-            return redirect(url_for('membership_step2'))
+            send_confirmation_email(user['email'], user['id'])
+            flash('A confirmation email has been sent. Please confirm your account.', 'success')
+            return redirect(url_for('login'))
 
     return render_template('membership_step1.html')
+
+def send_confirmation_email(email, user_id):
+    confirmation_url = url_for('confirm_email', user_id=user_id, _external=True)
+    subject = "Confirm your account"
+    html = render_template('email/confirm.html', confirmation_url=confirmation_url)
+    msg = Message(subject, recipients=[email], html=html)
+    mail.send(msg)
+
+@app.route('/confirm/<int:user_id>')
+def confirm_email(user_id):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE users SET is_active = TRUE WHERE id = %s", (user_id,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    flash('Your account has been confirmed. Please log in.', 'success')
+    return redirect(url_for('login'))
 
 @app.route('/membership-step2')
 @login_required
@@ -295,6 +325,65 @@ def create_subscription():
         return jsonify(subscription)
     except Exception as e:
         return jsonify(error=str(e)), 403
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('index'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if user:
+            send_reset_password_email(user['email'], user['id'])
+            flash('A password reset link has been sent to your email.', 'success')
+        else:
+            flash('No account found with that email.', 'danger')
+
+        cursor.close()
+        conn.close()
+
+    return render_template('forgot_password.html')
+
+def send_reset_password_email(email, user_id):
+    reset_url = url_for('reset_password', user_id=user_id, _external=True)
+    subject = "Reset your password"
+    html = render_template('email/reset_password.html', reset_url=reset_url)
+    msg = Message(subject, recipients=[email], html=html)
+    mail.send(msg)
+
+@app.route('/reset-password/<int:user_id>', methods=['GET', 'POST'])
+def reset_password(user_id):
+    if request.method == 'POST':
+        password = request.form['password']
+        password_hash = generate_password_hash(password)
+
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET password_hash = %s WHERE id = %s", (password_hash, user_id))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        flash('Your password has been reset. Please log in.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', user_id=user_id)
 
 @app.route('/weekly_updates')
 def weekly_updates():
