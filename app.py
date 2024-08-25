@@ -422,6 +422,18 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/terms-of-service')
+def terms_of_service():
+    return render_template('terms_of_service.html')
+
+@app.route('/privacy-notice')
+def privacy_notice():
+    return render_template('privacy_notice.html')
+
+@app.route('/refund-policy')
+def refund_policy():
+    return render_template('refund_policy.html')
+
 def get_ratings_statistics():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
