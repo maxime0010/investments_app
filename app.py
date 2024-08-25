@@ -39,9 +39,8 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin):
-    def __init__(self, id, username, email, is_member):
+    def __init__(self, id, email, is_member):
         self.id = id
-        self.username = username
         self.email = email
         self.is_member = is_member
 
@@ -57,7 +56,7 @@ def load_user(user_id):
     cursor.close()
     conn.close()
     if user:
-        return User(user['id'], email=user['email'], username=user['email'], is_member=user['is_member'])
+        return User(user['id'], email=user['email'], is_member=user['is_member'])
     return None
 
 
@@ -255,7 +254,7 @@ def membership_step1():
         conn.close()
 
         if user:
-            user_obj = User(user['id'], email=user['email'], username=user['email'], is_member=user['is_member'])
+            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
             login_user(user_obj)
             return redirect(url_for('membership_step2'))
 
@@ -266,7 +265,7 @@ def send_confirmation_email(email, user_id):
     confirmation_url = url_for('confirm_email', user_id=user_id, _external=True)
     subject = "Confirm your account"
     html = render_template('email/confirm.html', confirmation_url=confirmation_url)
-    msg = Message(subject, recipients=[email], html=html, sender=os.getenv('MAIL_DEFAULT_SENDER', 'hello@goodlife.money'))
+    msg = Message(subject, recipients=[email], html=html)
     mail.send(msg)
 
 @app.route('/confirm/<int:user_id>')
@@ -291,7 +290,6 @@ def membership_step2():
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     try:
-        # Replace this with your actual lookup key (Price ID)
         lookup_key = request.form.get('lookup_key')
         
         session = stripe.checkout.Session.create(
@@ -302,7 +300,7 @@ def create_checkout_session():
                     'quantity': 1,
                 },
             ],
-            mode='subscription',  # Set to 'payment' for one-time purchases
+            mode='subscription',
             success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('cancel', _external=True),
         )
@@ -403,7 +401,7 @@ def login():
         conn.close()
 
         if user and check_password_hash(user['password_hash'], password):
-            user_obj = User(user['id'], user['username'], user['email'], user['is_member'])
+            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
             login_user(user_obj)
             return redirect(url_for('index'))
         else:
@@ -431,7 +429,6 @@ def create_portal_session():
 @app.route('/success')
 def success():
     return render_template('success.html', session_id=request.args.get('session_id'))
-
 
 @app.route('/terms-of-service')
 def terms_of_service():
