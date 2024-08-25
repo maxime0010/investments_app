@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Profile</h1>
+    <p><strong>Username:</strong> {{ current_user.username }}</p>
+    <p><strong>Email:</strong> {{ current_user.email }}</p>
+    <p><strong>Membership Status:</strong> {% if current_user.is_member %}Active{% else %}Inactive{% endif %}</p>
+</div>
+{% endblock %}
