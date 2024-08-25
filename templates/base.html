@@ -84,21 +84,22 @@
         .footer {
             background-color: #f8f9fa;
             color: #333;
-            padding: 2rem 1rem;
+            padding: 1.5rem 0;
+            margin-top: auto;
+            width: 100%;
         }
 
         .footer-top {
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
-            border-bottom: 1px solid #eaeaea;
             padding-bottom: 1rem;
-            margin-bottom: 1rem;
+            border-bottom: 1px solid #eaeaea;
         }
 
         .footer-menu {
             display: flex;
-            gap: 2rem;
+            gap: 1rem;
             flex-wrap: wrap;
         }
 
@@ -113,6 +114,7 @@
 
         .footer-bottom {
             text-align: center;
+            margin-top: 1rem;
         }
 
         .footer-bottom p {
@@ -162,7 +164,7 @@
         {% block content %}{% endblock %}
     </div>
 
-    <footer class="footer mt-auto">
+    <footer class="footer">
         <div class="container">
             <!-- Footer Top: Menu Links -->
             <div class="footer-top">
