@@ -142,6 +142,10 @@ def get_top_stocks(latest_date):
     conn.close()
     return top_stocks
 
+@app.route('/pro')
+def membership_pro():
+    return render_template('membership_pro.html')
+
 @app.route('/portfolio')
 def portfolio():
     latest_date = get_latest_portfolio_date()
