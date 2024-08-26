@@ -414,7 +414,7 @@ def login():
 def create_portal_session():
     session_id = request.form.get('session_id')
     
-    # Assuming you have stored the Stripe customer ID in the user session or database
+    # Retrieve the Stripe customer ID from the session
     customer_id = session.get('stripe_customer_id')
 
     if customer_id:
@@ -424,7 +424,9 @@ def create_portal_session():
         )
         return redirect(portal_session.url)
     else:
-        return "Customer ID not found", 400
+        flash("Customer ID not found. Please contact support.", "danger")
+        return redirect(url_for('index'))
+
 
 @app.route('/success')
 def success():
