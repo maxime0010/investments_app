@@ -292,11 +292,11 @@ def create_checkout_session():
     try:
         lookup_key = request.form.get('lookup_key')
         
-        session = stripe.checkout.Session.create(
+        session_data = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[
                 {
-                    'price': 'price_1PrmU5DIMC3D1ZmedUvTdwTf',  # Price ID from Stripe Dashboard
+                    'price': lookup_key,  # Price ID from Stripe Dashboard
                     'quantity': 1,
                 },
             ],
@@ -304,9 +304,15 @@ def create_checkout_session():
             success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('cancel', _external=True),
         )
-        return redirect(session.url, code=303)
+        
+        # Store the Stripe customer ID in the session
+        customer_id = session_data.get('customer')
+        session['stripe_customer_id'] = customer_id  # Store in session
+
+        return redirect(session_data.url, code=303)
     except Exception as e:
         return jsonify(error=str(e)), 403
+
 
 @app.route('/cancel')
 def cancel():
