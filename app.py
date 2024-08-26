@@ -445,6 +445,42 @@ def privacy_notice():
 def refund_policy():
     return render_template('refund_policy.html')
 
+@app.route('/webhook', methods=['POST'])
+def webhook_received():
+    webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
+    request_data = json.loads(request.data)
+
+    if webhook_secret:
+        signature = request.headers.get('stripe-signature')
+        try:
+            event = stripe.Webhook.construct_event(
+                payload=request.data, sig_header=signature, secret=webhook_secret)
+            data = event['data']
+        except Exception as e:
+            return str(e), 400
+        event_type = event['type']
+    else:
+        data = request_data['data']
+        event_type = request_data['type']
+    data_object = data['object']
+
+    print(f'event {event_type}')
+
+    if event_type == 'checkout.session.completed':
+        print('🔔 Payment succeeded!')
+    elif event_type == 'customer.subscription.trial_will_end':
+        print('Subscription trial will end')
+    elif event_type == 'customer.subscription.created':
+        print('Subscription created')
+    elif event_type == 'customer.subscription.updated':
+        print('Subscription updated')
+    elif event_type == 'customer.subscription.deleted':
+        print('Subscription canceled')
+    elif event_type == 'entitlements.active_entitlement_summary.updated':
+        print('Active entitlement summary updated')
+
+    return jsonify({'status': 'success'})
+
 def get_ratings_statistics():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
