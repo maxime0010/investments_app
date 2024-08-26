@@ -290,28 +290,27 @@ def membership_step2():
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     try:
-        lookup_key = request.form.get('lookup_key')
-        
-        session_data = stripe.checkout.Session.create(
-            payment_method_types=['card'],
+        prices = stripe.Price.list(
+            lookup_keys=[request.form['lookup_key']],
+            expand=['data.product']
+        )
+
+        checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
-                    'price': 'price_1PrmU5DIMC3D1ZmedUvTdwTf',  # Price ID from Stripe Dashboard
+                    'price': prices.data[0].id,
                     'quantity': 1,
                 },
             ],
             mode='subscription',
-            success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=url_for('cancel', _external=True),
+            success_url=YOUR_DOMAIN + '/success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=YOUR_DOMAIN + '/cancel',
         )
-        
-        # Store the Stripe customer ID in the session
-        customer_id = session_data.get('customer')
-        session['stripe_customer_id'] = customer_id  # Store in session
-
-        return redirect(session_data.url, code=303)
+        return redirect(checkout_session.url, code=303)
     except Exception as e:
-        return jsonify(error=str(e)), 403
+        print(e)
+        return "Server error", 500
+
 
 
 @app.route('/cancel')
