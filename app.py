@@ -415,33 +415,17 @@ def login():
     return render_template('login.html')
 
 @app.route('/create-portal-session', methods=['POST'])
-@login_required
 def create_portal_session():
-    try:
-        # Get the session ID from the form data
-        checkout_session_id = request.form.get('session_id')
+    checkout_session_id = request.form.get('session_id')
+    checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
+    customer_id = checkout_session.customer
 
-        # Retrieve the checkout session from Stripe
-        checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
+    portal_session = stripe.billing_portal.Session.create(
+        customer=customer_id,
+        return_url=YOUR_DOMAIN,
+    )
+    return redirect(portal_session.url, code=303)
 
-        # Retrieve the customer ID from the checkout session
-        customer_id = checkout_session.customer
-
-        # Define the return URL after managing billing
-        return_url = url_for('index', _external=True)
-
-        # Create the billing portal session
-        portal_session = stripe.billing_portal.Session.create(
-            customer=customer_id,
-            return_url=return_url,
-        )
-
-        # Redirect the user to the Stripe billing portal
-        return redirect(portal_session.url, code=303)
-    
-    except Exception as e:
-        flash(f"An error occurred: {str(e)}", "danger")
-        return redirect(url_for('index'))
 
 
 
