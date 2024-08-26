@@ -436,8 +436,13 @@ def create_portal_session():
             return_url=YOUR_DOMAIN,
         )
         return redirect(portal_session.url, code=303)
+    
     except stripe.error.InvalidRequestError as e:
         flash(f"An error occurred: {str(e)}", "danger")
+
+    except Exception as e:
+        flash(f"An unexpected error occurred: {str(e)}", "danger")
+
 
 
 
