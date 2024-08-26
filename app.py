@@ -309,8 +309,9 @@ def create_checkout_session():
         )
         return redirect(checkout_session.url, code=303)
     except Exception as e:
-        print(e)
-        return "Server error", 500
+        print(f"Error creating checkout session: {e}")
+        return str(e), 500
+
 
 
 
