@@ -296,7 +296,7 @@ def create_checkout_session():
             payment_method_types=['card'],
             line_items=[
                 {
-                    'price': lookup_key,  # Price ID from Stripe Dashboard
+                    'price': 'price_1PrmU5DIMC3D1ZmedUvTdwTf',  # Price ID from Stripe Dashboard
                     'quantity': 1,
                 },
             ],
