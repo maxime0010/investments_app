@@ -13,6 +13,7 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 
 # Stripe configuration
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+YOUR_DOMAIN = os.getenv('YOUR_DOMAIN', 'http://localhost:5000')
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp-relay.sendinblue.com'
