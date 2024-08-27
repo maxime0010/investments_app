@@ -421,35 +421,17 @@ def login():
 @login_required
 def create_portal_session():
     checkout_session_id = request.form.get('session_id')
+    checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
 
-    # Check if the session_id is None or empty
-    if not checkout_session_id:
-        flash("Invalid session ID. Please try again.", "danger")
+    # This is the URL to which the customer will be redirected after they are
+    # done managing their billing with the portal.
+    return_url = YOUR_DOMAIN
 
-    try:
-        # Retrieve the checkout session from Stripe
-        checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
-        customer_id = checkout_session.customer
-
-        # Create the billing portal session
-        portalSession = stripe.billing_portal.Session.create(
-            customer=checkout_session.customer,
-        )
-
-        logging.info("Entered create_portal_session function")
-        # Your logic here
-        logging.info("Returning response")
-
-        return redirect(portal_session.url, code=303)
-    
-    except stripe.error.InvalidRequestError as e:
-        flash(f"An error occurred: {str(e)}", "danger")
-
-    except Exception as e:
-        flash(f"An unexpected error occurred: {str(e)}", "danger")
-
-
-
+    portalSession = stripe.billing_portal.Session.create(
+        customer=checkout_session.customer,
+        return_url=return_url,
+    )
+    return redirect(portalSession.url, code=303)
 
 
 
@@ -475,35 +457,41 @@ def webhook_received():
     request_data = json.loads(request.data)
 
     if webhook_secret:
+        # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
         signature = request.headers.get('stripe-signature')
         try:
             event = stripe.Webhook.construct_event(
                 payload=request.data, sig_header=signature, secret=webhook_secret)
             data = event['data']
         except Exception as e:
-            return str(e), 400
+            return e
+        # Get the type of webhook event sent - used to check the status of PaymentIntents.
         event_type = event['type']
     else:
         data = request_data['data']
         event_type = request_data['type']
     data_object = data['object']
 
-    print(f'event {event_type}')
+    print('event ' + event_type)
 
     if event_type == 'checkout.session.completed':
         print('🔔 Payment succeeded!')
     elif event_type == 'customer.subscription.trial_will_end':
         print('Subscription trial will end')
     elif event_type == 'customer.subscription.created':
-        print('Subscription created')
+        print('Subscription created %s', event.id)
     elif event_type == 'customer.subscription.updated':
-        print('Subscription updated')
+        print('Subscription created %s', event.id)
     elif event_type == 'customer.subscription.deleted':
-        print('Subscription canceled')
+        # handle subscription canceled automatically based
+        # upon your subscription settings. Or if the user cancels it.
+        print('Subscription canceled: %s', event.id)
     elif event_type == 'entitlements.active_entitlement_summary.updated':
-        print('Active entitlement summary updated')
+        # handle active entitlement summary updated
+        print('Active entitlement summary updated: %s', event.id)
 
     return jsonify({'status': 'success'})
+
 
 def get_ratings_statistics():
     conn = mysql.connector.connect(**db_config)
