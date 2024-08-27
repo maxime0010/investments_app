@@ -432,10 +432,10 @@ def create_portal_session():
         customer_id = checkout_session.customer
 
         # Create the billing portal session
-        portal_session = stripe.billing_portal.Session.create(
-            customer=customer_id,
-            return_url=YOUR_DOMAIN,
+        portalSession = stripe.billing_portal.Session.create(
+            customer=checkout_session.customer,
         )
+
         logging.info("Entered create_portal_session function")
         # Your logic here
         logging.info("Returning response")
