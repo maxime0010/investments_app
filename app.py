@@ -437,7 +437,8 @@ def create_portal_session():
 
 @app.route('/success')
 def success():
-    return render_template('success.html', session_id=request.args.get('session_id'))
+    session_id = request.args.get('session_id')
+    return render_template('success.html', session_id=session_id)
 
 @app.route('/terms-of-service')
 def terms_of_service():
