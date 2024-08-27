@@ -420,7 +420,7 @@ def login():
 @app.route('/create-portal-session', methods=['POST'])
 @login_required
 def create_portal_session():
-    checkout_session_id = request.form.get('session_id')
+    checkout_session_id = request.GET.get('session_id')
     checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
 
     # This is the URL to which the customer will be redirected after they are
