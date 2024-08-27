@@ -26,8 +26,4 @@
 {% endblock %}
 
 {% block custom_scripts %}
-<script>
-    // If you need to populate session ID, you can use this script
-    document.getElementById('session-id').value = "{{ session_id | default('', true) }}";
-</script>
 {% endblock %}
