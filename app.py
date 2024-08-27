@@ -331,7 +331,11 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html')
+def profile():
+    customer_id = 'stripe_customer_id_here'  # Replace with actual customer ID retrieval logic
+    subscription_status = get_subscription_status(customer_id)
+    
+    return render_template('profile.html', subscription_status=subscription_status)
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
@@ -511,6 +515,28 @@ def get_ratings_statistics():
     conn.close()
 
     return num_reports, num_analysts, num_banks
+
+def get_subscription_status(customer_id):
+    subscriptions = stripe.Subscription.list(customer=customer_id)
+    
+    # Check if the customer has any subscriptions
+    if subscriptions and subscriptions.data:
+        # Assuming the customer has only one subscription
+        subscription = subscriptions.data[0]
+        return subscription.status
+    else:
+        return 'inactive'  # or 'no_subscription'
+
+@app.route('/manage-subscription', methods=['POST'])
+def manage_subscription():
+    # Logic to manage the subscription, typically redirecting to Stripe's customer portal
+    pass
+
+@app.route('/subscribe', methods=['POST'])
+def subscribe():
+    # Logic to start a new subscription process
+    pass
+
 
 updates = [
     {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
