@@ -351,19 +351,12 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-    # Retrieve the email from the database using the user ID
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT email FROM users WHERE id = %s", (current_user.id,))
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
 
     if not user:
         flash('User not found.', 'danger')
         return redirect(url_for('login'))
 
-    email = user['email']
+    email=current_user.email,
     subscription_status, customer_id, error = get_subscription_status(email)
 
     if error:
