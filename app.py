@@ -41,14 +41,20 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin):
-    def __init__(self, id, email, is_member, is_active):
+    def __init__(self, id, email, is_member, email_confirmed):
         self.id = id
         self.email = email
         self.is_member = is_member
-        self.is_active = is_active
+        self.email_confirmed = email_confirmed  # Renamed from is_active
 
     def get_id(self):
         return self.id
+
+    @property
+    def is_active(self):
+        # Override the default is_active property to use the email_confirmed attribute
+        return self.email_confirmed
+
 
 
 @login_manager.user_loader
@@ -60,8 +66,9 @@ def load_user(user_id):
     cursor.close()
     conn.close()
     if user:
-        return User(user['id'], email=user['email'], is_member=user['is_member'], is_active=user['is_active'])
+        return User(user['id'], email=user['email'], is_member=user['is_member'], email_confirmed=user['is_active'])
     return None
+
 
 
 
