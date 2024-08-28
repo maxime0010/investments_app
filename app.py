@@ -60,8 +60,9 @@ def load_user(user_id):
     cursor.close()
     conn.close()
     if user:
-        return User(user['id'], email=user['email'], is_member=user['is_member'])
+        return User(user['id'], email=user['email'], is_member=user['is_member'], is_active=user['is_active'])
     return None
+
 
 
 
