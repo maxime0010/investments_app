@@ -545,14 +545,18 @@ def get_subscription_status(email):
 
 
 @app.route('/manage-subscription', methods=['POST'])
+@login_required
 def manage_subscription():
-    # Logic to manage the subscription, typically redirecting to Stripe's customer portal
-    pass
+    customer_id = request.form.get('customer_id')
+    if not customer_id:
+        return jsonify({'error': 'Customer ID is missing'}), 400
+    
+    try:
+        # Redirect to the Stripe Customer Portal
+        return redirect("https://billing.stripe.com/p/login/test_cN29Eq1So5wY52MbII")
 
-@app.route('/subscribe', methods=['POST'])
-def subscribe():
-    # Logic to start a new subscription process
-    pass
+    except stripe.error.StripeError as e:
+        return jsonify({'error': str(e)}), 400
 
 
 updates = [
