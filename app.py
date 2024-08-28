@@ -53,13 +53,14 @@ class User(UserMixin):
 def load_user(user_id):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM users WHERE id = %s AND is_active = TRUE", (user_id,))
+    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
     if user:
         return User(user['id'], email=user['email'], is_member=user['is_member'])
     return None
+
 
 
 # Decorator to restrict access to members-only content
