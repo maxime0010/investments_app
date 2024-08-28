@@ -331,7 +331,6 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-def profile():
     customer_id = 'stripe_customer_id_here'  # Replace with actual customer ID retrieval logic
     subscription_status = get_subscription_status(customer_id)
     
