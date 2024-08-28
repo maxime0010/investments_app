@@ -41,19 +41,14 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin):
-    def __init__(self, id, email, is_member, email_confirmed):
+    def __init__(self, id, email, is_member):
         self.id = id
         self.email = email
         self.is_member = is_member
-        self.email_confirmed = email_confirmed  # Renamed from is_active
 
     def get_id(self):
         return self.id
 
-    @property
-    def is_active(self):
-        # Override the default is_active property to use the email_confirmed attribute
-        return self.email_confirmed
 
 
 
@@ -66,8 +61,9 @@ def load_user(user_id):
     cursor.close()
     conn.close()
     if user:
-        return User(user['id'], email=user['email'], is_member=user['is_member'], email_confirmed=user['is_active'])
+        return User(user['id'], email=user['email'], is_member=user['is_member'])
     return None
+
 
 
 
@@ -455,17 +451,14 @@ def login():
         conn.close()
 
         if user and check_password_hash(user['password_hash'], password):
-            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'], email_confirmed=user['is_active'])
+            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
             login_user(user_obj)
-
-            if not user_obj.is_active:
-                flash('Please confirm your email.', 'warning')
-
             return redirect(url_for('index'))
         else:
             flash('Invalid email or password', 'danger')
 
     return render_template('login.html')
+
 
 
 @app.route('/create-portal-session', methods=['POST'])
