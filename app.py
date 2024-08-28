@@ -149,9 +149,29 @@ def membership_pro():
 
 @app.route('/portfolio')
 def portfolio():
+    is_member = False
+
+    if current_user.is_authenticated:
+        # Retrieve the email from the database using the user ID
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT email FROM users WHERE id = %s", (current_user.id,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user:
+            email = user['email']
+            subscription_status, customer_id, error = get_subscription_status(email)
+
+            if subscription_status == 'active':
+                is_member = True
+
     latest_date = get_latest_portfolio_date()
     top_stocks = get_top_stocks(latest_date)
-    return render_template('portfolio.html', stocks=top_stocks, last_updated=latest_date)
+
+    return render_template('portfolio.html', stocks=top_stocks, last_updated=latest_date, is_member=is_member)
+
 
 @app.route('/stock/<ticker>')
 @login_required
