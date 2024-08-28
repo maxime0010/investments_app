@@ -49,9 +49,6 @@ class User(UserMixin):
     def get_id(self):
         return self.id
 
-
-
-
 @login_manager.user_loader
 def load_user(user_id):
     conn = mysql.connector.connect(**db_config)
@@ -63,10 +60,6 @@ def load_user(user_id):
     if user:
         return User(user['id'], email=user['email'], is_member=user['is_member'])
     return None
-
-
-
-
 
 
 # Decorator to restrict access to members-only content
@@ -156,23 +149,9 @@ def membership_pro():
 
 @app.route('/portfolio')
 def portfolio():
-    email = current_user.email
-    subscription_status, customer_id, error = get_subscription_status(email)
-
-    if error:
-        return render_template('portfolio.html', error=error)
-    
-    # Update the is_member attribute based on subscription status
-    if subscription_status == 'active':
-        current_user.is_member = True
-    else:
-        current_user.is_member = False
-
     latest_date = get_latest_portfolio_date()
     top_stocks = get_top_stocks(latest_date)
-    
     return render_template('portfolio.html', stocks=top_stocks, last_updated=latest_date)
-
 
 @app.route('/stock/<ticker>')
 @login_required
@@ -266,11 +245,10 @@ def membership_step1():
             return redirect(url_for('login'))
 
         # Insert new user into the database
-        cursor.execute("INSERT INTO users (email, password_hash, is_active) VALUES (%s, %s, %s)", 
-                       (email, password_hash, False))
+        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, password_hash))
         conn.commit()
 
-        # Fetch the newly created user to log them in and send confirmation email
+        # Fetch the newly created user to log them in
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
@@ -278,17 +256,11 @@ def membership_step1():
         conn.close()
 
         if user:
-            user_obj = User(user['id'], email=user['email'], is_member=False)
+            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
             login_user(user_obj)
-            
-            # Send confirmation email
-            send_confirmation_email(email, user['id'])
-
-            flash('A confirmation email has been sent to your inbox. Please confirm your account to proceed.', 'info')
-            return redirect(url_for('profile'))
+            return redirect(url_for('membership_step2'))
 
     return render_template('membership_step1.html')
-
 
 
 def send_confirmation_email(email, user_id):
@@ -458,8 +430,6 @@ def login():
 
     return render_template('login.html')
 
-
-
 @app.route('/create-portal-session', methods=['POST'])
 @login_required
 def create_portal_session():
@@ -605,10 +575,6 @@ def subscribe():
 
     except stripe.error.StripeError as e:
         return jsonify({'error': str(e)}), 400
-
-
-
-
 
 
 
