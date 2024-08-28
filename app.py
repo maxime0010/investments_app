@@ -148,10 +148,25 @@ def membership_pro():
     return render_template('membership_pro.html')
 
 @app.route('/portfolio')
+@login_required
 def portfolio():
+    email = current_user.email
+    subscription_status, customer_id, error = get_subscription_status(email)
+
+    if error:
+        return render_template('portfolio.html', error=error)
+    
+    # Update the is_member attribute based on subscription status
+    if subscription_status == 'active':
+        current_user.is_member = True
+    else:
+        current_user.is_member = False
+
     latest_date = get_latest_portfolio_date()
     top_stocks = get_top_stocks(latest_date)
+    
     return render_template('portfolio.html', stocks=top_stocks, last_updated=latest_date)
+
 
 @app.route('/stock/<ticker>')
 @login_required
