@@ -352,10 +352,6 @@ def logout():
 @login_required
 def profile():
 
-    if not user:
-        flash('User not found.', 'danger')
-        return redirect(url_for('login'))
-
     email=current_user.email,
     subscription_status, customer_id, error = get_subscription_status(email)
 
