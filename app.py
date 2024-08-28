@@ -455,7 +455,7 @@ def login():
         conn.close()
 
         if user and check_password_hash(user['password_hash'], password):
-            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'], is_active=user['is_active'])
+            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'], email_confirmed=user['is_active'])
             login_user(user_obj)
 
             if not user_obj.is_active:
