@@ -7,9 +7,7 @@
 
 <h1>Your Profile</h1>
 
-{% if error %}
-    <p>Error: {{ error }}</p>
-{% elif subscription_status %}
+{% if subscription_status %}
     {% if subscription_status == 'active' %}
         <p>Your subscription is active.</p>
         <form action="/manage-subscription" method="POST">
