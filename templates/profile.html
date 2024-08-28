@@ -7,22 +7,28 @@
 
 <h1>Your Profile</h1>
 
-{% if subscription_status == 'active' %}
-    <p>Your subscription is active.</p>
-    <form action="/manage-subscription" method="POST">
-        <button type="submit">Manage your subscription</button>
-    </form>
-{% elif subscription_status == 'inactive' or subscription_status == 'canceled' %}
-    <p>Your subscription is inactive.</p>
-    <form action="/subscribe" method="POST">
-        <button type="submit">Renew your subscription</button>
-    </form>
+{% if error %}
+    <p>Error: {{ error }}</p>
+{% elif subscription_status %}
+    {% if subscription_status == 'active' %}
+        <p>Your subscription is active.</p>
+        <form action="/manage-subscription" method="POST">
+            <input type="hidden" name="customer_id" value="{{ customer_id }}">
+            <button type="submit">Manage your subscription</button>
+        </form>
+    {% else %}
+        <p>Subscription status: {{ subscription_status }}</p>
+        <form action="/create-checkout-session" method="POST">
+            <button type="submit">Subscribe now</button>
+        </form>
+    {% endif %}
 {% else %}
-    <p>You do not have a subscription yet.</p>
-    <form action="/subscribe" method="POST">
+    <p>No subscription found for your account.</p>
+    <form action="/create-checkout-session" method="POST">
         <button type="submit">Subscribe now</button>
     </form>
 {% endif %}
+
 
     
 </div>
