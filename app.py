@@ -155,7 +155,6 @@ def membership_pro():
     return render_template('membership_pro.html')
 
 @app.route('/portfolio')
-@login_required
 def portfolio():
     email = current_user.email
     subscription_status, customer_id, error = get_subscription_status(email)
