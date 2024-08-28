@@ -41,13 +41,15 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class User(UserMixin):
-    def __init__(self, id, email, is_member):
+    def __init__(self, id, email, is_member, is_active):
         self.id = id
         self.email = email
         self.is_member = is_member
+        self.is_active = is_active
 
     def get_id(self):
         return self.id
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -445,13 +447,18 @@ def login():
         conn.close()
 
         if user and check_password_hash(user['password_hash'], password):
-            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
+            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'], is_active=user['is_active'])
             login_user(user_obj)
+
+            if not user_obj.is_active:
+                flash('Please confirm your email.', 'warning')
+
             return redirect(url_for('index'))
         else:
             flash('Invalid email or password', 'danger')
 
     return render_template('login.html')
+
 
 @app.route('/create-portal-session', methods=['POST'])
 @login_required
