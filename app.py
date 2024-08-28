@@ -331,8 +331,19 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-    # Assume the user's email is stored in current_user.email
-    email = current_user.email
+    # Retrieve the email from the database using the user ID
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT email FROM users WHERE id = %s", (current_user.id,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not user:
+        flash('User not found.', 'danger')
+        return redirect(url_for('login'))
+
+    email = user['email']
     subscription_status, customer_id, error = get_subscription_status(email)
 
     if error:
@@ -342,7 +353,8 @@ def profile():
         # If no subscription is found, redirect to the subscribe route
         return redirect(url_for('subscribe'))
 
-    return render_template('profile.html', subscription_status=subscription_status, customer_id=customer_id)
+    return render_template('profile.html', email=email, subscription_status=subscription_status, customer_id=customer_id)
+
 
 
 
