@@ -354,7 +354,7 @@ def profile():
     # Retrieve the email from the database using the user ID
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT email FROM users WHERE id = %s", (user_id,))
+    cursor.execute("SELECT email FROM users WHERE id = %s", (current_user.id,))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
