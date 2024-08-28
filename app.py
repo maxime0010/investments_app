@@ -328,13 +328,19 @@ def logout():
     flash('You have been logged out.', 'success')
     return redirect(url_for('index'))
 
+# Route to display the profile page
 @app.route('/profile')
-@login_required
+@login_required  # Ensure the user is logged in
 def profile():
-    customer_id = 'stripe_customer_id_here'  # Replace with actual customer ID retrieval logic
+    customer_id = current_user.stripe_customer_id  # Retrieve the Stripe customer ID from the logged-in user
+
+    if not customer_id:
+        return "Customer ID not found", 400  # Handle case where customer_id is missing
+
     subscription_status = get_subscription_status(customer_id)
-    
+
     return render_template('profile.html', subscription_status=subscription_status)
+
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
@@ -515,16 +521,22 @@ def get_ratings_statistics():
 
     return num_reports, num_analysts, num_banks
 
+# Helper function to get subscription status
 def get_subscription_status(customer_id):
-    subscriptions = stripe.Subscription.list(customer=customer_id)
-    
-    # Check if the customer has any subscriptions
-    if subscriptions and subscriptions.data:
-        # Assuming the customer has only one subscription
-        subscription = subscriptions.data[0]
-        return subscription.status
-    else:
-        return 'inactive'  # or 'no_subscription'
+    try:
+        # Retrieve all subscriptions for the customer
+        subscriptions = stripe.Subscription.list(customer=customer_id)
+        
+        # Check if the customer has any active subscriptions
+        if subscriptions and subscriptions.data:
+            subscription = subscriptions.data[0]
+            return subscription.status
+        else:
+            return 'inactive'  # or 'no_subscription'
+    except stripe.error.InvalidRequestError as e:
+        print(f"Stripe error: {e}")
+        return 'error'  # Handle error case
+
 
 @app.route('/manage-subscription', methods=['POST'])
 def manage_subscription():
