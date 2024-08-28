@@ -564,7 +564,7 @@ def subscribe():
             payment_method_types=['card'],
             customer_email=current_user.email,
             line_items=[{
-                'price': 'price_12345',  # Replace with your actual price ID
+                'price': 'price_1PrmU5DIMC3D1ZmedUvTdwTf',  # Replace with your actual price ID
                 'quantity': 1,
             }],
             mode='subscription',
@@ -575,7 +575,12 @@ def subscribe():
 
     except stripe.error.StripeError as e:
         return jsonify({'error': str(e)}), 400
-        
+
+
+
+
+
+
 
 updates = [
     {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
