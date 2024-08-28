@@ -9,7 +9,7 @@
     <div class="row">
         {% for stock in stocks %}
         <div class="col-md-4">
-            <div class="card mb-4 shadow-sm {% if not current_user.is_member and not loop.first %}overlay-card{% endif %}">
+            <div class="card mb-4 shadow-sm {% if not is_member and not loop.first %}overlay-card{% endif %}">
                 <div class="card-body position-relative">
                     <div class="d-flex align-items-center">
                         <!-- Ranking Number to the Left of the Stock Name -->
@@ -35,7 +35,7 @@
                         <span class="badge badge-tag">{{ index }}</span>
                     {% endfor %}
                 </div>
-                {% if not current_user.is_member and not loop.first %}
+                {% if not is_member and not loop.first %}
                 <div class="overlay">
                     <div class="overlay-content">
                         <p>You need to be a member to see this content</p>
