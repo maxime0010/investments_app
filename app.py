@@ -260,10 +260,11 @@ def membership_step1():
             return redirect(url_for('login'))
 
         # Insert new user into the database
-        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, password_hash))
+        cursor.execute("INSERT INTO users (email, password_hash, is_active) VALUES (%s, %s, %s)", 
+                       (email, password_hash, False))
         conn.commit()
 
-        # Fetch the newly created user to log them in
+        # Fetch the newly created user to log them in and send confirmation email
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
@@ -271,11 +272,17 @@ def membership_step1():
         conn.close()
 
         if user:
-            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
+            user_obj = User(user['id'], email=user['email'], is_member=False)
             login_user(user_obj)
-            return redirect(url_for('membership_step2'))
+            
+            # Send confirmation email
+            send_confirmation_email(email, user['id'])
+
+            flash('A confirmation email has been sent to your inbox. Please confirm your account to proceed.', 'info')
+            return redirect(url_for('profile'))
 
     return render_template('membership_step1.html')
+
 
 
 def send_confirmation_email(email, user_id):
