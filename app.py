@@ -328,18 +328,18 @@ def logout():
     flash('You have been logged out.', 'success')
     return redirect(url_for('index'))
 
-# Route to display the profile page
 @app.route('/profile')
-@login_required  # Ensure the user is logged in
+@login_required
 def profile():
-    customer_id = current_user.stripe_customer_id  # Retrieve the Stripe customer ID from the logged-in user
+    # Assume the user's email is stored in current_user.email
+    email = current_user.email
+    subscription_status, error = get_subscription_status(email)
 
-    if not customer_id:
-        return "Customer ID not found", 400  # Handle case where customer_id is missing
-
-    subscription_status = get_subscription_status(customer_id)
+    if error:
+        return render_template('profile.html', error=error)
 
     return render_template('profile.html', subscription_status=subscription_status)
+
 
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
@@ -521,21 +521,27 @@ def get_ratings_statistics():
 
     return num_reports, num_analysts, num_banks
 
-# Helper function to get subscription status
-def get_subscription_status(customer_id):
+# Helper function to get the subscription status using an email address
+def get_subscription_status(email):
     try:
-        # Retrieve all subscriptions for the customer
+        # Retrieve the customer by email
+        customer_list = stripe.Customer.list(email=email).data
+        if not customer_list:
+            return None, 'No customer found with the provided email address'
+
+        # Get the first customer (assuming only one match)
+        customer_id = customer_list[0].id
+
+        # Retrieve the subscription for the customer
         subscriptions = stripe.Subscription.list(customer=customer_id)
-        
-        # Check if the customer has any active subscriptions
-        if subscriptions and subscriptions.data:
-            subscription = subscriptions.data[0]
-            return subscription.status
-        else:
-            return 'inactive'  # or 'no_subscription'
-    except stripe.error.InvalidRequestError as e:
-        print(f"Stripe error: {e}")
-        return 'error'  # Handle error case
+
+        # Check subscription status
+        subscription_status = subscriptions.data[0].status if subscriptions.data else 'No subscription found'
+        return subscription_status, None
+
+    except stripe.error.StripeError as e:
+        return None, str(e)
+
 
 
 @app.route('/manage-subscription', methods=['POST'])
