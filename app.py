@@ -333,12 +333,16 @@ def logout():
 def profile():
     # Assume the user's email is stored in current_user.email
     email = current_user.email
-    subscription_status, error = get_subscription_status(email)
+    subscription_status, customer_id, error = get_subscription_status(email)
 
     if error:
         return render_template('profile.html', error=error)
 
-    return render_template('profile.html', subscription_status=subscription_status)
+    if not subscription_status:
+        # If no subscription is found, redirect to the subscribe route
+        return redirect(url_for('subscribe'))
+
+    return render_template('profile.html', subscription_status=subscription_status, customer_id=customer_id)
 
 
 
@@ -558,6 +562,26 @@ def manage_subscription():
     except stripe.error.StripeError as e:
         return jsonify({'error': str(e)}), 400
 
+@app.route('/subscribe', methods=['POST'])
+@login_required
+def subscribe():
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            customer_email=current_user.email,
+            line_items=[{
+                'price': 'price_12345',  # Replace with your actual price ID
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('profile', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('profile', _external=True),
+        )
+        return redirect(session.url, code=303)
+
+    except stripe.error.StripeError as e:
+        return jsonify({'error': str(e)}), 400
+        
 
 updates = [
     {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
