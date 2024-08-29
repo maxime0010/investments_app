@@ -330,7 +330,7 @@ def create_checkout_session():
         checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
-                    'price': prices.data[0].id,
+                    'price': os.getenv('STRIPE_PRICE_ID'),
                     'quantity': 1,
                 },
             ],
