@@ -11,6 +11,8 @@ from flask_mail import Mail, Message
 from functools import wraps
 
 auth = HTTPBasicAuth()
+app = Flask(__name__)
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 
 # Admin credentials
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
@@ -27,9 +29,6 @@ def verify_password(username, password):
 def restrict_to_subdomain():
     if request.host.startswith('test.goodlife.money'):
         return auth.login_required()(lambda: None)()
-
-app = Flask(__name__)
-app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 
 # Stripe configuration
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
