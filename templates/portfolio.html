@@ -25,7 +25,7 @@
                         <strong>Ticker:</strong> {{ stock.ticker }}<br>
                         <strong>Last Price:</strong> ${{ stock.last_price | int }}<br>
                         <strong>Target Price:</strong> ${{ stock.target_price | int }}<br>
-                        <strong>Expected Return:</strong> {{ stock.expected_return_combined_criteria | default(0) | round(2) }}%<br>
+                        <strong>Expected Return:</strong> {{ stock.expected_return_combined_criteria | default(0) | float | round(2) }}%<br>
                         <strong>Number of Analysts:</strong> {{ stock.num_combined_criteria }}
                     </p>
                 </div>
