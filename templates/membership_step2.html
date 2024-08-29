@@ -25,7 +25,7 @@
         </div>
         <form action="/create-checkout-session" method="POST">
             <!-- Add a hidden field with the lookup_key of your Price -->
-            <input type="hidden" name="lookup_key" value="Good_Life_Pro-3f8fe57" />
+            <input type="hidden" name="lookup_key" value="{{ stripe_lookup_key }}" />
             <button id="checkout-and-portal-button" type="submit" class="btn btn-primary btn-lg">Checkout</button>
         </form>
     </section>
