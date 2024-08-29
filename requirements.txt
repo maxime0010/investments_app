@@ -8,3 +8,4 @@ mysql-connector-python==8.0.26
 Werkzeug==2.0.3
 sib-api-v3-sdk
 stripe
+gunicorn
