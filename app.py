@@ -315,7 +315,9 @@ def confirm_email(user_id):
 @app.route('/membership-step2')
 @login_required
 def membership_step2():
-    return render_template('membership_step2.html')
+    stripe_lookup_key = os.getenv('STRIPE_LOOKUP_KEY')
+    return render_template('membership_step2.html', stripe_lookup_key=stripe_lookup_key)
+
 
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
