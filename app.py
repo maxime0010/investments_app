@@ -593,7 +593,7 @@ def subscribe():
             payment_method_types=['card'],
             customer_email=current_user.email,
             line_items=[{
-                'price': 'price_1PrmU5DIMC3D1ZmedUvTdwTf',  # Replace with your actual price ID
+                'price': os.getenv('STRIPE_PRICE_ID'),  # Replace with your actual price ID
                 'quantity': 1,
             }],
             mode='subscription',
