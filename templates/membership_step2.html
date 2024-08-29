@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Join Good Life Pro - Payment{% endblock %}
+{% block title %}Join Good Life - Payment{% endblock %}
 
 {% block content %}
 <div class="container text-center my-5">
@@ -18,10 +18,6 @@
                     </g>
                 </g>
             </svg>
-            <div class="description">
-                <h3>Good Life Pro</h3>
-                <h5>$20.00 / month</h5>
-            </div>
         </div>
         <form action="/create-checkout-session" method="POST">
             <!-- Add a hidden field with the lookup_key of your Price -->
