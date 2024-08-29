@@ -325,9 +325,6 @@ def create_checkout_session():
             expand=['data.product']
         )
 
-        if not prices.data:
-            raise ValueError("No price found for the provided lookup key.")
-
         checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
@@ -340,7 +337,6 @@ def create_checkout_session():
             cancel_url=YOUR_DOMAIN + '/cancel',
         )
         return redirect(checkout_session.url, code=303)
-
     except Exception as e:
         print(f"Error creating checkout session: {e}")
         return str(e), 500
