@@ -26,11 +26,19 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'hello@good
 
 mail = Mail(app)
 
+# Retrieve MySQL password from environment variables
+mdp = os.getenv("MYSQL_MDP")
+if not mdp:
+    raise ValueError("No MySQL password found in environment variables")
+host = os.getenv("MYSQL_HOST")
+if not host:
+    raise ValueError("No Host found in environment variables")
+    
 # Database connection configuration
 db_config = {
     'user': 'doadmin',
-    'password': os.getenv('MYSQL_MDP'),
-    'host': 'db-mysql-nyc3-03005-do-user-4526552-0.h.db.ondigitalocean.com',
+    'password': mdp,
+    'host': host,
     'database': 'defaultdb',
     'port': 25060
 }
