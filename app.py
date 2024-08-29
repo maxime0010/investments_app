@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, json, request, current_app
+from flask_httpauth import HTTPBasicAuth
 import mysql.connector
 import os
 import stripe
@@ -8,6 +9,22 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from functools import wraps
+
+# Admin credentials
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
+
+@auth.verify_password
+def verify_password(username, password):
+    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        return True
+    return False
+
+# Apply authentication only to requests on the test.goodlife.money subdomain
+@app.before_request
+def restrict_to_subdomain():
+    if request.host.startswith('test.goodlife.money'):
+        return auth.login_required()(lambda: None)()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
