@@ -1,20 +1,46 @@
 {% extends "base.html" %}
 
-{% block title %}Go Pro - Good Life{% endblock %}
+{% block title %}Become a Member - Good Life{% endblock %}
 
 {% block content %}
-<div class="container text-center">
-    <h1 class="my-4">Unlock Premium Features with Good Life Pro</h1>
-    <p>Upgrade to Good Life Pro to access exclusive tools, in-depth analysis, and much more.</p>
+<!-- Hero Section -->
+<div class="jumbotron jumbotron-fluid text-center bg-primary text-white">
+    <div class="container">
+        <h1 class="display-4">Unlock Premium Features with Good Life Membership</h1>
+        <p class="lead">Become a Good Life member to access exclusive tools and in-depth analysis.</p>
+        <a href="{{ url_for('membership_step1') }}" class="btn btn-light btn-lg mt-3">Get Started Now</a>
+    </div>
+</div>
 
-    <ul class="list-unstyled">
-        <li><strong>Feature 1:</strong> Detailed stock analysis with real-time updates.</li>
-        <li><strong>Feature 2:</strong> Access to top-performing portfolios and investment strategies.</li>
-        <li><strong>Feature 3:</strong> Priority customer support.</li>
-        <li><strong>Feature 4:</strong> Ad-free experience.</li>
-        <!-- Add more features as needed -->
-    </ul>
+<!-- Features Section -->
+<div class="container my-5">
+    <h2 class="text-center mb-4">Why Become a Member?</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Access to Market Insights from Top Analysts</h4>
+            <p>Gain exclusive access to data typically reserved for institutional investors. This includes non-aggregated price targets from leading analysts, accuracy ratings of analysts, and real-time updates based on the latest broker reports.</p>
+        </div>
+        <div class="col-md-6">
+            <h4>AI-Generated Stock Portfolios</h4>
+            <p>Leverage stock portfolios crafted by our proprietary AI-enabled methodology. Our continually improving algorithm is designed to maximize your portfolio's risk-return profile and consistently outperform the S&P 500.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Weekly Newsletter</h4>
+            <p>Receive weekly updates directly in your inbox, including key portfolio adjustments. Stay informed and rebalance your portfolio regularly with the latest intelligence.</p>
+        </div>
+        <div class="col-md-6">
+            <h4>Ad-Free Experience</h4>
+            <p>Enjoy an uninterrupted, ad-free experience, allowing you to focus solely on making the best investment decisions.</p>
+        </div>
+    </div>
+</div>
 
-    <a href="{{ url_for('membership_step1') }}" class="btn btn-primary btn-lg mt-4">Get Started Now</a>
+<!-- Call to Action Section -->
+<div class="container text-center my-5">
+    <h2>All of This for Just $5 a Month</h2>
+    <p>Gain access to best-in-class portfolio optimization tools at a fraction of the cost of market-standard solutions.</p>
+    <a href="{{ url_for('membership_step1') }}" class="btn btn-primary btn-lg">Join Now</a>
 </div>
 {% endblock %}
