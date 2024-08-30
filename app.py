@@ -636,7 +636,7 @@ def coverage():
         stock['num_recent_analysts'] = stock['num_recent_analysts'] or 0
         stock['num_high_success_analysts'] = stock['num_high_success_analysts'] or 0
 
-    return render_template('coverage.html', coverage_data=coverage_data, recent_days=config.DAYS_RECENT)
+    return render_template('coverage.html', coverage_data=coverage_data, recent_days='30')
 
 
 
