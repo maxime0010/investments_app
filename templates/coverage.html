@@ -33,15 +33,57 @@
                     {% endfor %}
                 </td>
                 <td>${{ stock.last_closing_price }}</td>
-                <td>${{ stock.average_price_target }}</td>
-                <td>{{ stock.num_analysts }}</td>
-                <td>{{ stock.num_recent_analysts }}</td>
-                <td>{{ stock.num_high_success_analysts }}</td>
-                <td>${{ stock.avg_combined_criteria }}</td>
-                <td>{{ stock.expected_return_combined_criteria }}%</td>
+                {% if current_user.is_authenticated and current_user.is_member %}
+                    <td>${{ stock.average_price_target }}</td>
+                    <td>{{ stock.num_analysts }}</td>
+                    <td>{{ stock.num_high_success_analysts }}</td>
+                    <td>${{ stock.avg_combined_criteria }}</td>
+                    <td>{{ stock.expected_return_combined_criteria }}%</td>
+                {% else %}
+                    <!-- Apply the overlay effect to these columns for non-members -->
+                    <td colspan="4">
+                        <div class="overlay-card">
+                            <div class="overlay">
+                                <div class="overlay-content">Join to see more</div>
+                            </div>
+                        </div>
+                    </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .overlay-card {
+        position: relative;
+        overflow: hidden;
+    }
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5); /* 50% opacity */
+        backdrop-filter: blur(8px); /* Apply blurring effect */
+        -webkit-backdrop-filter: blur(8px); /* Safari support */
+        filter: blur(8px); /* Fallback for other browsers */
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        opacity: 1;
+        z-index: 1;
+    }
+    .overlay-content {
+        z-index: 2;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+</style>
 {% endblock %}
