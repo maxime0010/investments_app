@@ -613,11 +613,10 @@ def coverage():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Query to fetch the coverage data
     query = """
         SELECT s.name AS stock_name, a.ticker, s.indices, a.last_closing_price,
-               a.average_price_target,
-               a.avg_combined_criteria,
+               a.average_price_target,  
+               a.avg_combined_criteria,  
                a.num_analysts, a.num_recent_analysts, a.num_high_success_analysts,
                a.expected_return_combined_criteria
         FROM analysis a
@@ -627,8 +626,8 @@ def coverage():
     cursor.execute(query)
     coverage_data = cursor.fetchall()
 
-    # Query to fetch the most recent update date
-    cursor.execute("SELECT MAX(date) AS last_updated FROM analysis")
+    # Query to fetch the most recent update date from the ratings table
+    cursor.execute("SELECT MAX(date) AS last_updated FROM ratings")
     last_updated = cursor.fetchone()['last_updated']
 
     cursor.close()
@@ -654,14 +653,6 @@ def coverage():
 
     return render_template('coverage.html', coverage_data=filtered_coverage_data, num_stocks=num_stocks, last_updated=last_updated, recent_days='30')
 
-
-@app.template_filter('safe_round')
-def safe_round(value, precision=2):
-    if value is None:
-        return 0
-    return round(value, precision)
-
-app.jinja_env.filters['safe_round'] = safe_round
 
 
 
