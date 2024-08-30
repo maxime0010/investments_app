@@ -614,8 +614,11 @@ def coverage():
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT s.name AS stock_name, a.ticker, s.indices, a.last_closing_price, a.avg_combined_criteria AS average_price_target,
-               a.num_analysts, a.num_recent_analysts, a.num_high_success_analysts, a.expected_return_combined_criteria
+        SELECT s.name AS stock_name, a.ticker, s.indices, a.last_closing_price,
+               a.average_price_target,  -- Average across all analysts
+               a.avg_combined_criteria, -- Average for relevant analysts
+               a.num_analysts, a.num_recent_analysts, a.num_high_success_analysts,
+               a.expected_return_combined_criteria
         FROM analysis a
         JOIN stock s ON a.ticker = s.ticker
         ORDER BY s.name ASC
@@ -626,17 +629,18 @@ def coverage():
     cursor.close()
     conn.close()
 
-    # Handle None values before passing to the template
+    # Handle None values and missing keys before passing to the template
     for stock in coverage_data:
-        stock['last_closing_price'] = stock['last_closing_price'] or 0
-        stock['average_price_target'] = stock['average_price_target'] or 0
-        stock['avg_combined_criteria'] = stock['avg_combined_criteria'] or 0
-        stock['expected_return_combined_criteria'] = stock['expected_return_combined_criteria'] or 0
-        stock['num_analysts'] = stock['num_analysts'] or 0
-        stock['num_recent_analysts'] = stock['num_recent_analysts'] or 0
-        stock['num_high_success_analysts'] = stock['num_high_success_analysts'] or 0
+        stock['last_closing_price'] = stock.get('last_closing_price', 0)
+        stock['average_price_target'] = stock.get('average_price_target', 0)
+        stock['avg_combined_criteria'] = stock.get('avg_combined_criteria', 0)
+        stock['expected_return_combined_criteria'] = stock.get('expected_return_combined_criteria', 0)
+        stock['num_analysts'] = stock.get('num_analysts', 0)
+        stock['num_recent_analysts'] = stock.get('num_recent_analysts', 0)
+        stock['num_high_success_analysts'] = stock.get('num_high_success_analysts', 0)
 
     return render_template('coverage.html', coverage_data=coverage_data, recent_days='30')
+
 
 
 
