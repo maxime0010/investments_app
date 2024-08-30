@@ -609,6 +609,7 @@ def subscribe():
         return jsonify({'error': str(e)}), 400
 
 @app.route('/coverage')
+@app.route('/coverage')
 def coverage():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
@@ -639,13 +640,14 @@ def coverage():
         if stock['last_closing_price'] is None or stock['last_closing_price'] == 0:
             continue
         
-        stock['last_closing_price'] = round(stock.get('last_closing_price', 0))
-        stock['average_price_target'] = round(stock.get('average_price_target', 0))
-        stock['avg_combined_criteria'] = round(stock.get('avg_combined_criteria', 0))
-        stock['expected_return_combined_criteria'] = round(stock.get('expected_return_combined_criteria', 0))
-        stock['num_analysts'] = round(stock.get('num_analysts', 0))
-        stock['num_recent_analysts'] = round(stock.get('num_recent_analysts', 0))
-        stock['num_high_success_analysts'] = round(stock.get('num_high_success_analysts', 0))
+        # Replace None with 0 before rounding
+        stock['last_closing_price'] = round(stock.get('last_closing_price') or 0)
+        stock['average_price_target'] = round(stock.get('average_price_target') or 0)
+        stock['avg_combined_criteria'] = round(stock.get('avg_combined_criteria') or 0)
+        stock['expected_return_combined_criteria'] = round(stock.get('expected_return_combined_criteria') or 0)
+        stock['num_analysts'] = round(stock.get('num_analysts') or 0)
+        stock['num_recent_analysts'] = round(stock.get('num_recent_analysts') or 0)
+        stock['num_high_success_analysts'] = round(stock.get('num_high_success_analysts') or 0)
 
         filtered_coverage_data.append(stock)
 
