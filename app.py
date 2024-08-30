@@ -628,7 +628,7 @@ def coverage():
     conn.close()
 
     # Render the coverage.html template, passing in the coverage data and the number of days from config
-    return render_template('coverage.html', coverage_data=coverage_data, recent_days=config.RECENT_DAYS)
+    return render_template('coverage.html', coverage_data=coverage_data, recent_days='30')
 
 
 
