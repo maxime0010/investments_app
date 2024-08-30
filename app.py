@@ -610,7 +610,7 @@ def subscribe():
 
 @app.route('/coverage')
 def coverage():
-    conn = mysql.connector.connect(**config.db_config)
+    conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
     query = """
