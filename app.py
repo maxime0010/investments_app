@@ -613,10 +613,11 @@ def coverage():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
+    # Query to fetch the coverage data
     query = """
         SELECT s.name AS stock_name, a.ticker, s.indices, a.last_closing_price,
-               a.average_price_target,  -- Average across all analysts
-               a.avg_combined_criteria, -- Average for relevant analysts
+               a.average_price_target,
+               a.avg_combined_criteria,
                a.num_analysts, a.num_recent_analysts, a.num_high_success_analysts,
                a.expected_return_combined_criteria
         FROM analysis a
@@ -626,20 +627,32 @@ def coverage():
     cursor.execute(query)
     coverage_data = cursor.fetchall()
 
+    # Query to fetch the most recent update date
+    cursor.execute("SELECT MAX(date) AS last_updated FROM analysis")
+    last_updated = cursor.fetchone()['last_updated']
+
     cursor.close()
     conn.close()
 
-    # Handle None values and missing keys before passing to the template
+    # Filter out stocks with last_closing_price as None or 0, and round all numbers
+    filtered_coverage_data = []
     for stock in coverage_data:
-        stock['last_closing_price'] = stock.get('last_closing_price', 0)
-        stock['average_price_target'] = stock.get('average_price_target', 0)
-        stock['avg_combined_criteria'] = stock.get('avg_combined_criteria', 0)
-        stock['expected_return_combined_criteria'] = stock.get('expected_return_combined_criteria', 0)
-        stock['num_analysts'] = stock.get('num_analysts', 0)
-        stock['num_recent_analysts'] = stock.get('num_recent_analysts', 0)
-        stock['num_high_success_analysts'] = stock.get('num_high_success_analysts', 0)
+        if stock['last_closing_price'] is None or stock['last_closing_price'] == 0:
+            continue
+        
+        stock['last_closing_price'] = round(stock.get('last_closing_price', 0))
+        stock['average_price_target'] = round(stock.get('average_price_target', 0))
+        stock['avg_combined_criteria'] = round(stock.get('avg_combined_criteria', 0))
+        stock['expected_return_combined_criteria'] = round(stock.get('expected_return_combined_criteria', 0))
+        stock['num_analysts'] = round(stock.get('num_analysts', 0))
+        stock['num_recent_analysts'] = round(stock.get('num_recent_analysts', 0))
+        stock['num_high_success_analysts'] = round(stock.get('num_high_success_analysts', 0))
 
-    return render_template('coverage.html', coverage_data=coverage_data, recent_days='30')
+        filtered_coverage_data.append(stock)
+
+    num_stocks = len(filtered_coverage_data)
+
+    return render_template('coverage.html', coverage_data=filtered_coverage_data, num_stocks=num_stocks, last_updated=last_updated, recent_days='30')
 
 
 @app.template_filter('safe_round')
