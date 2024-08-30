@@ -610,10 +610,9 @@ def subscribe():
 
 @app.route('/coverage')
 def coverage():
-    conn = mysql.connector.connect(**db_config)
+    conn = mysql.connector.connect(**config.db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Query to get the necessary data
     query = """
         SELECT s.name AS stock_name, a.ticker, s.indices, a.last_closing_price, a.avg_combined_criteria AS average_price_target,
                a.num_analysts, a.num_recent_analysts, a.num_high_success_analysts, a.expected_return_combined_criteria
@@ -627,8 +626,17 @@ def coverage():
     cursor.close()
     conn.close()
 
-    # Render the coverage.html template, passing in the coverage data and the number of days from config
-    return render_template('coverage.html', coverage_data=coverage_data, recent_days='30')
+    # Handle None values before passing to the template
+    for stock in coverage_data:
+        stock['last_closing_price'] = stock['last_closing_price'] or 0
+        stock['average_price_target'] = stock['average_price_target'] or 0
+        stock['avg_combined_criteria'] = stock['avg_combined_criteria'] or 0
+        stock['expected_return_combined_criteria'] = stock['expected_return_combined_criteria'] or 0
+        stock['num_analysts'] = stock['num_analysts'] or 0
+        stock['num_recent_analysts'] = stock['num_recent_analysts'] or 0
+        stock['num_high_success_analysts'] = stock['num_high_success_analysts'] or 0
+
+    return render_template('coverage.html', coverage_data=coverage_data, recent_days=config.DAYS_RECENT)
 
 
 
