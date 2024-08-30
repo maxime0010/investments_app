@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Coverage - Good Life{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Coverage</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Ticker</th>
+                <th scope="col">Indices</th>
+                <th scope="col">Last Closing Price</th>
+                <th scope="col">Average Price Target</th>
+                <th scope="col">Number of Analysts</th>
+                <th scope="col">Updates in the last {{ recent_days }} days</th>
+                <th scope="col">Top Performing Analysts</th>
+                <th scope="col">Refined Price Target</th>
+                <th scope="col">Expected Return</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in coverage_data %}
+            <tr>
+                <td><a href="{{ url_for('stock_detail', ticker=stock.ticker) }}">{{ stock.stock_name }}</a></td>
+                <td><a href="{{ url_for('stock_detail', ticker=stock.ticker) }}">{{ stock.ticker }}</a></td>
+                <td>
+                    {% for index in stock.indices.split(',') %}
+                        <span class="badge badge-tag">{{ index }}</span>
+                    {% endfor %}
+                </td>
+                <td>${{ stock.last_closing_price | round(2) }}</td>
+                <td>${{ stock.average_price_target | round(2) }}</td>
+                <td>{{ stock.num_analysts }}</td>
+                <td>{{ stock.num_recent_analysts }}</td>
+                <td>{{ stock.num_high_success_analysts }}</td>
+                <td>${{ stock.avg_combined_criteria | round(2) }}</td>
+                <td>{{ stock.expected_return_combined_criteria | round(2) }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
