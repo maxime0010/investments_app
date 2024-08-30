@@ -608,6 +608,28 @@ def subscribe():
     except stripe.error.StripeError as e:
         return jsonify({'error': str(e)}), 400
 
+@app.route('/coverage')
+def coverage():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    # Query to get the necessary data
+    query = """
+        SELECT s.name AS stock_name, a.ticker, s.indices, a.last_closing_price, a.avg_combined_criteria AS average_price_target,
+               a.num_analysts, a.num_recent_analysts, a.num_high_success_analysts, a.expected_return_combined_criteria
+        FROM analysis a
+        JOIN stock s ON a.ticker = s.ticker
+        ORDER BY s.name ASC
+    """
+    cursor.execute(query)
+    coverage_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # Render the coverage.html template, passing in the coverage data and the number of days from config
+    return render_template('coverage.html', coverage_data=coverage_data, recent_days=config.RECENT_DAYS)
+
 
 
 updates = [
