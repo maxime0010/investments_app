@@ -642,6 +642,15 @@ def coverage():
     return render_template('coverage.html', coverage_data=coverage_data, recent_days='30')
 
 
+@app.template_filter('safe_round')
+def safe_round(value, precision=2):
+    if value is None:
+        return 0
+    return round(value, precision)
+
+app.jinja_env.filters['safe_round'] = safe_round
+
+
 
 
 updates = [
