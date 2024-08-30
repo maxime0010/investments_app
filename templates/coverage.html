@@ -5,6 +5,8 @@
 {% block content %}
 <div class="container my-5">
     <h1 class="mb-4">Coverage</h1>
+    <p>Number of stocks covered: <strong>{{ num_stocks }}</strong></p> <!-- Display the number of stocks -->
+    <p>Last updated on: <strong>{{ last_updated.strftime('%Y-%m-%d') }}</strong></p> <!-- Display the last updated date -->
     <table class="table table-striped">
         <thead>
             <tr>
@@ -30,13 +32,13 @@
                         <span class="badge badge-tag">{{ index }}</span>
                     {% endfor %}
                 </td>
-                <td>${{ stock.last_closing_price | default(0) | safe_round(2) }}</td>
-                <td>${{ stock.average_price_target | default(0) | safe_round(2) }}</td> <!-- All analysts -->
-                <td>{{ stock.num_analysts | default(0) }}</td>
-                <td>{{ stock.num_recent_analysts | default(0) }}</td>
-                <td>{{ stock.num_high_success_analysts | default(0) }}</td>
-                <td>${{ stock.avg_combined_criteria | default(0) | safe_round(2) }}</td> <!-- Relevant analysts -->
-                <td>{{ stock.expected_return_combined_criteria | default(0) | safe_round(2) }}%</td>
+                <td>${{ stock.last_closing_price }}</td>
+                <td>${{ stock.average_price_target }}</td>
+                <td>{{ stock.num_analysts }}</td>
+                <td>{{ stock.num_recent_analysts }}</td>
+                <td>{{ stock.num_high_success_analysts }}</td>
+                <td>${{ stock.avg_combined_criteria }}</td>
+                <td>{{ stock.expected_return_combined_criteria }}%</td>
             </tr>
             {% endfor %}
         </tbody>
