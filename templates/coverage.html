@@ -30,13 +30,13 @@
                         <span class="badge badge-tag">{{ index }}</span>
                     {% endfor %}
                 </td>
-                <td>${{ stock.last_closing_price | default(0) | round(2) }}</td>
-                <td>${{ stock.average_price_target | default(0) | round(2) }}</td> <!-- All analysts -->
+                <td>${{ stock.last_closing_price | default(0) | safe_round(2) }}</td>
+                <td>${{ stock.average_price_target | default(0) | safe_round(2) }}</td> <!-- All analysts -->
                 <td>{{ stock.num_analysts | default(0) }}</td>
                 <td>{{ stock.num_recent_analysts | default(0) }}</td>
                 <td>{{ stock.num_high_success_analysts | default(0) }}</td>
-                <td>${{ stock.avg_combined_criteria | default(0) | round(2) }}</td> <!-- Relevant analysts -->
-                <td>{{ stock.expected_return_combined_criteria | default(0) | round(2) }}%</td>
+                <td>${{ stock.avg_combined_criteria | default(0) | safe_round(2) }}</td> <!-- Relevant analysts -->
+                <td>{{ stock.expected_return_combined_criteria | default(0) | safe_round(2) }}%</td>
             </tr>
             {% endfor %}
         </tbody>
