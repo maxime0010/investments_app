@@ -213,6 +213,25 @@
             font-size: 1.25rem;
             font-weight: bold;
         }
+
+                /* Greyed-Out Cell Styles for Non-Members */
+        .greyed-out-cell {
+            background-color: #e9ecef; /* Bootstrap's light grey background color */
+            color: transparent;
+            text-align: center;
+            position: relative;
+        }
+
+        .greyed-out-cell::after {
+            content: "Join to see";
+            color: #6c757d; /* Bootstrap's text-muted color */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+        }
+
     </style>
 
 <!-- Google tag (gtag.js) -->
