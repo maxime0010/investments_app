@@ -37,18 +37,10 @@
                     <td>${{ stock.avg_combined_criteria }}</td>
                     <td>{{ stock.expected_return_combined_criteria }}%</td>
                 {% else %}
-                    <td class="overlay-cell">
-                        <div class="overlay-content">{{ stock.num_recent_analysts }}</div>
-                    </td>
-                    <td class="overlay-cell">
-                        <div class="overlay-content">{{ stock.num_high_success_analysts }}</div>
-                    </td>
-                    <td class="overlay-cell">
-                        <div class="overlay-content">${{ stock.avg_combined_criteria }}</div>
-                    </td>
-                    <td class="overlay-cell">
-                        <div class="overlay-content">{{ stock.expected_return_combined_criteria }}%</div>
-                    </td>
+                    <td class="greyed-out-cell"></td>
+                    <td class="greyed-out-cell"></td>
+                    <td class="greyed-out-cell"></td>
+                    <td class="greyed-out-cell"></td>
                 {% endif %}
             </tr>
             {% endfor %}
