@@ -182,8 +182,6 @@ def portfolio():
 
 
 @app.route('/stock/<ticker>')
-@login_required
-@members_only
 def stock_detail(ticker):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
