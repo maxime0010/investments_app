@@ -607,8 +607,25 @@ def subscribe():
         return jsonify({'error': str(e)}), 400
 
 @app.route('/coverage')
-@app.route('/coverage')
 def coverage():
+    is_member = False
+
+    if current_user.is_authenticated:
+        # Retrieve the email from the database using the user ID
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT email FROM users WHERE id = %s", (current_user.id,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user:
+            email = user['email']
+            subscription_status, customer_id, error = get_subscription_status(email)
+
+            if subscription_status == 'active':
+                is_member = True
+
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
@@ -651,8 +668,7 @@ def coverage():
 
     num_stocks = len(filtered_coverage_data)
 
-    return render_template('coverage.html', coverage_data=filtered_coverage_data, num_stocks=num_stocks, last_updated=last_updated, recent_days='30')
-
+    return render_template('coverage.html', coverage_data=filtered_coverage_data, num_stocks=num_stocks, last_updated=last_updated, recent_days='30', is_member=is_member)
 
 
 
