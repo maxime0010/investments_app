@@ -205,6 +205,25 @@ def stock_detail(ticker):
     """, (ticker,))
     latest_stock_price = cursor.fetchone()['close']
 
+    # Calculate the median success rate directly in SQL
+    cursor.execute("""
+        SELECT 
+            ROUND(AVG(t.overall_success_rate), 2) AS median_success_rate
+        FROM (
+            SELECT 
+                overall_success_rate,
+                @rownum := @rownum + 1 AS row_number,
+                @total_rows := @rownum
+            FROM 
+                analysts, (SELECT @rownum := 0) r
+            ORDER BY 
+                overall_success_rate
+        ) AS t
+        WHERE 
+            t.row_number IN (FLOOR((@total_rows + 1) / 2), CEIL((@total_rows + 1) / 2));
+    """)
+    median_success_rate = cursor.fetchone()['median_success_rate']
+
     # Fetch only the latest rating for each analyst
     cursor.execute("""
         SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, 
@@ -212,20 +231,15 @@ def stock_detail(ticker):
                (r.date >= CURDATE() - INTERVAL 30 DAY) AS updated_last_30_days,
                (a.overall_success_rate > %s) AS is_top_performer
         FROM ratings r
-        JOIN analysts a ON r.analyst_name = a.name_full
+        JOIN analysts a ON r.analyst_name = a.analyst_name
         WHERE r.ticker = %s AND r.date = (
             SELECT MAX(r2.date)
             FROM ratings r2
             WHERE r2.analyst_name = r.analyst_name AND r2.ticker = r.ticker
         )
         ORDER BY r.analyst_name ASC
-    """, (analysis_data['expected_return_combined_criteria'], ticker))
+    """, (median_success_rate, ticker))
     analysts_data = cursor.fetchall()
-
-    # Calculate the median success rate
-    cursor.execute("SELECT overall_success_rate FROM analysts ORDER BY overall_success_rate")
-    success_rates = [row['overall_success_rate'] for row in cursor.fetchall()]
-    median_success_rate = success_rates[len(success_rates) // 2] if success_rates else 0
 
     cursor.close()
     conn.close()
