@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Weekly Newsletters</h1>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <a href="{{ url_for('update', date='2024-09-01') }}">Newsletter #1 - Week of Sept 1st</a>
+        </li>
+        <!-- Add more newsletters here -->
+    </ul>
+</div>
+{% endblock %}
