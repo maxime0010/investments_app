@@ -451,9 +451,12 @@ def weekly_updates():
     return render_template('weekly_updates.html', updates=updates, latest_update=latest_update)
 
 @app.route('/weekly_update/<date>')
-def update(date):
-    selected_update = next((update for update in updates if update["date"] == date), None)
-    return render_template('update_detail.html', update=selected_update)
+def view_newsletter(date):
+    try:
+        return render_template(f'newsletters/{date}.html')
+    except Exception as e:
+        return render_template('404.html'), 404  # Render a 404 page if the newsletter doesn't exist
+
 
 @app.route('/')
 def index():
