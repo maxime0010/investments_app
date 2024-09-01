@@ -464,17 +464,39 @@ def reset_password(user_id):
 
 @app.route('/weekly_updates')
 def weekly_updates():
+    # Example list of updates
     updates = [
         {"date": "2024-09-01", "title": "Newsletter #1 - Week of Sept 1st"}
         # Add more newsletters here as needed
     ]
 
+    # Determine if the user is a member
+    is_member = False
+
+    if current_user.is_authenticated:
+        # Retrieve the email from the database using the user ID
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT email FROM users WHERE id = %s", (current_user.id,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user:
+            email = user['email']
+            subscription_status, customer_id, error = get_subscription_status(email)
+
+            if subscription_status == 'active':
+                is_member = True
+
+    # Determine the latest update
     if updates:
         latest_update = updates[0]  # Assuming the first item is the latest update
     else:
         latest_update = None  # Handle the case where there are no updates
 
-    return render_template('weekly_newsletter.html', updates=updates, latest_update=latest_update)
+    # Render the template with the updates, latest update, and membership status
+    return render_template('weekly_newsletter.html', updates=updates, latest_update=latest_update, is_member=is_member)
 
 
 @app.route('/weekly_update/<date>')
