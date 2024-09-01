@@ -205,15 +205,21 @@ def stock_detail(ticker):
     """, (ticker,))
     latest_stock_price = cursor.fetchone()['close']
 
-    # Fetch analysts' data
+    # Fetch only the latest rating for each analyst
     cursor.execute("""
-        SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, r.date AS last_update, 
-               a.overall_success_rate
+        SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, 
+               r.date AS last_update, a.overall_success_rate,
+               (r.date >= CURDATE() - INTERVAL 30 DAY) AS updated_last_30_days,
+               (a.overall_success_rate > %s) AS is_top_performer
         FROM ratings r
-        JOIN analysts a ON r.analyst_name = a.name_full
-        WHERE r.ticker = %s
+        JOIN analysts a ON r.analyst_name = a.analyst_name
+        WHERE r.ticker = %s AND r.date = (
+            SELECT MAX(r2.date)
+            FROM ratings r2
+            WHERE r2.analyst_name = r.analyst_name AND r2.ticker = r.ticker
+        )
         ORDER BY r.analyst_name ASC
-    """, (ticker,))
+    """, (analysis_data['expected_return_combined_criteria'], ticker))
     analysts_data = cursor.fetchall()
 
     # Calculate the median success rate
@@ -230,6 +236,10 @@ def stock_detail(ticker):
             analyst['expected_return'] = ((analyst['price_target'] - latest_stock_price) / latest_stock_price) * 100
         else:
             analyst['expected_return'] = None
+
+        # Highlight if updated in the last 30 days or if the analyst is a top performer
+        analyst['updated_last_30_days'] = 'Yes' if analyst['updated_last_30_days'] else 'No'
+        analyst['is_top_performer'] = 'Yes' if analyst['is_top_performer'] else 'No'
         analyst['grey_out'] = analyst['last_update'] < (datetime.today().date() - timedelta(days=30)) or analyst['overall_success_rate'] < median_success_rate
 
     return render_template('stock_detail.html', ticker=ticker, analysis_data=analysis_data, analysts_data=analysts_data, median_success_rate=median_success_rate)
