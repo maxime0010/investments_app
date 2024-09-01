@@ -14,6 +14,7 @@
                 <th scope="col">Ticker</th>
                 <th scope="col">Indices</th>
                 <th scope="col">Last Closing Price</th>
+                <th scope="col">Average Price Target</th> <!-- New column -->
                 <th scope="col">Updates in the last {{ recent_days }} days</th>
                 <th scope="col">Top Performing Analysts</th>
                 <th scope="col">Refined Price Target</th>
@@ -30,12 +31,25 @@
                         <span class="badge badge-tag">{{ index }}</span>
                     {% endfor %}
                 </td>
-                <td>${{ stock.last_closing_price }}</td>
+                <td>
+                    {{ stock.last_closing_price | round(2) if stock.last_closing_price > 0 else '-' }}
+                </td>
+                <td>
+                    {{ stock.average_price_target | round(2) if stock.average_price_target > 0 else '-' }}
+                </td>
                 {% if is_member %}
-                    <td>{{ stock.num_recent_analysts }}</td>
-                    <td>{{ stock.num_high_success_analysts }}</td>
-                    <td>${{ stock.avg_combined_criteria }}</td>
-                    <td>{{ stock.expected_return_combined_criteria }}%</td>
+                    <td>
+                        {{ stock.num_recent_analysts if stock.num_recent_analysts > 0 else '-' }}
+                    </td>
+                    <td>
+                        {{ stock.num_high_success_analysts if stock.num_high_success_analysts > 0 else '-' }}
+                    </td>
+                    <td>
+                        {{ stock.avg_combined_criteria | round(2) if stock.avg_combined_criteria > 0 else '-' }}
+                    </td>
+                    <td>
+                        {{ stock.expected_return_combined_criteria | round(2) if stock.expected_return_combined_criteria > 0 else '-' }}%
+                    </td>
                 {% else %}
                     <td class="greyed-out-cell"></td>
                     <td class="greyed-out-cell"></td>
