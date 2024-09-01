@@ -207,14 +207,13 @@ def stock_detail(ticker):
 
     # Calculate the median success rate directly in SQL
     cursor.execute("""
-        SELECT ROUND(AVG(sub.overall_success_rate), 2) AS median_success_rate
+        SELECT ROUND(AVG(derived.overall_success_rate), 2) AS median_success_rate
         FROM (
             SELECT overall_success_rate
             FROM analysts
             ORDER BY overall_success_rate
-            LIMIT 2 - (SELECT COUNT(*) FROM analysts) % 2    -- odd or even number of rows
-            OFFSET (SELECT FLOOR((COUNT(*) - 1) / 2) FROM analysts)
-        ) AS sub;
+            LIMIT 1 OFFSET (SELECT FLOOR(COUNT(*) / 2) FROM analysts)
+        ) AS derived;
     """)
     median_success_rate = cursor.fetchone()['median_success_rate']
 
