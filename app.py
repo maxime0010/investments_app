@@ -224,7 +224,7 @@ def stock_detail(ticker):
                (r.date >= CURDATE() - INTERVAL 30 DAY) AS updated_last_30_days,
                (a.overall_success_rate > %s) AS is_top_performer
         FROM ratings r
-        JOIN analysts a ON r.analyst_name = a.analyst_name
+        JOIN analysts a ON r.analyst_name = a.name_full
         WHERE r.ticker = %s AND r.date = (
             SELECT MAX(r2.date)
             FROM ratings r2
