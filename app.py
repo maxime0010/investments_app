@@ -447,8 +447,8 @@ def reset_password(user_id):
 
 @app.route('/weekly_updates')
 def weekly_updates():
-    latest_update = updates[0]
-    return render_template('weekly_updates.html', updates=updates, latest_update=latest_update)
+    return render_template('weekly_newsletter.html', updates=updates, latest_update=latest_update)
+
 
 @app.route('/weekly_update/<date>')
 def view_newsletter(date):
