@@ -457,6 +457,16 @@ def reset_password(user_id):
 
 @app.route('/weekly_updates')
 def weekly_updates():
+    updates = [
+        {"date": "2024-09-01", "title": "Newsletter #1 - Week of Sept 1st"}
+        # Add more newsletters here as needed
+    ]
+
+    if updates:
+        latest_update = updates[0]  # Assuming the first item is the latest update
+    else:
+        latest_update = None  # Handle the case where there are no updates
+
     return render_template('weekly_newsletter.html', updates=updates, latest_update=latest_update)
 
 
