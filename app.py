@@ -187,32 +187,50 @@ def stock_detail(ticker):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    query = """
-        SELECT r.name AS stock_name, a.last_closing_price, a.expected_return, 
-               a.num_analysts, p.date, p.total_value
-        FROM analysis a
-        JOIN portfolio p ON a.ticker = p.ticker
-        JOIN ratings r ON a.ticker = r.ticker
-        WHERE a.ticker = %s
-        ORDER BY p.date DESC
-    """
-    cursor.execute(query, (ticker,))
-    stock_details = cursor.fetchall()
-
-    stock_prices = fetch_stock_prices(ticker)
-
+    # Fetch the expected return, number of analysts with success rate above median, and recent updates
     cursor.execute("""
-        SELECT analyst_name, analyst, adjusted_pt_current, action_company
-        FROM ratings
+        SELECT expected_return_combined_criteria, num_recent_analysts, num_high_success_analysts
+        FROM analysis
+        WHERE ticker = %s
+    """, (ticker,))
+    analysis_data = cursor.fetchone()
+
+    # Fetch the latest stock price
+    cursor.execute("""
+        SELECT close
+        FROM prices
         WHERE ticker = %s
         ORDER BY date DESC
+        LIMIT 1
     """, (ticker,))
-    analysts = cursor.fetchall()
+    latest_stock_price = cursor.fetchone()['close']
+
+    # Fetch analysts' data
+    cursor.execute("""
+        SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, r.date AS last_update, 
+               a.overall_success_rate
+        FROM ratings r
+        JOIN analysts a ON r.analyst_name = a.analyst_name
+        WHERE r.ticker = %s
+        ORDER BY r.analyst_name ASC
+    """, (ticker,))
+    analysts_data = cursor.fetchall()
+
+    # Calculate the median success rate
+    cursor.execute("SELECT overall_success_rate FROM analysts ORDER BY overall_success_rate")
+    success_rates = [row['overall_success_rate'] for row in cursor.fetchall()]
+    median_success_rate = success_rates[len(success_rates) // 2] if success_rates else 0
 
     cursor.close()
     conn.close()
 
-    return render_template('stock_detail.html', stock=stock_details, prices=stock_prices, analysts=analysts)
+    # Prepare data for rendering
+    for analyst in analysts_data:
+        analyst['expected_return'] = ((analyst['price_target'] - latest_stock_price) / latest_stock_price) * 100
+        analyst['grey_out'] = analyst['last_update'] < (datetime.today().date() - timedelta(days=30)) or analyst['overall_success_rate'] < median_success_rate
+
+    return render_template('stock_detail.html', ticker=ticker, analysis_data=analysis_data, analysts_data=analysts_data, median_success_rate=median_success_rate)
+
 
 @app.route('/performance')
 def performance():
