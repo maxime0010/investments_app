@@ -1,59 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ stock[0]['name'] }} Details</h1>
+<div class="container my-5">
+    <h1>{{ ticker }} Analysts Overview</h1>
+    <p><strong>Expected Return:</strong> {{ analysis_data.expected_return_combined_criteria }}%</p>
+    <p><strong>Number of Analysts with Success Rate Above Median:</strong> {{ analysis_data.num_recent_analysts }}</p>
+    <p><strong>Number of Analysts with Updates in the Last 30 Days:</strong> {{ analysis_data.num_high_success_analysts }}</p>
 
-    <p><strong>Ticker:</strong> {{ stock[0]['ticker'] }}</p>
-    <p><strong>Last Price:</strong> ${{ stock[0]['last_closing_price'] | int }}</p>
-    <p><strong>Expected Return:</strong> {{ stock[0]['expected_return'] | int }}%</p>
-    <p><strong>Number of Analysts:</strong> {{ stock[0]['num_analysts'] }}</p>
-
-    <h3>Stock Prices Over the Last 12 Months</h3>
-    <canvas id="priceChart"></canvas>
-
-    <h3>Analyst Recommendations</h3>
-    <table class="table">
+    <table class="table table-striped mt-4">
         <thead>
             <tr>
-                <th>Analyst Name</th>
-                <th>Bank</th>
-                <th>Latest Price Target</th>
-                <th>Recommendation</th>
+                <th scope="col">Analyst</th>
+                <th scope="col">Bank</th>
+                <th scope="col">Price Target</th>
+                <th scope="col">Last Update</th>
+                <th scope="col">Expected Return</th>
+                <th scope="col">Success Rate</th>
             </tr>
         </thead>
         <tbody>
-            {% for analyst in analysts %}
-            <tr>
-                <td>{{ analyst['analyst_name'] }}</td>
-                <td>{{ analyst['analyst'] }}</td>
-                <td>${{ analyst['adjusted_pt_current'] | int }}</td>
-                <td>{{ analyst['action_company'] }}</td>
+            {% for analyst in analysts_data %}
+            <tr class="{% if analyst.grey_out %}text-muted{% endif %}">
+                <td>{{ analyst.analyst_name }}</td>
+                <td>{{ analyst.bank }}</td>
+                <td>${{ analyst.price_target | round(2) }}</td>
+                <td>{{ analyst.last_update.strftime('%Y-%m-%d') }}</td>
+                <td>{{ analyst.expected_return | round(2) }}%</td>
+                <td>{{ analyst.overall_success_rate | round(2) }}%</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        var ctx = document.getElementById('priceChart').getContext('2d');
-        var priceChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {{ prices | map(attribute='date') | list | tojson }},
-                datasets: [{
-                    label: 'Stock Price',
-                    data: {{ prices | map(attribute='close') | list | tojson }},
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            },
-            options: {
-                scales: {
-                    x: { display: true, title: { display: true, text: 'Date' }},
-                    y: { display: true, title: { display: true, text: 'Price ($)' }}
-                }
-            }
-        });
-    </script>
+</div>
 {% endblock %}
