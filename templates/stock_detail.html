@@ -16,6 +16,8 @@
                 <th scope="col">Last Update</th>
                 <th scope="col">Expected Return</th>
                 <th scope="col">Success Rate</th>
+                <th scope="col">Updated in the Last 30 Days</th>
+                <th scope="col">Analyst is Top Performer</th>
             </tr>
         </thead>
         <tbody>
@@ -27,6 +29,8 @@
                 <td>{{ analyst.last_update.strftime('%Y-%m-%d') }}</td>
                 <td>{{ analyst.expected_return | round(2) if analyst.expected_return is not none else 'N/A' }}%</td>
                 <td>{{ analyst.overall_success_rate | round(2) }}%</td>
+                <td class="{% if analyst.updated_last_30_days == 'Yes' %}bg-success text-white{% endif %}">{{ analyst.updated_last_30_days }}</td>
+                <td class="{% if analyst.is_top_performer == 'Yes' %}bg-success text-white{% endif %}">{{ analyst.is_top_performer }}</td>
             </tr>
             {% endfor %}
         </tbody>
