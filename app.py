@@ -210,7 +210,7 @@ def stock_detail(ticker):
         SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, r.date AS last_update, 
                a.overall_success_rate
         FROM ratings r
-        JOIN analysts a ON r.analyst_name = a.analyst_name
+        JOIN analysts a ON r.analyst_name = a.name_full
         WHERE r.ticker = %s
         ORDER BY r.analyst_name ASC
     """, (ticker,))
