@@ -489,14 +489,8 @@ def weekly_updates():
             if subscription_status == 'active':
                 is_member = True
 
-    # Determine the latest update
-    if updates:
-        latest_update = updates[0]  # Assuming the first item is the latest update
-    else:
-        latest_update = None  # Handle the case where there are no updates
-
-    # Render the template with the updates, latest update, and membership status
-    return render_template('weekly_newsletter.html', updates=updates, latest_update=latest_update, is_member=is_member)
+    # Render the template with the updates and membership status
+    return render_template('weekly_newsletter.html', updates=updates, is_member=is_member)
 
 
 @app.route('/weekly_update/<date>')
