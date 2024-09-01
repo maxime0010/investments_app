@@ -210,7 +210,7 @@ def stock_detail(ticker):
         SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, r.date AS last_update, 
                a.overall_success_rate
         FROM ratings r
-        JOIN analysts a ON r.analyst_name = a.name_full
+        JOIN analysts a ON r.analyst_name = a.analyst_name
         WHERE r.ticker = %s
         ORDER BY r.analyst_name ASC
     """, (ticker,))
@@ -226,7 +226,10 @@ def stock_detail(ticker):
 
     # Prepare data for rendering
     for analyst in analysts_data:
-        analyst['expected_return'] = ((analyst['price_target'] - latest_stock_price) / latest_stock_price) * 100
+        if analyst['price_target'] is not None and latest_stock_price is not None:
+            analyst['expected_return'] = ((analyst['price_target'] - latest_stock_price) / latest_stock_price) * 100
+        else:
+            analyst['expected_return'] = None
         analyst['grey_out'] = analyst['last_update'] < (datetime.today().date() - timedelta(days=30)) or analyst['overall_success_rate'] < median_success_rate
 
     return render_template('stock_detail.html', ticker=ticker, analysis_data=analysis_data, analysts_data=analysts_data, median_success_rate=median_success_rate)
