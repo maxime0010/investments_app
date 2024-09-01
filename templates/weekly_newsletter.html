@@ -3,11 +3,19 @@
 {% block content %}
 <div class="container mt-4">
     <h1>Weekly Newsletters</h1>
+
+    {% if is_member %}
     <ul class="list-group">
         <li class="list-group-item">
             <a href="{{ url_for('view_newsletter', date='2024-09-01') }}">Newsletter #1 - Week of Sept 1st</a>
         </li>
         <!-- Add more newsletters here -->
     </ul>
+    {% else %}
+    <div class="text-center mt-4">
+        <p>You need to become a member to be able to read the weekly newsletters.</p>
+        <a href="{{ url_for('membership_pro') }}" class="btn btn-dark">Join the Club</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
