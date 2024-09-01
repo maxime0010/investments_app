@@ -23,9 +23,9 @@
             <tr class="{% if analyst.grey_out %}text-muted{% endif %}">
                 <td>{{ analyst.analyst_name }}</td>
                 <td>{{ analyst.bank }}</td>
-                <td>${{ analyst.price_target | round(2) }}</td>
+                <td>${{ analyst.price_target | round(2) if analyst.price_target is not none else 'N/A' }}</td>
                 <td>{{ analyst.last_update.strftime('%Y-%m-%d') }}</td>
-                <td>{{ analyst.expected_return | round(2) }}%</td>
+                <td>{{ analyst.expected_return | round(2) if analyst.expected_return is not none else 'N/A' }}%</td>
                 <td>{{ analyst.overall_success_rate | round(2) }}%</td>
             </tr>
             {% endfor %}
