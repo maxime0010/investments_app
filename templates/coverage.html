@@ -31,7 +31,7 @@
                     {% endfor %}
                 </td>
                 <td>${{ stock.last_closing_price }}</td>
-                {% if current_user.is_authenticated and current_user.is_member %}
+                {% if is_member %}
                     <td>{{ stock.num_recent_analysts }}</td>
                     <td>{{ stock.num_high_success_analysts }}</td>
                     <td>${{ stock.avg_combined_criteria }}</td>
