@@ -231,7 +231,7 @@ def stock_detail(ticker):
             FROM ratings r2
             WHERE r2.analyst_name = r.analyst_name AND r2.ticker = r.ticker
         )
-        ORDER BY r.analyst_name ASC
+        ORDER BY r.date DESC, r.analyst_name ASC  -- Order by last update descending
     """, (median_success_rate, ticker))
     analysts_data = cursor.fetchall()
 
