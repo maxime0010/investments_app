@@ -239,10 +239,10 @@ def stock_detail(ticker):
 
     # Prepare data for rendering
     for analyst in analysts_data:
-        if analyst['price_target'] is not None and latest_stock_price is not None:
+        if analyst['price_target'] is not None and latest_stock_price is not None and latest_stock_price != 0:
             analyst['expected_return'] = ((analyst['price_target'] - latest_stock_price) / latest_stock_price) * 100
         else:
-            analyst['expected_return'] = None
+            analyst['expected_return'] = None  # Handle zero or missing stock price
 
         # Highlight if updated in the last 30 days or if the analyst is a top performer
         analyst['updated_last_30_days'] = 'Yes' if analyst['updated_last_30_days'] else 'No'
@@ -250,6 +250,7 @@ def stock_detail(ticker):
         analyst['grey_out'] = analyst['last_update'] < (datetime.today().date() - timedelta(days=30)) or analyst['overall_success_rate'] < median_success_rate
 
     return render_template('stock_detail.html', ticker=ticker, analysis_data=analysis_data, analysts_data=analysts_data, median_success_rate=median_success_rate)
+
 
 
 @app.route('/performance')
