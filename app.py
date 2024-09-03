@@ -195,15 +195,16 @@ def stock_detail(ticker):
     """, (ticker,))
     analysis_data = cursor.fetchone()
 
-    # Fetch the latest stock price
+    # Fetch the latest non-zero stock price
     cursor.execute("""
         SELECT close
         FROM prices
-        WHERE ticker = %s
+        WHERE ticker = %s AND close > 0
         ORDER BY date DESC
         LIMIT 1
     """, (ticker,))
-    latest_stock_price = cursor.fetchone()['close']
+    latest_stock_price_result = cursor.fetchone()
+    latest_stock_price = latest_stock_price_result['close'] if latest_stock_price_result else None
 
     # Calculate the median success rate directly in SQL
     cursor.execute("""
@@ -239,7 +240,7 @@ def stock_detail(ticker):
 
     # Prepare data for rendering
     for analyst in analysts_data:
-        if analyst['price_target'] is not None and latest_stock_price is not None and latest_stock_price != 0:
+        if analyst['price_target'] is not None and latest_stock_price is not None:
             analyst['expected_return'] = ((analyst['price_target'] - latest_stock_price) / latest_stock_price) * 100
         else:
             analyst['expected_return'] = None  # Handle zero or missing stock price
