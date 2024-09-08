@@ -3,8 +3,11 @@
 {% block title %}Join the Club - Good Life{% endblock %}
 
 {% block content %}
-<div class="image-section">
+<div class="image-section position-relative">
     <img src="https://github.com/maxime0010/investments_app/blob/main/templates/images/One-World-superJumbo.jpg?raw=true" alt="One World" class="hero-image">
+    <div class="overlay-text">
+        <h2>The top 10 performing stocks, handpicked by our AI. Delivered to your inbox every week.</h2>
+    </div>
 </div>
 
 <div class="text-section">
@@ -55,4 +58,38 @@
         <p>We partnered with Benzinga, a full-service news and media company, to collect real-time market intelligence from the top analysts.</p>
     </div>
 </div>
+{% endblock %}
+
+{% block custom_styles %}
+<style>
+    .position-relative {
+        position: relative;
+    }
+
+    .overlay-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.2); /* 20% opacity */
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        width: 80%;
+    }
+
+    .overlay-text h2 {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .hero-image {
+        width: 100%;
+        height: auto;
+        max-height: 600px;
+        object-fit: cover;
+    }
+</style>
 {% endblock %}
