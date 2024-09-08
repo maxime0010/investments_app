@@ -27,32 +27,50 @@
         .navbar-nav {
             margin-left: 0;
         }
-            .image-section {
-        position: relative;
-        background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg');
-        background-size: cover;
-        background-position: center;
-        height: 600px; /* Adjust the height as needed */
-        width: 100%;
-        margin-bottom: 2rem;
-    }
 
-    .overlay-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: rgba(0, 0, 0, 0.5); /* 50% opacity */
-        color: white;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-        width: 80%;
-    }
+        /* Image Section with Full Black Overlay */
+        .image-section {
+            position: relative;
+            background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 600px;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
 
-    .text-section-image {
-        margin-top: 20px;
-    }
+        /* Black overlay covering the whole image */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* 70% opacity black */
+            z-index: 1;
+        }
+
+        /* Text Overlay - White, centered, large */
+        .overlay-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .overlay-text h2 {
+            font-size: 2.5rem; /* Increase the font size */
+            font-weight: bold;
+        }
+
+        .text-section-image {
+            margin-top: 20px;
+        }
+
         .nav-link {
             color: #000 !important;
             font-size: 1rem;
@@ -81,14 +99,6 @@
         .footer p {
             color: #333;
             margin: 0;
-        }
-
-
-        .hero-image {
-            width: 100%;
-            height: auto;
-            max-height: 600px;
-            object-fit: cover;
         }
 
         /* Text Section */
@@ -123,15 +133,15 @@
             color: #fff;
         }
 
-        /* What We Do Section */
-        .value-proposition-section {
+        /* Value Proposition and Other Sections */
+        .value-proposition-section, .why-investment-club-section {
             background-color: #f8f9fa;
             padding: 3rem 1rem;
             width: 100%;
             margin: 0;
         }
 
-        .value-proposition-section h2 {
+        .value-proposition-section h2, .why-investment-club-section h2 {
             font-size: 2rem;
             margin-bottom: 2rem;
             text-align: center;
@@ -155,20 +165,6 @@
             margin: 0;
         }
 
-        /* Why This Investment Club Section */
-        .why-investment-club-section {
-            background-color: #fff;
-            padding: 3rem 1rem;
-            width: 100%;
-            margin: 0;
-        }
-
-        .why-investment-club-section h2 {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
         .why-investment-club-section p {
             font-size: 1.1rem;
             line-height: 1.6;
@@ -176,9 +172,8 @@
             text-align: justify;
         }
 
-        /* Badge Styles for Indices */
         .badge-tag {
-            background-color: #007bff; /* Default color for badges */
+            background-color: #007bff;
             color: #fff;
             padding: 0.3rem 0.6rem;
             border-radius: 12px;
@@ -186,77 +181,10 @@
             margin-left: 0.5rem;
             display: inline-block;
         }
-        .badge-tag:nth-child(2) {
-            background-color: #28a745; /* Different color for another tag */
-        }
-        .badge-tag:nth-child(3) {
-            background-color: #dc3545; /* Another different color */
-        }
-
-        /* Overlay Styles for Non-Members */
-        .overlay-cell {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5); /* 50% opacity */
-            backdrop-filter: blur(8px); /* Apply blurring effect */
-            -webkit-backdrop-filter: blur(8px); /* Safari support */
-            filter: blur(8px); /* Fallback for other browsers */
-            z-index: 1;
-        }
-
-        .overlay-content {
-            position: relative;
-            z-index: 2;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-        }
-
-        /* Ranking Number Style (Next to Stock Name) */
-        .ranking-number {
-            background-color: #ff9800;  /* Orange color */
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.25rem;
-            font-weight: bold;
-        }
-
-                /* Greyed-Out Cell Styles for Non-Members */
-        .greyed-out-cell {
-            background-color: #e9ecef; /* Bootstrap's light grey background color */
-            color: transparent;
-            text-align: center;
-            position: relative;
-        }
-
-        .greyed-out-cell::after {
-            color: #6c757d; /* Bootstrap's text-muted color */
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-weight: bold;
-        }
 
         .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' linecap='round' linejoin='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-}
-
-        
+            background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' linecap='round' linejoin='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
     </style>
 
 <!-- Google tag (gtag.js) -->
@@ -268,7 +196,7 @@
 
   gtag('config', 'G-RM4GG59DHE');
 </script>
-    
+
 </head>
 <body {% block body_attributes %}{% endblock %}>
     <nav class="navbar navbar-expand-lg">
@@ -282,7 +210,7 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('portfolio') }}">Portfolio</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('performance') }}">Performance</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('weekly_updates') }}">Weekly Updates</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('coverage') }}">Coverage</a></li> <!-- New Coverage menu item -->
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('coverage') }}">Coverage</a></li>
                 </ul>
                 <div class="right-links">
                     {% if current_user.is_authenticated %}
