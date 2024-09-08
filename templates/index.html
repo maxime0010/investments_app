@@ -3,8 +3,7 @@
 {% block title %}Join the Club - Good Life{% endblock %}
 
 {% block content %}
-<div class="image-section position-relative">
-    <img src="https://github.com/maxime0010/investments_app/blob/main/templates/images/One-World-superJumbo.jpg?raw=true" alt="One World" class="hero-image">
+<div class="image-section">
     <div class="overlay-text">
         <h2>The top 10 performing stocks, handpicked by AI. Delivered to your inbox every week.</h2>
     </div>
@@ -62,8 +61,12 @@
 
 {% block custom_styles %}
 <style>
-    .position-relative {
+    .image-section {
         position: relative;
+        background-image: url('https://github.com/maxime0010/investments_app/blob/main/templates/images/One-World-superJumbo.jpg?raw=true');
+        background-size: cover;
+        background-position: center;
+        height: 600px; /* Adjust the height as needed */
     }
 
     .overlay-text {
@@ -71,7 +74,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background-color: rgba(0, 0, 0, 0.2); /* 20% opacity */
+        background-color: rgba(0, 0, 0, 0.5); /* 50% opacity */
         color: white;
         padding: 20px;
         border-radius: 10px;
@@ -79,17 +82,12 @@
         width: 80%;
     }
 
-    .overlay-text h2 {
-        font-size: 2rem;
-        font-weight: bold;
-        margin: 0;
+    .hero-image {
+        display: none; /* Remove the inline image as it's replaced with a background */
     }
 
-    .hero-image {
-        width: 100%;
-        height: auto;
-        max-height: 600px;
-        object-fit: cover;
+    .text-section {
+        margin-top: 20px;
     }
 </style>
 {% endblock %}
