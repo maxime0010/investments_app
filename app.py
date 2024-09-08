@@ -469,7 +469,7 @@ def weekly_updates():
     # Example list of updates
     updates = [
         {"date": "2024-09-01", "title": "Newsletter #1 - Week of Sept 1st"}
-        # Add more newsletters here as needed
+        {"date": "2024-09-08", "title": "Newsletter #2 - Week of Sept 8th"}
     ]
 
     # Determine if the user is a member
