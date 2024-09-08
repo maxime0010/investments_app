@@ -741,6 +741,62 @@ def coverage():
     return render_template('coverage.html', coverage_data=filtered_coverage_data, num_stocks=num_stocks, last_updated=last_updated, recent_days='30', is_member=is_member)
 
 
+@app.route('/data')
+def data_overview():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch the number of analyst ratings for each year from 2021 to 2024
+    query_ratings = """
+        SELECT r.ticker,
+               SUM(CASE WHEN YEAR(r.date) = 2021 THEN 1 ELSE 0 END) AS ratings_2021,
+               SUM(CASE WHEN YEAR(r.date) = 2022 THEN 1 ELSE 0 END) AS ratings_2022,
+               SUM(CASE WHEN YEAR(r.date) = 2023 THEN 1 ELSE 0 END) AS ratings_2023,
+               SUM(CASE WHEN YEAR(r.date) = 2024 THEN 1 ELSE 0 END) AS ratings_2024
+        FROM ratings r
+        GROUP BY r.ticker
+    """
+    cursor.execute(query_ratings)
+    ratings_data = cursor.fetchall()
+
+    # Fetch the number of stock prices for each year from 2021 to 2024
+    query_prices = """
+        SELECT p.ticker,
+               SUM(CASE WHEN YEAR(p.date) = 2021 THEN 1 ELSE 0 END) AS prices_2021,
+               SUM(CASE WHEN YEAR(p.date) = 2022 THEN 1 ELSE 0 END) AS prices_2022,
+               SUM(CASE WHEN YEAR(p.date) = 2023 THEN 1 ELSE 0 END) AS prices_2023,
+               SUM(CASE WHEN YEAR(p.date) = 2024 THEN 1 ELSE 0 END) AS prices_2024
+        FROM prices p
+        GROUP BY p.ticker
+    """
+    cursor.execute(query_prices)
+    prices_data = cursor.fetchall()
+
+    # Combine ratings and prices data into a single list
+    data_overview = []
+    ticker_set = set([row['ticker'] for row in ratings_data] + [row['ticker'] for row in prices_data])
+
+    for ticker in ticker_set:
+        # Find the matching ratings and prices data for each ticker
+        ratings = next((r for r in ratings_data if r['ticker'] == ticker), {})
+        prices = next((p for p in prices_data if p['ticker'] == ticker), {})
+
+        data_overview.append({
+            'ticker': ticker,
+            'ratings_2021': ratings.get('ratings_2021', 0),
+            'ratings_2022': ratings.get('ratings_2022', 0),
+            'ratings_2023': ratings.get('ratings_2023', 0),
+            'ratings_2024': ratings.get('ratings_2024', 0),
+            'prices_2021': prices.get('prices_2021', 0),
+            'prices_2022': prices.get('prices_2022', 0),
+            'prices_2023': prices.get('prices_2023', 0),
+            'prices_2024': prices.get('prices_2024', 0)
+        })
+
+    cursor.close()
+    conn.close()
+
+    return render_template('data.html', data_overview=data_overview)
 
 
 updates = [
