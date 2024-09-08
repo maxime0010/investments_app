@@ -468,7 +468,7 @@ def reset_password(user_id):
 def weekly_updates():
     # Example list of updates
     updates = [
-        {"date": "2024-09-01", "title": "Newsletter #1 - Week of Sept 1st"}
+        {"date": "2024-09-01", "title": "Newsletter #1 - Week of Sept 1st"},
         {"date": "2024-09-08", "title": "Newsletter #2 - Week of Sept 8th"}
     ]
 
@@ -799,10 +799,6 @@ def data_overview():
     return render_template('data.html', data_overview=data_overview)
 
 
-updates = [
-    {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
-    {"date": "August 18th, 2024", "title": "Weekly Update: August 18th, 2024", "content": "<p>Details about the update for August 18th, 2024.</p>"}
-]
 
 if __name__ == '__main__':
     app.debug = True
