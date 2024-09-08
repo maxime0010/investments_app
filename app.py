@@ -801,7 +801,7 @@ def data_overview():
 
 updates = [
     {"date": "August 25th, 2024", "title": "Weekly Update: August 25th, 2024", "content": "<p>Details about the update for August 25th, 2024.</p>"},
-    {"date": "August 18th, 2024", "title": "Weekly Update: August 18th, 2024", "content": "<p>Details about the update for August 18th, 2024.</p>"},
+    {"date": "August 18th, 2024", "title": "Weekly Update: August 18th, 2024", "content": "<p>Details about the update for August 18th, 2024.</p>"}
 ]
 
 if __name__ == '__main__':
