@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Data Overview - Good Life{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Data Overview</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Ticker</th>
+                <th scope="col">Analyst Ratings (2021)</th>
+                <th scope="col">Analyst Ratings (2022)</th>
+                <th scope="col">Analyst Ratings (2023)</th>
+                <th scope="col">Analyst Ratings (2024)</th>
+                <th scope="col">Stock Prices (2021)</th>
+                <th scope="col">Stock Prices (2022)</th>
+                <th scope="col">Stock Prices (2023)</th>
+                <th scope="col">Stock Prices (2024)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in data_overview %}
+            <tr>
+                <td>{{ entry.ticker }}</td>
+                <td>{{ entry.ratings_2021 if entry.ratings_2021 > 0 else '-' }}</td>
+                <td>{{ entry.ratings_2022 if entry.ratings_2022 > 0 else '-' }}</td>
+                <td>{{ entry.ratings_2023 if entry.ratings_2023 > 0 else '-' }}</td>
+                <td>{{ entry.ratings_2024 if entry.ratings_2024 > 0 else '-' }}</td>
+                <td>{{ entry.prices_2021 if entry.prices_2021 > 0 else '-' }}</td>
+                <td>{{ entry.prices_2022 if entry.prices_2022 > 0 else '-' }}</td>
+                <td>{{ entry.prices_2023 if entry.prices_2023 > 0 else '-' }}</td>
+                <td>{{ entry.prices_2024 if entry.prices_2024 > 0 else '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
