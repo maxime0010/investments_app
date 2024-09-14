@@ -9,39 +9,79 @@
     <div class="row">
         {% for stock in stocks %}
         <div class="col-md-4">
-            <div class="card mb-4 shadow-sm {% if not is_member and not loop.first %}overlay-card{% endif %}">
+            <div class="card mb-4 shadow-sm">
                 <div class="card-body position-relative">
                     <div class="d-flex align-items-center">
                         <!-- Ranking Number to the Left of the Stock Name -->
                         <div class="ranking-number">{{ loop.index }}</div>
+
+                        <!-- Stock Information or Members-Only Placeholder -->
                         <h5 class="card-title ml-3">
-                            <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="text-dark">{{ stock.name }}</a>
+                            {% if not is_member and not loop.first %}
+                                [Members only]
+                            {% else %}
+                                <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="text-dark">{{ stock.name }}</a>
+                            {% endif %}
                         </h5>
                     </div>
-                    {% if stock.logo_url %}
-                    <img src="{{ stock.logo_url }}" alt="{{ stock.name }} logo" class="card-img-top" style="width: 50px; height: 50px; position: absolute; top: 15px; right: 15px;">
+
+                    <!-- Logo: Only shown to members and first item -->
+                    {% if is_member or loop.first %}
+                        {% if stock.logo_url %}
+                            <img src="{{ stock.logo_url }}" alt="{{ stock.name }} logo" class="card-img-top" style="width: 50px; height: 50px; position: absolute; top: 15px; right: 15px;">
+                        {% endif %}
                     {% endif %}
+
+                    <!-- Stock Details or Members-Only Placeholder -->
                     <p class="card-text mt-3">
-                        <strong>Ticker:</strong> {{ stock.ticker }}<br>
-                        <strong>Last Price:</strong> ${{ stock.last_price | int }}<br>
-                        <strong>Target Price:</strong> ${{ stock.target_price | int }}<br>
-                        <strong>Expected Return:</strong> {{ stock.expected_return_combined_criteria | default(0) | float | round(2) }}%<br>
-                        <strong>Number of Analysts:</strong> {{ stock.num_combined_criteria }}
+                        <strong>Ticker:</strong> 
+                        {% if not is_member and not loop.first %}
+                            [Members only]
+                        {% else %}
+                            {{ stock.ticker }}
+                        {% endif %}
+                        <br>
+
+                        <strong>Last Price:</strong> 
+                        {% if not is_member and not loop.first %}
+                            [Members only]
+                        {% else %}
+                            ${{ stock.last_price | int }}
+                        {% endif %}
+                        <br>
+
+                        <strong>Target Price:</strong> 
+                        {% if not is_member and not loop.first %}
+                            [Members only]
+                        {% else %}
+                            ${{ stock.target_price | int }}
+                        {% endif %}
+                        <br>
+
+                        <strong>Expected Return:</strong> 
+                        {% if not is_member and not loop.first %}
+                            [Members only]
+                        {% else %}
+                            {{ stock.expected_return_combined_criteria | default(0) | float | round(2) }}%
+                        {% endif %}
+                        <br>
+
+                        <strong>Number of Analysts:</strong> 
+                        {% if not is_member and not loop.first %}
+                            [Members only]
+                        {% else %}
+                            {{ stock.num_combined_criteria }}
+                        {% endif %}
                     </p>
                 </div>
+
+                <!-- Display indices for all users -->
                 <div class="card-footer">
                     {% set indices_list = stock.indices.split(', ') %}
                     {% for index in indices_list %}
                         <span class="badge badge-tag">{{ index }}</span>
                     {% endfor %}
                 </div>
-                {% if not is_member and not loop.first %}
-                <div class="overlay">
-                    <div class="overlay-content">
-                        <p>You need to be a member to see this content</p>
-                    </div>
-                </div>
-                {% endif %}
             </div>
         </div>
         {% endfor %}
