@@ -25,10 +25,34 @@
             });
         }
 
+        // Function to filter data as of September 1st, 2024
+        function filterDataAfterDate(dates, portfolioData, sp500Data, filterDate) {
+            var filteredDates = [];
+            var filteredPortfolioData = [];
+            var filteredSp500Data = [];
+            for (var i = 0; i < dates.length; i++) {
+                var currentDate = new Date(dates[i]);
+                if (currentDate >= filterDate) {
+                    filteredDates.push(dates[i]);
+                    filteredPortfolioData.push(portfolioData[i]);
+                    filteredSp500Data.push(sp500Data[i]);
+                }
+            }
+            return {
+                dates: filteredDates,
+                portfolioData: filteredPortfolioData,
+                sp500Data: filteredSp500Data
+            };
+        }
+
         // Actual portfolio and S&P500 data
         var actualPortfolioData = normalizeData({{ actual_values | tojson }});
         var sp500DataActual = normalizeData({{ sp500_values_actual | tojson }});
         var datesActual = {{ dates_actual | tojson }};
+
+        // Filter actual data as of September 1st, 2024
+        var filterDate = new Date("2024-09-01");
+        var filteredActualData = filterDataAfterDate(datesActual, actualPortfolioData, sp500DataActual, filterDate);
 
         // Simulated portfolio and S&P500 data
         var simulatedPortfolioData = normalizeData({{ simulation_values | tojson }});
@@ -109,11 +133,11 @@
         var actualPerformanceChart = new Chart(ctxActual, {
             type: 'line',
             data: {
-                labels: datesActual,
+                labels: filteredActualData.dates,
                 datasets: [
                     {
                         label: 'Actual Portfolio Value (Base Index 100)',
-                        data: actualPortfolioData,
+                        data: filteredActualData.portfolioData,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: gradientActualPortfolio,
                         borderWidth: 2,
@@ -121,7 +145,7 @@
                     },
                     {
                         label: 'S&P 500 (Base Index 100)',
-                        data: sp500DataActual,
+                        data: filteredActualData.sp500Data,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: gradientSP500Actual,
                         borderWidth: 2,
