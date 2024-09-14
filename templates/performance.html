@@ -1,30 +1,38 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Portfolio Performance</h1>
+    <h1>Portfolio Performance (Base Index 100)</h1>
 
     <!-- Actual Performance Graph -->
     <div>
-        <h3>Actual Performance</h3>
+        <h3>Actual Performance (Base Index 100)</h3>
         <canvas id="actualPerformanceChart"></canvas>
     </div>
 
     <!-- Simulation-Based Performance Graph -->
     <div>
-        <h3>Simulation-Based Performance</h3>
+        <h3>Simulation-Based Performance (Base Index 100)</h3>
         <canvas id="simulationPerformanceChart"></canvas>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Function to normalize data to base index 100
+        function normalizeData(data) {
+            var baseValue = data[0];
+            return data.map(function(value) {
+                return (value / baseValue) * 100;
+            });
+        }
+
         // Actual portfolio and S&P500 data
-        var actualPortfolioData = {{ actual_values | tojson }};
-        var sp500DataActual = {{ sp500_values_actual | tojson }};
+        var actualPortfolioData = normalizeData({{ actual_values | tojson }});
+        var sp500DataActual = normalizeData({{ sp500_values_actual | tojson }});
         var datesActual = {{ dates_actual | tojson }};
 
         // Simulated portfolio and S&P500 data
-        var simulatedPortfolioData = {{ simulation_values | tojson }};
-        var sp500DataSimulation = {{ sp500_values_simulation | tojson }};
+        var simulatedPortfolioData = normalizeData({{ simulation_values | tojson }});
+        var sp500DataSimulation = normalizeData({{ sp500_values_simulation | tojson }});
         var datesSimulation = {{ dates_simulation | tojson }};
 
         // Actual Performance Chart with a single Y-axis
@@ -35,14 +43,14 @@
                 labels: datesActual,
                 datasets: [
                     {
-                        label: 'Actual Portfolio Value',
+                        label: 'Actual Portfolio Value (Base Index 100)',
                         data: actualPortfolioData,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
                         fill: false
                     },
                     {
-                        label: 'S&P 500',
+                        label: 'S&P 500 (Base Index 100)',
                         data: sp500DataActual,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 2,
@@ -58,7 +66,7 @@
                     },
                     y: { 
                         display: true, 
-                        title: { display: true, text: 'Value ($)' }  // Unified Y-axis for both datasets
+                        title: { display: true, text: 'Index Value (Base 100)' }  // Unified Y-axis for both datasets
                     }
                 }
             }
@@ -72,14 +80,14 @@
                 labels: datesSimulation,
                 datasets: [
                     {
-                        label: 'Simulated Portfolio Value',
+                        label: 'Simulated Portfolio Value (Base Index 100)',
                         data: simulatedPortfolioData,
                         borderColor: 'rgba(54, 162, 235, 1)',  // Blue color for simulated portfolio
                         borderWidth: 2,
                         fill: false
                     },
                     {
-                        label: 'S&P 500',
+                        label: 'S&P 500 (Base Index 100)',
                         data: sp500DataSimulation,
                         borderColor: 'rgba(255, 99, 132, 1)',  // Red for S&P 500
                         borderWidth: 2,
@@ -95,7 +103,7 @@
                     },
                     y: { 
                         display: true, 
-                        title: { display: true, text: 'Value ($)' }  // Unified Y-axis for both datasets
+                        title: { display: true, text: 'Index Value (Base 100)' }  // Unified Y-axis for both datasets
                     }
                 }
             }
