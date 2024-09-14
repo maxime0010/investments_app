@@ -29,6 +29,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Define consistent colors for both graphs
+        const portfolioColor = 'rgba(75, 192, 192, 1)';  // Blue for the portfolio
+        const sp500Color = 'rgba(255, 99, 132, 1)';      // Red for the S&P 500
+
+        // Define gradients for both graphs
+        function createGradient(ctx, colorStart, colorEnd) {
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, colorStart);
+            gradient.addColorStop(1, colorEnd);
+            return gradient;
+        }
+
         // Function to normalize data to base index 100 from a specific base value
         function normalizeDataFromBase(data, baseValue) {
             return data.map(function(value) {
@@ -78,24 +90,15 @@
         var sp500DataSimulation = normalizeDataFromBase({{ sp500_values_simulation | tojson }}, {{ sp500_values_simulation | tojson }}[0]);
         var datesSimulation = {{ dates_simulation | tojson }};
 
-        // Create color gradients
+        // Create gradients for actual performance
         var ctxActual = document.getElementById('actualPerformanceChart').getContext('2d');
-        var gradientActualPortfolio = ctxActual.createLinearGradient(0, 0, 0, 400);
-        gradientActualPortfolio.addColorStop(0, 'rgba(75, 192, 192, 0.4)');
-        gradientActualPortfolio.addColorStop(1, 'rgba(75, 192, 192, 0.0)');
+        var gradientActualPortfolio = createGradient(ctxActual, 'rgba(75, 192, 192, 0.4)', 'rgba(75, 192, 192, 0.0)');
+        var gradientSP500Actual = createGradient(ctxActual, 'rgba(255, 99, 132, 0.4)', 'rgba(255, 99, 132, 0.0)');
 
-        var gradientSP500Actual = ctxActual.createLinearGradient(0, 0, 0, 400);
-        gradientSP500Actual.addColorStop(0, 'rgba(255, 99, 132, 0.4)');
-        gradientSP500Actual.addColorStop(1, 'rgba(255, 99, 132, 0.0)');
-
+        // Create gradients for simulation performance
         var ctxSimulation = document.getElementById('simulationPerformanceChart').getContext('2d');
-        var gradientSimulatedPortfolio = ctxSimulation.createLinearGradient(0, 0, 0, 400);
-        gradientSimulatedPortfolio.addColorStop(0, 'rgba(54, 162, 235, 0.4)');
-        gradientSimulatedPortfolio.addColorStop(1, 'rgba(54, 162, 235, 0.0)');
-
-        var gradientSP500Simulation = ctxSimulation.createLinearGradient(0, 0, 0, 400);
-        gradientSP500Simulation.addColorStop(0, 'rgba(255, 99, 132, 0.4)');
-        gradientSP500Simulation.addColorStop(1, 'rgba(255, 99, 132, 0.0)');
+        var gradientSimulatedPortfolio = createGradient(ctxSimulation, 'rgba(75, 192, 192, 0.4)', 'rgba(75, 192, 192, 0.0)');
+        var gradientSP500Simulation = createGradient(ctxSimulation, 'rgba(255, 99, 132, 0.4)', 'rgba(255, 99, 132, 0.0)');
 
         // Minimalistic options (no grid lines) with fixed aspect ratio
         var minimalisticOptions = {
@@ -161,7 +164,7 @@
                     {
                         label: 'Actual Portfolio Value (Base Index 100)',
                         data: normalizedActualPortfolioData,
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderColor: portfolioColor,   // Same color for portfolio in both graphs
                         backgroundColor: gradientActualPortfolio,
                         borderWidth: 2,
                         fill: true  // Enable gradient fill
@@ -169,7 +172,7 @@
                     {
                         label: 'S&P 500 (Base Index 100)',
                         data: normalizedSp500DataActual,
-                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderColor: sp500Color,   // Same color for S&P 500 in both graphs
                         backgroundColor: gradientSP500Actual,
                         borderWidth: 2,
                         fill: true  // Enable gradient fill
@@ -195,7 +198,7 @@
                     {
                         label: 'Simulated Portfolio Value (Base Index 100)',
                         data: simulatedPortfolioData,
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderColor: portfolioColor,   // Same color for portfolio in both graphs
                         backgroundColor: gradientSimulatedPortfolio,
                         borderWidth: 2,
                         fill: true  // Enable gradient fill
@@ -203,7 +206,7 @@
                     {
                         label: 'S&P 500 (Base Index 100)',
                         data: sp500DataSimulation,
-                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderColor: sp500Color,   // Same color for S&P 500 in both graphs
                         backgroundColor: gradientSP500Simulation,
                         borderWidth: 2,
                         fill: true  // Enable gradient fill
