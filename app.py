@@ -10,6 +10,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from functools import wraps
 
+# Helper function to calculate annualized return
+def calculate_annualized_return(start_value, end_value, start_date, end_date):
+    # Calculate the time difference in years
+    days_difference = (end_date - start_date).days
+    years_difference = days_difference / 365.25  # Account for leap years
+
+    # Avoid division by zero for very short periods
+    if years_difference == 0:
+        return 0
+
+    # Calculate the annualized return
+    return ((end_value / start_value) ** (1 / years_difference)) - 1
+    
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 
