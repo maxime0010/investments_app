@@ -3,10 +3,22 @@
 {% block content %}
     <h1>Portfolio Performance (Base Index 100)</h1>
 
+    <!-- Actual Performance Annualized Returns -->
+    <div style="margin-bottom: 10px;">
+        <h4>Actual Portfolio Annualized Return: {{ actual_portfolio_annualized_return }}%</h4>
+        <h4>S&P 500 Annualized Return: {{ sp500_annualized_return_actual }}%</h4>
+    </div>
+
     <!-- Actual Performance Graph -->
     <div style="margin-bottom: 50px;">  <!-- Adds space between the graphs -->
         <h3>Actual Performance (Base Index 100)</h3>
         <canvas id="actualPerformanceChart" style="height: 400px; width: 100%;"></canvas> <!-- Set a fixed height and full width -->
+    </div>
+
+    <!-- Simulation-Based Annualized Returns -->
+    <div style="margin-bottom: 10px;">
+        <h4>Simulated Portfolio Annualized Return: {{ simulated_portfolio_annualized_return }}%</h4>
+        <h4>S&P 500 Simulated Annualized Return: {{ sp500_annualized_return_simulation }}%</h4>
     </div>
 
     <!-- Simulation-Based Performance Graph -->
@@ -102,9 +114,9 @@
                         display: false  // No grid lines
                     },
                     ticks: {
-                        // Remove the $ sign, just show the normalized value
+                        // Remove decimals for both charts
                         callback: function(value) {
-                            return value.toFixed(2);
+                            return value.toFixed(0);  // No decimals
                         }
                     }
                 }
@@ -167,7 +179,14 @@
             options: minimalisticOptions
         });
 
-        // Simulation-Based Performance Chart with smooth curves, gradients, and minimalistic design
+        // Modify the x-axis ticks to show weekly increments for the second graph
+        var weeklyIncrementsOptions = JSON.parse(JSON.stringify(minimalisticOptions)); // Copy the minimalisticOptions
+        weeklyIncrementsOptions.scales.x.time = {
+            unit: 'week',  // Use weekly increments
+            tooltipFormat: 'MMM D, YYYY',  // Show month, day, and year in tooltips
+        };
+
+        // Simulation-Based Performance Chart with weekly increments for x-axis
         var simulationPerformanceChart = new Chart(ctxSimulation, {
             type: 'line',
             data: {
@@ -191,7 +210,7 @@
                     }
                 ]
             },
-            options: minimalisticOptions
+            options: weeklyIncrementsOptions
         });
     </script>
 {% endblock %}
