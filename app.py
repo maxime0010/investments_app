@@ -270,7 +270,7 @@ def performance():
 
     # Fetch simulated portfolio values from portfolio_simulation
     cursor.execute("""
-        SELECT date, total_portfolio_value
+        SELECT date, total_value AS total_portfolio_value
         FROM portfolio_simulation
         ORDER BY date
     """)
