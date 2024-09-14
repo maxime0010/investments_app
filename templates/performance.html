@@ -17,9 +17,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Function to normalize data to base index 100
-        function normalizeData(data) {
-            var baseValue = data[0];
+        // Function to normalize data to base index 100 from a specific base value
+        function normalizeDataFromBase(data, baseValue) {
             return data.map(function(value) {
                 return (value / baseValue) * 100;
             });
@@ -46,17 +45,25 @@
         }
 
         // Actual portfolio and S&P500 data
-        var actualPortfolioData = normalizeData({{ actual_values | tojson }});
-        var sp500DataActual = normalizeData({{ sp500_values_actual | tojson }});
+        var actualPortfolioData = {{ actual_values | tojson }};
+        var sp500DataActual = {{ sp500_values_actual | tojson }};
         var datesActual = {{ dates_actual | tojson }};
 
         // Filter actual data as of September 1st, 2024
         var filterDate = new Date("2024-09-01");
         var filteredActualData = filterDataAfterDate(datesActual, actualPortfolioData, sp500DataActual, filterDate);
 
+        // Set base value for normalization (the portfolio value on September 1st, 2024)
+        var basePortfolioValue = filteredActualData.portfolioData[0];  // First data point after September 1st
+        var baseSp500Value = filteredActualData.sp500Data[0];  // First S&P500 value after September 1st
+
+        // Normalize data from September 1st, 2024
+        var normalizedActualPortfolioData = normalizeDataFromBase(filteredActualData.portfolioData, basePortfolioValue);
+        var normalizedSp500DataActual = normalizeDataFromBase(filteredActualData.sp500Data, baseSp500Value);
+
         // Simulated portfolio and S&P500 data
-        var simulatedPortfolioData = normalizeData({{ simulation_values | tojson }});
-        var sp500DataSimulation = normalizeData({{ sp500_values_simulation | tojson }});
+        var simulatedPortfolioData = normalizeDataFromBase({{ simulation_values | tojson }}, {{ simulation_values | tojson }}[0]); // Normalize from the first point
+        var sp500DataSimulation = normalizeDataFromBase({{ sp500_values_simulation | tojson }}, {{ sp500_values_simulation | tojson }}[0]);
         var datesSimulation = {{ dates_simulation | tojson }};
 
         // Create color gradients
@@ -95,8 +102,9 @@
                         display: false  // No grid lines
                     },
                     ticks: {
+                        // Remove the $ sign, just show the normalized value
                         callback: function(value) {
-                            return '$' + value.toFixed(2);  // Display values as currency
+                            return value.toFixed(2);
                         }
                     }
                 }
@@ -104,6 +112,9 @@
             elements: {
                 line: {
                     tension: 0.4  // Smooth curves
+                },
+                point: {
+                    radius: 0  // Remove dots (data points)
                 }
             },
             plugins: {
@@ -137,7 +148,7 @@
                 datasets: [
                     {
                         label: 'Actual Portfolio Value (Base Index 100)',
-                        data: filteredActualData.portfolioData,
+                        data: normalizedActualPortfolioData,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: gradientActualPortfolio,
                         borderWidth: 2,
@@ -145,7 +156,7 @@
                     },
                     {
                         label: 'S&P 500 (Base Index 100)',
-                        data: filteredActualData.sp500Data,
+                        data: normalizedSp500DataActual,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: gradientSP500Actual,
                         borderWidth: 2,
