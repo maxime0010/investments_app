@@ -22,7 +22,7 @@
     <script>
         var ctx = document.getElementById('stockSimulationChart').getContext('2d');
 
-        // Your stock prices and price target data
+        // Stock prices and price target data
         var stockPrices = {{ stock_prices | tojson }};
         var priceTargets = {{ price_targets | tojson }};
         var dates = {{ dates | tojson }};
@@ -33,7 +33,7 @@
                 labels: dates,
                 datasets: [
                     {
-                        label: 'Stock Price',
+                        label: 'Stock Price (last_closing_price)',
                         data: stockPrices,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
