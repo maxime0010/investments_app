@@ -276,44 +276,44 @@ def performance():
     """)
     simulated_portfolio_data = cursor.fetchall()
 
-    # Find the earliest date in both actual and simulated portfolios
+    # Find the earliest date for both actual and simulated portfolios
     first_actual_date = actual_portfolio_data[0]['date'] if actual_portfolio_data else None
     first_simulation_date = simulated_portfolio_data[0]['date'] if simulated_portfolio_data else None
 
-    # Determine the earliest date across both portfolios (actual and simulated)
-    if first_actual_date and first_simulation_date:
-        start_date = max(first_actual_date, first_simulation_date)
-    elif first_actual_date:
-        start_date = first_actual_date
-    elif first_simulation_date:
-        start_date = first_simulation_date
-    else:
-        start_date = None  # Handle case where no portfolio data is available
-
-    # Fetch S&P 500 data (ticker: SPX) from prices table starting from the determined start date
-    if start_date:
+    # Fetch S&P 500 data (ticker: SPX) for the actual portfolio timeframe
+    sp500_data_actual = []
+    if first_actual_date:
         cursor.execute("""
             SELECT date, close AS sp500_value
             FROM prices
             WHERE ticker = 'SPX' AND date >= %s
             ORDER BY date
-        """, (start_date,))
-        sp500_data = cursor.fetchall()
-    else:
-        sp500_data = []
+        """, (first_actual_date,))
+        sp500_data_actual = cursor.fetchall()
+
+    # Fetch S&P 500 data (ticker: SPX) for the simulated portfolio timeframe
+    sp500_data_simulation = []
+    if first_simulation_date:
+        cursor.execute("""
+            SELECT date, close AS sp500_value
+            FROM prices
+            WHERE ticker = 'SPX' AND date >= %s
+            ORDER BY date
+        """, (first_simulation_date,))
+        sp500_data_simulation = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    # Extract dates and values for actual and simulated portfolios and S&P 500
+    # Extract dates and values for actual portfolio and S&P 500 (aligned with actual portfolio dates)
     dates_actual = [row['date'].strftime('%Y-%m-%d') for row in actual_portfolio_data]
     actual_portfolio_values = [row['total_portfolio_value'] for row in actual_portfolio_data]
+    sp500_values_actual = [row['sp500_value'] for row in sp500_data_actual[:len(dates_actual)]]
 
+    # Extract dates and values for simulated portfolio and S&P 500 (aligned with simulated portfolio dates)
     dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in simulated_portfolio_data]
     simulated_portfolio_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
-
-    sp500_values_actual = [row['sp500_value'] for row in sp500_data[:len(dates_actual)]]
-    sp500_values_simulation = [row['sp500_value'] for row in sp500_data[:len(dates_simulation)]]
+    sp500_values_simulation = [row['sp500_value'] for row in sp500_data_simulation[:len(dates_simulation)]]
 
     return render_template('performance.html', 
                            dates_actual=dates_actual, 
