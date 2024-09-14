@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Stock Simulation for {{ selected_ticker }}</h1>
+
+    <div>
+        <label for="ticker-select">Choose a stock:</label>
+        <select id="ticker-select" onchange="location = this.value;">
+            {% for ticker in tickers %}
+            <option value="{{ url_for('stock_simulation', ticker=ticker) }}" {% if ticker == selected_ticker %}selected{% endif %}>
+                {{ ticker }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <canvas id="stockSimulationChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('stockSimulationChart').getContext('2d');
+
+        // Your stock prices and price target data
+        var stockPrices = {{ stock_prices | tojson }};
+        var priceTargets = {{ price_targets | tojson }};
+        var dates = {{ dates | tojson }};
+
+        var stockSimulationChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Stock Price',
+                        data: stockPrices,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'Price Target (avg_combined_criteria)',
+                        data: priceTargets,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: { 
+                        display: true, 
+                        title: { display: true, text: 'Date' }
+                    },
+                    y: { 
+                        display: true, 
+                        title: { display: true, text: 'Price' }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}
