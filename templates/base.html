@@ -39,16 +39,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Black overlay covering the whole image */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* 30% opacity black */
-            z-index: 1;
-        }
 
         /* Text Overlay - White, centered, large */
         .overlay-text {
@@ -172,15 +162,40 @@
             text-align: justify;
         }
 
-        .badge-tag {
-            background-color: #007bff;
-            color: #fff;
-            padding: 0.3rem 0.6rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            margin-left: 0.5rem;
-            display: inline-block;
-        }
+        /* Different background colors for indices labels */
+.badge-tag {
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    margin-left: 0.5rem;
+    display: inline-block;
+}
+
+/* Assign different colors */
+.badge-tag:nth-child(1) {
+    background-color: #007bff; /* Blue */
+    color: #fff;
+}
+
+.badge-tag:nth-child(2) {
+    background-color: #28a745; /* Green */
+    color: #fff;
+}
+
+.badge-tag:nth-child(3) {
+    background-color: #ffc107; /* Yellow */
+    color: #fff;
+}
+
+.badge-tag:nth-child(4) {
+    background-color: #dc3545; /* Red */
+    color: #fff;
+}
+
+.badge-tag:nth-child(5) {
+    background-color: #6f42c1; /* Purple */
+    color: #fff;
+}
 
         .navbar-toggler-icon {
             background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' linecap='round' linejoin='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
@@ -202,12 +217,45 @@
             align-items: center;
         }
 
-        /* Add proper overlay styling */
-        .overlay-card {
-            position: relative;
-            filter: blur(2px); /* Apply blur effect */
-        }
+/* Apply blur effect to the whole card except the first one */
+.overlay-card {
+    position: relative;
+    filter: blur(5px); /* Stronger blur to obscure the content */
+    pointer-events: none; /* Disable interaction with the card */
+}
 
+/* Remove blur for the first card */
+.overlay-card:first-child {
+    filter: none;
+    pointer-events: auto;
+}
+
+/* Ensure the card's content is not blurred */
+.overlay-card .card-body, 
+.overlay-card .card-footer {
+    filter: none;
+}
+
+/* Overlay text for locked content */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+.overlay-content {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+        
         .overlay-card .overlay {
             position: absolute;
             top: 0;
