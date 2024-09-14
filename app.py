@@ -330,7 +330,7 @@ def performance():
     sp500_annualized_return_simulation = calculate_annualized_return(
         sp500_values_simulation[0], sp500_values_simulation[-1], start_date_simulation, end_date_simulation) * 100
 
-    # Pass these values to your template
+    # Pass these values to your template, formatted to 1 decimal place
     return render_template('performance.html', 
                            dates_actual=dates_actual, 
                            actual_values=actual_portfolio_values, 
@@ -338,11 +338,13 @@ def performance():
                            dates_simulation=dates_simulation, 
                            simulation_values=simulated_portfolio_values, 
                            sp500_values_simulation=sp500_values_simulation,
-                           actual_portfolio_annualized_return=f"{actual_portfolio_annualized_return:.2f}",
-                           sp500_annualized_return_actual=f"{sp500_annualized_return_actual:.2f}",
-                           simulated_portfolio_annualized_return=f"{simulated_portfolio_annualized_return:.2f}",
-                           sp500_annualized_return_simulation=f"{sp500_annualized_return_simulation:.2f}")
-    
+                           actual_portfolio_annualized_return=f"{actual_portfolio_annualized_return:.1f}",
+                           sp500_annualized_return_actual=f"{sp500_annualized_return_actual:.1f}",
+                           simulated_portfolio_annualized_return=f"{simulated_portfolio_annualized_return:.1f}",
+                           sp500_annualized_return_simulation=f"{sp500_annualized_return_simulation:.1f}")
+
+
+
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
 def membership_step1():
