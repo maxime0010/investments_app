@@ -262,7 +262,7 @@ def performance():
     # Fetch actual portfolio values from your table (replace with actual table name)
     cursor.execute("""
         SELECT date, total_portfolio_value
-        FROM actual_portfolio  -- Replace with your actual portfolio table
+        FROM portfolio  -- Replace with your actual portfolio table
         ORDER BY date
     """)
     actual_portfolio_data = cursor.fetchall()
