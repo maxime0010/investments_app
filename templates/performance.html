@@ -3,19 +3,21 @@
 {% block content %}
     <h1>Portfolio Performance</h1>
 
+    <!-- Actual Performance Graph -->
     <div>
-        <h3>Returns:</h3>
-        <p>Last 30 Days: {{ return_30_days | default(0) }}%</p>
-        <p>Last 12 Months: {{ return_12_months | default(0) }}%</p>
+        <h3>Actual Performance</h3>
+        <canvas id="actualPerformanceChart"></canvas>
     </div>
 
+    <!-- Simulation-Based Performance Graph -->
     <div>
-        <canvas id="performanceChart"></canvas>
+        <h3>Simulation-Based Performance</h3>
+        <canvas id="simulationPerformanceChart"></canvas>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Normalizing both datasets to a basis of 100
+        // Normalizing datasets to a basis of 100
         function normalizeData(data) {
             var firstValue = data[0];
             return data.map(function(value) {
@@ -23,32 +25,78 @@
             });
         }
 
-        // Your portfolio and S&P500 data
-        var portfolioData = {{ values | tojson }};
-        var sp500Data = {{ sp500_values | tojson }};
-        var dates = {{ dates | tojson }};
+        // Actual portfolio and S&P500 data
+        var actualPortfolioData = {{ actual_values | tojson }};
+        var sp500DataActual = {{ sp500_values_actual | tojson }};
+        var datesActual = {{ dates_actual | tojson }};
+
+        // Simulated portfolio and S&P500 data
+        var simulatedPortfolioData = {{ simulation_values | tojson }};
+        var sp500DataSimulation = {{ sp500_values_simulation | tojson }};
+        var datesSimulation = {{ dates_simulation | tojson }};
 
         // Normalize both datasets
-        var normalizedPortfolioData = normalizeData(portfolioData);
-        var normalizedSp500Data = normalizeData(sp500Data);
+        var normalizedActualPortfolioData = normalizeData(actualPortfolioData);
+        var normalizedSp500DataActual = normalizeData(sp500DataActual);
 
-        var ctx = document.getElementById('performanceChart').getContext('2d');
-        var performanceChart = new Chart(ctx, {
+        var normalizedSimulatedPortfolioData = normalizeData(simulatedPortfolioData);
+        var normalizedSp500DataSimulation = normalizeData(sp500DataSimulation);
+
+        // Actual Performance Chart
+        var ctxActual = document.getElementById('actualPerformanceChart').getContext('2d');
+        var actualPerformanceChart = new Chart(ctxActual, {
             type: 'line',
             data: {
-                labels: dates,
+                labels: datesActual,
                 datasets: [
                     {
-                        label: 'Total Portfolio Value (Basis 100)',
-                        data: normalizedPortfolioData,
+                        label: 'Actual Portfolio Value (Basis 100)',
+                        data: normalizedActualPortfolioData,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
                         fill: false
                     },
                     {
                         label: 'S&P 500 (Basis 100)',
-                        data: normalizedSp500Data,
+                        data: normalizedSp500DataActual,
                         borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: { 
+                        display: true, 
+                        title: { display: true, text: 'Date' }
+                    },
+                    y: { 
+                        display: true, 
+                        title: { display: true, text: 'Normalized Value (Basis 100)' }
+                    }
+                }
+            }
+        });
+
+        // Simulation-Based Performance Chart
+        var ctxSimulation = document.getElementById('simulationPerformanceChart').getContext('2d');
+        var simulationPerformanceChart = new Chart(ctxSimulation, {
+            type: 'line',
+            data: {
+                labels: datesSimulation,
+                datasets: [
+                    {
+                        label: 'Simulated Portfolio Value (Basis 100)',
+                        data: normalizedSimulatedPortfolioData,
+                        borderColor: 'rgba(54, 162, 235, 1)',  // Blue color for simulated portfolio
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'S&P 500 (Basis 100)',
+                        data: normalizedSp500DataSimulation,
+                        borderColor: 'rgba(255, 99, 132, 1)',  // Red for S&P 500
                         borderWidth: 2,
                         fill: false
                     }
