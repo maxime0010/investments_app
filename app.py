@@ -259,28 +259,37 @@ def performance():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    query = """
+    # Fetch portfolio data
+    query_portfolio = """
         SELECT date, SUM(total_value) as total_portfolio_value
         FROM portfolio
         GROUP BY date
         ORDER BY date
     """
-    cursor.execute(query)
-    performance_data = cursor.fetchall()
+    cursor.execute(query_portfolio)
+    portfolio_data = cursor.fetchall()
 
-    dates = [entry['date'].strftime('%Y-%m-%d') for entry in performance_data if entry['date'] is not None]
-    values = [entry['total_portfolio_value'] for entry in performance_data if entry['total_portfolio_value'] is not None]
+    dates = [entry['date'].strftime('%Y-%m-%d') for entry in portfolio_data if entry['date'] is not None]
+    values = [entry['total_portfolio_value'] for entry in portfolio_data if entry['total_portfolio_value'] is not None]
 
-    if not dates:
-        dates = ["No data"]
-    if not values:
-        values = [0]
+    # Fetch S&P 500 data
+    query_sp500 = """
+        SELECT date, close AS sp500_value
+        FROM prices
+        WHERE ticker = 'SPX'  -- Assuming 'SPX' is used for S&P 500 index in the 'prices' table
+        ORDER BY date
+    """
+    cursor.execute(query_sp500)
+    sp500_data = cursor.fetchall()
 
+    sp500_values = [entry['sp500_value'] for entry in sp500_data if entry['sp500_value'] is not None]
+
+    # Ensure we have enough data to calculate returns
     if len(values) >= 30:
         return_30_days = round(((values[-1] - values[-30]) / values[-30]) * 100, 2)
     else:
         return_30_days = None
-    
+
     if len(values) >= 365:
         return_12_months = round(((values[-1] - values[-365]) / values[-365]) * 100, 2)
     else:
@@ -289,8 +298,24 @@ def performance():
     cursor.close()
     conn.close()
 
-    return render_template('performance.html', dates=dates, values=values, 
-                           return_30_days=return_30_days, return_12_months=return_12_months)
+    # Normalize both datasets to a basis of 100
+    def normalize_data(data):
+        first_value = data[0] if data else 1
+        return [(value / first_value) * 100 for value in data]
+
+    normalized_portfolio_values = normalize_data(values)
+    normalized_sp500_values = normalize_data(sp500_values)
+
+    # Ensure both datasets have matching lengths by aligning dates
+    if len(dates) > len(sp500_values):
+        dates = dates[:len(sp500_values)]
+        normalized_portfolio_values = normalized_portfolio_values[:len(sp500_values)]
+    elif len(sp500_values) > len(dates):
+        sp500_values = sp500_values[:len(dates)]
+        normalized_sp500_values = normalized_sp500_values[:len(dates)]
+
+    return render_template('performance.html', dates=dates, values=normalized_portfolio_values, 
+                           sp500_values=normalized_sp500_values, return_30_days=return_30_days, return_12_months=return_12_months)
 
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
