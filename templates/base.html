@@ -28,53 +28,7 @@
             margin-left: 0;
         }
 
-        /* Grey Overlay Effect Instead of Blur */
-        .overlay-card {
-            position: relative;
-        }
-
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(128, 128, 128, 0.8); /* Grey with 80% opacity */
-            z-index: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .overlay-content {
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-            z-index: 2;
-        }
-
-        /* Card layout */
-        .card {
-            margin-bottom: 1.5rem;
-            min-height: 300px;
-            position: relative;
-        }
-
-        .card-body {
-            position: relative;
-            z-index: 2; /* Ensure content is above the overlay */
-        }
-
-        .card-footer {
-            z-index: 2;
-        }
-
-        /* Ensure first card does not have the grey overlay */
-        .overlay-card:first-child .overlay {
-            display: none;
-        }
-
+        /* Image Section with Full Black Overlay */
         .image-section {
             position: relative;
             background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg');
@@ -85,6 +39,7 @@
             margin-bottom: 2rem;
         }
 
+        /* Text Overlay - White, centered, large */
         .overlay-text {
             position: absolute;
             top: 50%;
@@ -97,7 +52,7 @@
         }
 
         .overlay-text h2 {
-            font-size: 2.5rem;
+            font-size: 2.5rem; /* Increase the font size */
             font-weight: bold;
         }
 
@@ -111,35 +66,31 @@
             margin-right: 1rem;
             padding: 0.5rem 0;
         }
-
         .nav-link:hover {
             color: #555 !important;
         }
-
         .right-links {
             margin-left: auto;
             display: flex;
             align-items: center;
         }
-
         .container {
             max-width: 1200px;
             padding-top: 20px;
             flex: 1;
         }
-
         .footer {
             background-color: #f8f9fa;
             color: #333;
             padding: 1rem 0;
             text-align: center;
         }
-
         .footer p {
             color: #333;
             margin: 0;
         }
 
+        /* Text Section */
         .text-section {
             max-width: 800px;
             margin: 0 auto;
@@ -171,6 +122,7 @@
             color: #fff;
         }
 
+        /* Value Proposition and Other Sections */
         .value-proposition-section, .why-investment-club-section {
             background-color: #f8f9fa;
             padding: 3rem 1rem;
@@ -209,9 +161,8 @@
             text-align: justify;
         }
 
+        /* Different background colors for indices labels */
         .badge-tag {
-            background-color: #007bff;
-            color: #fff;
             padding: 0.3rem 0.6rem;
             border-radius: 12px;
             font-size: 0.85rem;
@@ -219,8 +170,106 @@
             display: inline-block;
         }
 
+        .badge-tag:nth-child(1) {
+            background-color: #007bff; /* Blue */
+            color: #fff;
+        }
+
+        .badge-tag:nth-child(2) {
+            background-color: #28a745; /* Green */
+            color: #fff;
+        }
+
+        .badge-tag:nth-child(3) {
+            background-color: #ffc107; /* Yellow */
+            color: #fff;
+        }
+
+        .badge-tag:nth-child(4) {
+            background-color: #dc3545; /* Red */
+            color: #fff;
+        }
+
+        .badge-tag:nth-child(5) {
+            background-color: #6f42c1; /* Purple */
+            color: #fff;
+        }
+
         .navbar-toggler-icon {
             background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' linecap='round' linejoin='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+
+        /* Fix for the ranking number */
+        .ranking-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background-color: #000;
+            color: #fff;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Grey overlay instead of blur */
+        .overlay-card {
+            position: relative;
+        }
+
+        /* Grey overlay for non-member cards */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(128, 128, 128, 0.8); /* Grey with 80% opacity */
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .overlay-content {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        /* Card layout and spacing */
+        .card {
+            margin-bottom: 1.5rem;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .card-body {
+            position: relative;
+            z-index: 2; /* Ensure content is above the overlay */
+        }
+
+        .card-footer {
+            z-index: 2;
+        }
+
+        .card-img-top {
+            object-fit: contain;
+            max-height: 50px;
+            width: auto;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        /* Ensure the first card does not have the grey overlay */
+        .overlay-card:first-child .overlay {
+            display: none;
         }
     </style>
 
