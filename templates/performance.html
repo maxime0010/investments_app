@@ -27,7 +27,7 @@
         var sp500DataSimulation = {{ sp500_values_simulation | tojson }};
         var datesSimulation = {{ dates_simulation | tojson }};
 
-        // Actual Performance Chart with dual Y-axes
+        // Actual Performance Chart with a single Y-axis
         var ctxActual = document.getElementById('actualPerformanceChart').getContext('2d');
         var actualPerformanceChart = new Chart(ctxActual, {
             type: 'line',
@@ -38,7 +38,6 @@
                         label: 'Actual Portfolio Value',
                         data: actualPortfolioData,
                         borderColor: 'rgba(75, 192, 192, 1)',
-                        yAxisID: 'portfolioAxis',  // Bind this dataset to the left Y-axis
                         borderWidth: 2,
                         fill: false
                     },
@@ -46,7 +45,6 @@
                         label: 'S&P 500',
                         data: sp500DataActual,
                         borderColor: 'rgba(255, 99, 132, 1)',
-                        yAxisID: 'sp500Axis',  // Bind this dataset to the right Y-axis
                         borderWidth: 2,
                         fill: false
                     }
@@ -58,34 +56,15 @@
                         display: true, 
                         title: { display: true, text: 'Date' }
                     },
-                    y: {
-                        portfolioAxis: {  // Left Y-axis for portfolio values
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'Portfolio Value ($)'
-                            }
-                        },
-                        sp500Axis: {  // Right Y-axis for S&P 500 values
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'S&P 500 Value'
-                            },
-                            grid: {
-                                drawOnChartArea: false  // Prevent grid lines from overlapping
-                            }
-                        }
+                    y: { 
+                        display: true, 
+                        title: { display: true, text: 'Value ($)' }  // Unified Y-axis for both datasets
                     }
                 }
             }
         });
 
-        // Simulation-Based Performance Chart with dual Y-axes
+        // Simulation-Based Performance Chart with a single Y-axis
         var ctxSimulation = document.getElementById('simulationPerformanceChart').getContext('2d');
         var simulationPerformanceChart = new Chart(ctxSimulation, {
             type: 'line',
@@ -96,7 +75,6 @@
                         label: 'Simulated Portfolio Value',
                         data: simulatedPortfolioData,
                         borderColor: 'rgba(54, 162, 235, 1)',  // Blue color for simulated portfolio
-                        yAxisID: 'portfolioAxis',  // Bind to the left Y-axis
                         borderWidth: 2,
                         fill: false
                     },
@@ -104,7 +82,6 @@
                         label: 'S&P 500',
                         data: sp500DataSimulation,
                         borderColor: 'rgba(255, 99, 132, 1)',  // Red for S&P 500
-                        yAxisID: 'sp500Axis',  // Bind to the right Y-axis
                         borderWidth: 2,
                         fill: false
                     }
@@ -116,28 +93,9 @@
                         display: true, 
                         title: { display: true, text: 'Date' }
                     },
-                    y: {
-                        portfolioAxis: {  // Left Y-axis for simulated portfolio values
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'Simulated Portfolio Value ($)'
-                            }
-                        },
-                        sp500Axis: {  // Right Y-axis for S&P 500 values
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'S&P 500 Value'
-                            },
-                            grid: {
-                                drawOnChartArea: false  // Avoid grid line overlap
-                            }
-                        }
+                    y: { 
+                        display: true, 
+                        title: { display: true, text: 'Value ($)' }  // Unified Y-axis for both datasets
                     }
                 }
             }
