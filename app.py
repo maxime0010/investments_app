@@ -765,6 +765,47 @@ def coverage():
 
     return render_template('coverage.html', coverage_data=filtered_coverage_data, num_stocks=num_stocks, last_updated=last_updated, recent_days='30', is_member=is_member)
 
+@app.route('/stock_simulation/<ticker>')
+def stock_simulation(ticker):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch the unique tickers for the dropdown
+    cursor.execute("SELECT DISTINCT ticker FROM prices ORDER BY ticker")
+    tickers = [row['ticker'] for row in cursor.fetchall()]
+
+    # Fetch stock prices from the prices table for the selected ticker
+    cursor.execute("""
+        SELECT date, close AS stock_price
+        FROM prices
+        WHERE ticker = %s AND date >= '2019-09-01'
+        ORDER BY date
+    """, (ticker,))
+    stock_data = cursor.fetchall()
+
+    # Fetch price targets from the analysis_simulation table
+    cursor.execute("""
+        SELECT date, avg_combined_criteria AS price_target
+        FROM analysis_simulation
+        WHERE ticker = %s AND date >= '2019-09-01'
+        ORDER BY date
+    """, (ticker,))
+    target_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # Extract dates, stock prices, and price targets
+    dates = [row['date'].strftime('%Y-%m-%d') for row in stock_data]
+    stock_prices = [row['stock_price'] for row in stock_data]
+    price_targets = [row['price_target'] for row in target_data]
+
+    return render_template('stock_simulation.html', 
+                           tickers=tickers, 
+                           selected_ticker=ticker, 
+                           stock_prices=stock_prices, 
+                           price_targets=price_targets, 
+                           dates=dates)
 
 @app.route('/data')
 def data_overview():
