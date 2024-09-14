@@ -254,68 +254,56 @@ def stock_detail(ticker):
 
 
 
-@app.route('/performance')
-def performance():
+@app.route('/portfolio_performance')
+def portfolio_performance():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch portfolio data
-    query_portfolio = """
-        SELECT date, SUM(total_value) as total_portfolio_value
-        FROM portfolio
-        GROUP BY date
+    # Fetch actual portfolio values from your table (replace with actual table name)
+    cursor.execute("""
+        SELECT date, total_portfolio_value
+        FROM actual_portfolio  -- Replace with your actual table
         ORDER BY date
-    """
-    cursor.execute(query_portfolio)
-    portfolio_data = cursor.fetchall()
+    """)
+    actual_portfolio_data = cursor.fetchall()
 
-    dates = [entry['date'].strftime('%Y-%m-%d') for entry in portfolio_data if entry['date'] is not None]
-    values = [entry['total_portfolio_value'] for entry in portfolio_data if entry['total_portfolio_value'] is not None]
-
-    # Fetch S&P 500 data
-    query_sp500 = """
-        SELECT date, close AS sp500_value
-        FROM prices
-        WHERE ticker = 'SPX'  -- Assuming 'SPX' is used for S&P 500 index in the 'prices' table
+    # Fetch simulated portfolio values from portfolio_simulation
+    cursor.execute("""
+        SELECT date, total_portfolio_value
+        FROM portfolio_simulation
         ORDER BY date
-    """
-    cursor.execute(query_sp500)
+    """)
+    simulated_portfolio_data = cursor.fetchall()
+
+    # Fetch S&P 500 data for both graphs
+    cursor.execute("""
+        SELECT date, sp500_value
+        FROM sp500_data  -- Replace with your S&P 500 table
+        ORDER BY date
+    """)
     sp500_data = cursor.fetchall()
-
-    sp500_values = [entry['sp500_value'] for entry in sp500_data if entry['sp500_value'] is not None]
-
-    # Ensure we have enough data to calculate returns
-    if len(values) >= 30:
-        return_30_days = round(((values[-1] - values[-30]) / values[-30]) * 100, 2)
-    else:
-        return_30_days = None
-
-    if len(values) >= 365:
-        return_12_months = round(((values[-1] - values[-365]) / values[-365]) * 100, 2)
-    else:
-        return_12_months = None
 
     cursor.close()
     conn.close()
 
-    # Normalize both datasets to a basis of 100
-    def normalize_data(data):
-        first_value = data[0] if data else 1
-        return [(value / first_value) * 100 for value in data]
+    # Extract dates and values
+    dates_actual = [row['date'].strftime('%Y-%m-%d') for row in actual_portfolio_data]
+    actual_portfolio_values = [row['total_portfolio_value'] for row in actual_portfolio_data]
 
-    normalized_portfolio_values = normalize_data(values)
-    normalized_sp500_values = normalize_data(sp500_values)
+    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in simulated_portfolio_data]
+    simulated_portfolio_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
 
-    # Ensure both datasets have matching lengths by aligning dates
-    if len(dates) > len(sp500_values):
-        dates = dates[:len(sp500_values)]
-        normalized_portfolio_values = normalized_portfolio_values[:len(sp500_values)]
-    elif len(sp500_values) > len(dates):
-        sp500_values = sp500_values[:len(dates)]
-        normalized_sp500_values = normalized_sp500_values[:len(dates)]
+    sp500_values_actual = [row['sp500_value'] for row in sp500_data[:len(dates_actual)]]
+    sp500_values_simulation = [row['sp500_value'] for row in sp500_data[:len(dates_simulation)]]
 
-    return render_template('performance.html', dates=dates, values=normalized_portfolio_values, 
-                           sp500_values=normalized_sp500_values, return_30_days=return_30_days, return_12_months=return_12_months)
+    return render_template('performance.html', 
+                           dates_actual=dates_actual, 
+                           actual_values=actual_portfolio_values, 
+                           sp500_values_actual=sp500_values_actual, 
+                           dates_simulation=dates_simulation, 
+                           simulation_values=simulated_portfolio_values, 
+                           sp500_values_simulation=sp500_values_simulation)
+
 
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
