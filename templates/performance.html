@@ -17,14 +17,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Normalizing datasets to a basis of 100
-        function normalizeData(data) {
-            var firstValue = data[0];
-            return data.map(function(value) {
-                return (value / firstValue) * 100;
-            });
-        }
-
         // Actual portfolio and S&P500 data
         var actualPortfolioData = {{ actual_values | tojson }};
         var sp500DataActual = {{ sp500_values_actual | tojson }};
@@ -35,13 +27,6 @@
         var sp500DataSimulation = {{ sp500_values_simulation | tojson }};
         var datesSimulation = {{ dates_simulation | tojson }};
 
-        // Normalize both datasets
-        var normalizedActualPortfolioData = normalizeData(actualPortfolioData);
-        var normalizedSp500DataActual = normalizeData(sp500DataActual);
-
-        var normalizedSimulatedPortfolioData = normalizeData(simulatedPortfolioData);
-        var normalizedSp500DataSimulation = normalizeData(sp500DataSimulation);
-
         // Actual Performance Chart
         var ctxActual = document.getElementById('actualPerformanceChart').getContext('2d');
         var actualPerformanceChart = new Chart(ctxActual, {
@@ -50,15 +35,15 @@
                 labels: datesActual,
                 datasets: [
                     {
-                        label: 'Actual Portfolio Value (Basis 100)',
-                        data: normalizedActualPortfolioData,
+                        label: 'Actual Portfolio Value',
+                        data: actualPortfolioData,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
                         fill: false
                     },
                     {
-                        label: 'S&P 500 (Basis 100)',
-                        data: normalizedSp500DataActual,
+                        label: 'S&P 500',
+                        data: sp500DataActual,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 2,
                         fill: false
@@ -73,7 +58,7 @@
                     },
                     y: { 
                         display: true, 
-                        title: { display: true, text: 'Normalized Value (Basis 100)' }
+                        title: { display: true, text: 'Value ($)' }  // Display actual values
                     }
                 }
             }
@@ -87,15 +72,15 @@
                 labels: datesSimulation,
                 datasets: [
                     {
-                        label: 'Simulated Portfolio Value (Basis 100)',
-                        data: normalizedSimulatedPortfolioData,
+                        label: 'Simulated Portfolio Value',
+                        data: simulatedPortfolioData,
                         borderColor: 'rgba(54, 162, 235, 1)',  // Blue color for simulated portfolio
                         borderWidth: 2,
                         fill: false
                     },
                     {
-                        label: 'S&P 500 (Basis 100)',
-                        data: normalizedSp500DataSimulation,
+                        label: 'S&P 500',
+                        data: sp500DataSimulation,
                         borderColor: 'rgba(255, 99, 132, 1)',  // Red for S&P 500
                         borderWidth: 2,
                         fill: false
@@ -110,7 +95,7 @@
                     },
                     y: { 
                         display: true, 
-                        title: { display: true, text: 'Normalized Value (Basis 100)' }
+                        title: { display: true, text: 'Value ($)' }  // Display actual values
                     }
                 }
             }
