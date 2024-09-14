@@ -6,13 +6,13 @@
     <!-- Actual Performance Graph -->
     <div>
         <h3>Actual Performance (Base Index 100)</h3>
-        <canvas id="actualPerformanceChart"></canvas>
+        <canvas id="actualPerformanceChart" style="height: 400px;"></canvas> <!-- Set a fixed height here -->
     </div>
 
     <!-- Simulation-Based Performance Graph -->
     <div>
         <h3>Simulation-Based Performance (Base Index 100)</h3>
-        <canvas id="simulationPerformanceChart"></canvas>
+        <canvas id="simulationPerformanceChart" style="height: 400px;"></canvas> <!-- Set a fixed height here -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -54,7 +54,7 @@
         gradientSP500Simulation.addColorStop(0, 'rgba(255, 99, 132, 0.4)');
         gradientSP500Simulation.addColorStop(1, 'rgba(255, 99, 132, 0.0)');
 
-        // Minimalistic options (no grid lines)
+        // Minimalistic options (no grid lines) with fixed aspect ratio
         var minimalisticOptions = {
             scales: {
                 x: {
@@ -102,7 +102,7 @@
                 }
             },
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: true,  // Ensure fixed aspect ratio
         };
 
         // Actual Performance Chart with smooth curves, gradients, and minimalistic design
