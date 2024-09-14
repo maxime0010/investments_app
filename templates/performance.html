@@ -35,8 +35,77 @@
         var sp500DataSimulation = normalizeData({{ sp500_values_simulation | tojson }});
         var datesSimulation = {{ dates_simulation | tojson }};
 
-        // Actual Performance Chart with a single Y-axis
+        // Create color gradients
         var ctxActual = document.getElementById('actualPerformanceChart').getContext('2d');
+        var gradientActualPortfolio = ctxActual.createLinearGradient(0, 0, 0, 400);
+        gradientActualPortfolio.addColorStop(0, 'rgba(75, 192, 192, 0.4)');
+        gradientActualPortfolio.addColorStop(1, 'rgba(75, 192, 192, 0.0)');
+
+        var gradientSP500Actual = ctxActual.createLinearGradient(0, 0, 0, 400);
+        gradientSP500Actual.addColorStop(0, 'rgba(255, 99, 132, 0.4)');
+        gradientSP500Actual.addColorStop(1, 'rgba(255, 99, 132, 0.0)');
+
+        var ctxSimulation = document.getElementById('simulationPerformanceChart').getContext('2d');
+        var gradientSimulatedPortfolio = ctxSimulation.createLinearGradient(0, 0, 0, 400);
+        gradientSimulatedPortfolio.addColorStop(0, 'rgba(54, 162, 235, 0.4)');
+        gradientSimulatedPortfolio.addColorStop(1, 'rgba(54, 162, 235, 0.0)');
+
+        var gradientSP500Simulation = ctxSimulation.createLinearGradient(0, 0, 0, 400);
+        gradientSP500Simulation.addColorStop(0, 'rgba(255, 99, 132, 0.4)');
+        gradientSP500Simulation.addColorStop(1, 'rgba(255, 99, 132, 0.0)');
+
+        // Minimalistic options (no grid lines)
+        var minimalisticOptions = {
+            scales: {
+                x: {
+                    grid: {
+                        display: false  // No grid lines
+                    },
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 10
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false  // No grid lines
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toFixed(2);  // Display values as currency
+                        }
+                    }
+                }
+            },
+            elements: {
+                line: {
+                    tension: 0.4  // Smooth curves
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Portfolio vs S&P 500 Performance (Base Index 100)',
+                    font: {
+                        size: 16,
+                        style: 'bold'
+                    }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        };
+
+        // Actual Performance Chart with smooth curves, gradients, and minimalistic design
         var actualPerformanceChart = new Chart(ctxActual, {
             type: 'line',
             data: {
@@ -46,34 +115,24 @@
                         label: 'Actual Portfolio Value (Base Index 100)',
                         data: actualPortfolioData,
                         borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: gradientActualPortfolio,
                         borderWidth: 2,
-                        fill: false
+                        fill: true  // Enable gradient fill
                     },
                     {
                         label: 'S&P 500 (Base Index 100)',
                         data: sp500DataActual,
                         borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: gradientSP500Actual,
                         borderWidth: 2,
-                        fill: false
+                        fill: true  // Enable gradient fill
                     }
                 ]
             },
-            options: {
-                scales: {
-                    x: { 
-                        display: true, 
-                        title: { display: true, text: 'Date' }
-                    },
-                    y: { 
-                        display: true, 
-                        title: { display: true, text: 'Index Value (Base 100)' }  // Unified Y-axis for both datasets
-                    }
-                }
-            }
+            options: minimalisticOptions
         });
 
-        // Simulation-Based Performance Chart with a single Y-axis
-        var ctxSimulation = document.getElementById('simulationPerformanceChart').getContext('2d');
+        // Simulation-Based Performance Chart with smooth curves, gradients, and minimalistic design
         var simulationPerformanceChart = new Chart(ctxSimulation, {
             type: 'line',
             data: {
@@ -82,31 +141,22 @@
                     {
                         label: 'Simulated Portfolio Value (Base Index 100)',
                         data: simulatedPortfolioData,
-                        borderColor: 'rgba(54, 162, 235, 1)',  // Blue color for simulated portfolio
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: gradientSimulatedPortfolio,
                         borderWidth: 2,
-                        fill: false
+                        fill: true  // Enable gradient fill
                     },
                     {
                         label: 'S&P 500 (Base Index 100)',
                         data: sp500DataSimulation,
-                        borderColor: 'rgba(255, 99, 132, 1)',  // Red for S&P 500
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: gradientSP500Simulation,
                         borderWidth: 2,
-                        fill: false
+                        fill: true  // Enable gradient fill
                     }
                 ]
             },
-            options: {
-                scales: {
-                    x: { 
-                        display: true, 
-                        title: { display: true, text: 'Date' }
-                    },
-                    y: { 
-                        display: true, 
-                        title: { display: true, text: 'Index Value (Base 100)' }  // Unified Y-axis for both datasets
-                    }
-                }
-            }
+            options: minimalisticOptions
         });
     </script>
 {% endblock %}
