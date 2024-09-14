@@ -276,14 +276,31 @@ def performance():
     """)
     simulated_portfolio_data = cursor.fetchall()
 
-    # Fetch S&P 500 data (ticker: SPX) from prices table
-    cursor.execute("""
-        SELECT date, close AS sp500_value
-        FROM prices
-        WHERE ticker = 'SPX'
-        ORDER BY date
-    """)
-    sp500_data = cursor.fetchall()
+    # Find the earliest date in both actual and simulated portfolios
+    first_actual_date = actual_portfolio_data[0]['date'] if actual_portfolio_data else None
+    first_simulation_date = simulated_portfolio_data[0]['date'] if simulated_portfolio_data else None
+
+    # Determine the earliest date across both portfolios (actual and simulated)
+    if first_actual_date and first_simulation_date:
+        start_date = max(first_actual_date, first_simulation_date)
+    elif first_actual_date:
+        start_date = first_actual_date
+    elif first_simulation_date:
+        start_date = first_simulation_date
+    else:
+        start_date = None  # Handle case where no portfolio data is available
+
+    # Fetch S&P 500 data (ticker: SPX) from prices table starting from the determined start date
+    if start_date:
+        cursor.execute("""
+            SELECT date, close AS sp500_value
+            FROM prices
+            WHERE ticker = 'SPX' AND date >= %s
+            ORDER BY date
+        """, (start_date,))
+        sp500_data = cursor.fetchall()
+    else:
+        sp500_data = []
 
     cursor.close()
     conn.close()
@@ -305,6 +322,7 @@ def performance():
                            dates_simulation=dates_simulation, 
                            simulation_values=simulated_portfolio_values, 
                            sp500_values_simulation=sp500_values_simulation)
+    
     
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
