@@ -185,6 +185,84 @@
         .navbar-toggler-icon {
             background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' linecap='round' linejoin='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
         }
+
+        /* Fix for the ranking number */
+        .ranking-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background-color: #000;
+            color: #fff;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Add proper overlay styling */
+        .overlay-card {
+            position: relative;
+            filter: blur(2px); /* Apply blur effect */
+        }
+
+        .overlay-card .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .overlay-card .overlay-content {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 1rem;
+        }
+
+        /* Adjust card layout and spacing */
+        .card {
+            margin-bottom: 1.5rem;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .card-body {
+            position: relative;
+            z-index: 2; /* Ensure content is above the overlay */
+        }
+
+        .card-footer {
+            z-index: 2;
+        }
+
+        .card-img-top {
+            object-fit: contain;
+            max-height: 50px;
+            width: auto;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        /* Ensure the card's content is not blurred */
+        .card-body, .card-footer {
+            filter: none !important;
+        }
+
+        /* Ensure the first card is not blurred */
+        .overlay-card:first-child {
+            filter: none;
+        }
     </style>
 
 <!-- Google tag (gtag.js) -->
