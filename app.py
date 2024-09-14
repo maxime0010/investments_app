@@ -771,34 +771,25 @@ def stock_simulation(ticker):
     cursor = conn.cursor(dictionary=True)
 
     # Fetch the unique tickers for the dropdown
-    cursor.execute("SELECT DISTINCT ticker FROM prices ORDER BY ticker")
+    cursor.execute("SELECT DISTINCT ticker FROM analysis_simulation ORDER BY ticker")
     tickers = [row['ticker'] for row in cursor.fetchall()]
 
-    # Fetch stock prices from the prices table for the selected ticker
+    # Fetch stock prices and price targets from the analysis_simulation table
     cursor.execute("""
-        SELECT date, close AS stock_price
-        FROM prices
-        WHERE ticker = %s AND date >= '2019-09-01'
-        ORDER BY date
-    """, (ticker,))
-    stock_data = cursor.fetchall()
-
-    # Fetch price targets from the analysis_simulation table
-    cursor.execute("""
-        SELECT date, avg_combined_criteria AS price_target
+        SELECT date, last_closing_price, avg_combined_criteria
         FROM analysis_simulation
-        WHERE ticker = %s AND date >= '2019-09-01'
+        WHERE ticker = %s AND date >= '2019-09-01' AND last_closing_price > 0 AND avg_combined_criteria > 0
         ORDER BY date
     """, (ticker,))
-    target_data = cursor.fetchall()
+    data = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
     # Extract dates, stock prices, and price targets
-    dates = [row['date'].strftime('%Y-%m-%d') for row in stock_data]
-    stock_prices = [row['stock_price'] for row in stock_data]
-    price_targets = [row['price_target'] for row in target_data]
+    dates = [row['date'].strftime('%Y-%m-%d') for row in data]
+    stock_prices = [row['last_closing_price'] for row in data]
+    price_targets = [row['avg_combined_criteria'] for row in data]
 
     return render_template('stock_simulation.html', 
                            tickers=tickers, 
