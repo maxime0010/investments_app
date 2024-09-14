@@ -259,10 +259,11 @@ def performance():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch actual portfolio values from your table (replace with actual table name)
+    # Fetch actual portfolio values from the portfolio table
     cursor.execute("""
-        SELECT date, total_value
-        FROM portfolio  -- Replace with your actual portfolio table
+        SELECT date, SUM(total_value) AS total_portfolio_value
+        FROM portfolio
+        GROUP BY date
         ORDER BY date
     """)
     actual_portfolio_data = cursor.fetchall()
@@ -275,10 +276,11 @@ def performance():
     """)
     simulated_portfolio_data = cursor.fetchall()
 
-    # Fetch S&P 500 data for both graphs
+    # Fetch S&P 500 data (ticker: SPX) from prices table
     cursor.execute("""
-        SELECT date, sp500_value
-        FROM sp500_data  -- Replace with your S&P 500 table
+        SELECT date, close AS sp500_value
+        FROM prices
+        WHERE ticker = 'SPX'
         ORDER BY date
     """)
     sp500_data = cursor.fetchall()
@@ -286,7 +288,7 @@ def performance():
     cursor.close()
     conn.close()
 
-    # Extract dates and values
+    # Extract dates and values for actual and simulated portfolios and S&P 500
     dates_actual = [row['date'].strftime('%Y-%m-%d') for row in actual_portfolio_data]
     actual_portfolio_values = [row['total_portfolio_value'] for row in actual_portfolio_data]
 
@@ -303,7 +305,7 @@ def performance():
                            dates_simulation=dates_simulation, 
                            simulation_values=simulated_portfolio_values, 
                            sp500_values_simulation=sp500_values_simulation)
-
+    
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
 def membership_step1():
