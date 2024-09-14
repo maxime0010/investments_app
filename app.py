@@ -259,21 +259,27 @@ def performance():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch actual portfolio values along with S&P 500 data by joining on the date
+    # Fetch actual portfolio values along with the most recent S&P 500 data
     cursor.execute("""
-        SELECT p.date, SUM(p.total_value) AS total_portfolio_value, sp.close AS sp500_value
+        SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+               (SELECT close 
+                FROM prices sp 
+                WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
         FROM portfolio p
-        LEFT JOIN prices sp ON p.date = sp.date AND sp.ticker = 'SPX'
-        GROUP BY p.date, sp.close
+        GROUP BY p.date
         ORDER BY p.date
     """)
     actual_portfolio_data = cursor.fetchall()
 
-    # Fetch simulated portfolio values along with S&P 500 data by joining on the date
+    # Fetch simulated portfolio values along with the most recent S&P 500 data
     cursor.execute("""
-        SELECT ps.date, ps.total_value AS total_portfolio_value, sp.close AS sp500_value
+        SELECT ps.date, ps.total_value AS total_portfolio_value, 
+               (SELECT close 
+                FROM prices sp 
+                WHERE sp.ticker = 'SPX' AND sp.date <= ps.date 
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
         FROM portfolio_simulation ps
-        LEFT JOIN prices sp ON ps.date = sp.date AND sp.ticker = 'SPX'
         ORDER BY ps.date
     """)
     simulated_portfolio_data = cursor.fetchall()
