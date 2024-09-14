@@ -259,7 +259,7 @@ def performance():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch actual portfolio values along with the most recent S&P 500 data
+    # Fetch actual portfolio values and S&P 500 data
     cursor.execute("""
         SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
                (SELECT close 
@@ -272,7 +272,7 @@ def performance():
     """)
     actual_portfolio_data = cursor.fetchall()
 
-    # Fetch simulated portfolio values along with the most recent S&P 500 data
+    # Fetch simulated portfolio values and S&P 500 data
     cursor.execute("""
         SELECT ps.date, ps.total_value AS total_portfolio_value, 
                (SELECT close 
@@ -297,14 +297,38 @@ def performance():
     simulated_portfolio_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
     sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data]
 
+    # Calculate annualized returns for actual portfolio and S&P 500
+    start_date_actual = datetime.strptime(dates_actual[0], '%Y-%m-%d')
+    end_date_actual = datetime.strptime(dates_actual[-1], '%Y-%m-%d')
+
+    actual_portfolio_annualized_return = calculate_annualized_return(
+        actual_portfolio_values[0], actual_portfolio_values[-1], start_date_actual, end_date_actual) * 100
+
+    sp500_annualized_return_actual = calculate_annualized_return(
+        sp500_values_actual[0], sp500_values_actual[-1], start_date_actual, end_date_actual) * 100
+
+    # Calculate annualized returns for simulated portfolio and S&P 500
+    start_date_simulation = datetime.strptime(dates_simulation[0], '%Y-%m-%d')
+    end_date_simulation = datetime.strptime(dates_simulation[-1], '%Y-%m-%d')
+
+    simulated_portfolio_annualized_return = calculate_annualized_return(
+        simulated_portfolio_values[0], simulated_portfolio_values[-1], start_date_simulation, end_date_simulation) * 100
+
+    sp500_annualized_return_simulation = calculate_annualized_return(
+        sp500_values_simulation[0], sp500_values_simulation[-1], start_date_simulation, end_date_simulation) * 100
+
+    # Pass these values to your template
     return render_template('performance.html', 
                            dates_actual=dates_actual, 
                            actual_values=actual_portfolio_values, 
                            sp500_values_actual=sp500_values_actual, 
                            dates_simulation=dates_simulation, 
                            simulation_values=simulated_portfolio_values, 
-                           sp500_values_simulation=sp500_values_simulation)
-    
+                           sp500_values_simulation=sp500_values_simulation,
+                           actual_portfolio_annualized_return=f"{actual_portfolio_annualized_return:.2f}",
+                           sp500_annualized_return_actual=f"{sp500_annualized_return_actual:.2f}",
+                           simulated_portfolio_annualized_return=f"{simulated_portfolio_annualized_return:.2f}",
+                           sp500_annualized_return_simulation=f"{sp500_annualized_return_simulation:.2f}")
     
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
