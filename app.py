@@ -137,47 +137,37 @@ def get_latest_portfolio_date():
     return latest_date
 
 def get_logo_url(ticker):
+    # Use the Logo.dev API to fetch logos using the ticker symbol
+    public_token = "pk_AH6v4ZrySsaUljPEULQWXw"  # Replace with your actual public token from Logo.dev
+    return f"https://img.logo.dev/ticker/{ticker}?token={public_token}"
+
+def get_top_stocks(latest_date):
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT website FROM stock WHERE ticker = %s", (ticker,))
-    result = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-
-    if result and 'website' in result:
-        website = result['website']
-        domain = website.replace("https://", "").replace("http://", "").split('/')[0]
-        return f"https://img.logo.dev/{domain}?token=pk_AH6v4ZrySsaUljPEULQWXw"
-    return None
-
-def get_top_stocks(latest_date):
-    conn = get_db_connection()  # Use the pooled connection
-    cursor = conn.cursor(dictionary=True)
-
-    # Optimized query with minimal joins and fetching only necessary fields
     query = """
-        SELECT p.ticker, MAX(r.name) AS name, a.last_closing_price AS last_price, 
-               a.expected_return_combined_criteria, a.num_combined_criteria, 
-               MAX(p.ranking) AS ranking, MAX(a.avg_combined_criteria) AS target_price, 
-               s.indices, s.logo_url  -- Fetch logo_url directly
+        SELECT p.ticker, MAX(r.name) as name, a.last_closing_price AS last_price, 
+               a.expected_return_combined_criteria, a.num_combined_criteria, MAX(p.ranking) as ranking, 
+               MAX(a.avg_combined_criteria) as target_price, s.indices
         FROM portfolio_simulation p
         JOIN analysis a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         JOIN stock s ON s.ticker = p.ticker
         WHERE p.date = %s
-        GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, 
-                 a.num_combined_criteria, s.indices, s.logo_url
+        GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, a.num_combined_criteria, s.indices
         ORDER BY ranking
         LIMIT 10
     """
     cursor.execute(query, (latest_date,))
     top_stocks = cursor.fetchall()
 
+    for stock in top_stocks:
+        stock['logo_url'] = get_logo_url(stock['ticker'])
+
     cursor.close()
     conn.close()
     return top_stocks
+
 
 @app.route('/pro')
 def membership_pro():
