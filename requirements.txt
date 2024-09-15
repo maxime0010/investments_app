@@ -10,3 +10,4 @@ sib-api-v3-sdk
 stripe
 gunicorn
 flask-caching
+redis
