@@ -34,6 +34,14 @@
 <script>
     let chart = null;
 
+    // Define periods consistently for all calculations
+    const periods = {
+        '3years': 3 * 365,
+        '12months': 365,
+        '3months': 90,
+        '1month': 30
+    };
+
     // Function to normalize data to index 100 base
     function normalizeToIndex100(values) {
         const baseValue = values[0]; // First value as the base (index 100)
@@ -47,16 +55,7 @@
 
         const endDate = new Date(fullDates[fullDates.length - 1]);
         let startDate = new Date(endDate);
-
-        if (period === '3years') {
-            startDate.setFullYear(endDate.getFullYear() - 3);
-        } else if (period === '12months') {
-            startDate.setFullYear(endDate.getFullYear() - 1);
-        } else if (period === '3months') {
-            startDate.setMonth(endDate.getMonth() - 3);
-        } else if (period === '1month') {
-            startDate.setMonth(endDate.getMonth() - 1);
-        }
+        startDate.setDate(endDate.getDate() - periods[period]);  // Use the period calculation based on days
 
         const filteredDates = [];
         const filteredPortfolioValues = [];
