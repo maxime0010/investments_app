@@ -95,17 +95,17 @@ def members_only(f):
     return decorated_function
 
 def get_latest_simulated_portfolio_date():
-    """Retrieve the latest date from the portfolio table."""
+    """Retrieve the latest date from the portfolio_simulation table."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT MAX(date) FROM portfolio")
+    cursor.execute("SELECT MAX(date) FROM portfolio_simulation")
     latest_date = cursor.fetchone()[0]
     cursor.close()
     conn.close()
     return latest_date
 
 def get_simulated_top_stocks(latest_date):
-    """Fetch top stocks from portfolio based on the latest date."""
+    """Fetch top stocks from portfolio_simulation based on the latest date."""
     # Try to retrieve from cache first
     cache_key = f"top_simulated_stocks_{latest_date}"
     top_stocks = cache.get(cache_key)
@@ -118,7 +118,7 @@ def get_simulated_top_stocks(latest_date):
             SELECT ps.ticker, MAX(r.name) as name, ps.total_value AS last_price, 
                    ps.stock_price AS expected_return_combined_criteria, ps.quantity AS num_combined_criteria, 
                    MAX(ps.ranking) as ranking, s.indices
-            FROM portfolio ps
+            FROM portfolio_simulation ps
             JOIN ratings r ON r.ticker = ps.ticker
             JOIN stock s ON s.ticker = ps.ticker
             WHERE ps.date = %s
@@ -181,7 +181,7 @@ def performance():
                 FROM prices sp 
                 WHERE sp.ticker = 'SPX' AND sp.date <= ps.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-        FROM portfolio ps
+        FROM portfolio_simulation ps
         ORDER BY ps.date
     """)
     simulated_portfolio_data = cursor.fetchall()
