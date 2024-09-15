@@ -22,6 +22,12 @@
 <br>
     <!-- Chart.js Canvas -->
     <canvas id="simulationPerformanceChart"></canvas>
+
+    <!-- Formula Section -->
+    <div class="container text-center mt-5">
+        <h4>Annualized Return Calculation Debug:</h4>
+        <pre id="formulaDebug"></pre>  <!-- This is where the formula will be printed -->
+    </div>
 {% endblock %}
 
 {% block scripts %}
@@ -166,7 +172,7 @@
         });
     }
 
-    // Function to calculate and update the annualized return
+    // Function to calculate and update the annualized return, and print the formula details
     function updateAnnualizedReturn(portfolioValues, sp500Values, dates) {
         const startDate = new Date(dates[0]);
         const endDate = new Date(dates[dates.length - 1]);
@@ -176,6 +182,24 @@
 
         document.getElementById('annualizedReturn').textContent = portfolioReturn.toFixed(1);
         document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
+
+        // Print the detailed calculation
+        printFormula(portfolioValues[0], portfolioValues[portfolioValues.length - 1], startDate, endDate, portfolioReturn, "Portfolio");
+        printFormula(sp500Values[0], sp500Values[sp500Values.length - 1], startDate, endDate, sp500Return, "S&P 500");
+    }
+
+    // Function to print the formula and values
+    function printFormula(startValue, endValue, startDate, endDate, returnValue, label) {
+        const formulaText = `
+            ${label} Calculation:
+            Start Value: ${startValue}, End Value: ${endValue}
+            Start Date: ${startDate.toDateString()}, End Date: ${endDate.toDateString()}
+            Annualized Return: ${returnValue.toFixed(2)}%
+            -----------------------------------------------
+        `;
+
+        // Append the formula to the formula debug section
+        document.getElementById('formulaDebug').textContent += formulaText;
     }
 
     // Helper function to calculate annualized return
