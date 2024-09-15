@@ -283,11 +283,7 @@ def stock_detail(ticker):
 
 @app.route('/performance')
 def performance():
-    # Get the database connection
-    conn = get_db_connection()
-    if not conn:
-        return "Database connection failed.", 500
-
+    conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
     # Fetch actual portfolio values and S&P 500 data
@@ -327,6 +323,7 @@ def performance():
     simulated_portfolio_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
     sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data]
 
+    # Pass data to the template
     return render_template('performance.html', 
                            dates_actual=dates_actual, 
                            actual_values=actual_portfolio_values, 
