@@ -25,13 +25,14 @@
 
 {% block scripts %}
 <script>
-    // Make filterData a globally available function so buttons can access it
+    // Global variable to hold the chart instance
+    let chart = null;
+
     function filterData(period) {
         // Data passed from Flask (dates_simulation, simulation_values, sp500_values_simulation)
         const fullDates = {{ dates_simulation | tojson | safe }};
         const fullPortfolioValues = {{ simulation_values | tojson | safe }};
         const fullSp500Values = {{ sp500_values_simulation | tojson | safe }};
-        let chart;
 
         const endDate = new Date(fullDates[fullDates.length - 1]);
         let startDate = new Date(endDate);
@@ -70,9 +71,14 @@
 
     // Function to update the chart with new data
     function updateChart(dates, portfolioValues, sp500Values) {
-        if (chart) chart.destroy();  // Destroy previous chart if it exists
-
         const ctx = document.getElementById('simulationPerformanceChart').getContext('2d');
+
+        // If chart exists, destroy it before creating a new one
+        if (chart) {
+            chart.destroy();
+        }
+
+        // Create a new chart
         chart = new Chart(ctx, {
             type: 'line',
             data: {
