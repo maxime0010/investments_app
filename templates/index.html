@@ -15,6 +15,17 @@
     <a href="{{ url_for('membership_pro') }}" class="btn mt-3">Join the club</a>
 </div>
 
+<!-- Bar Chart for Annualized Returns -->
+<div class="container text-center mt-5">
+    <h2>Portfolio vs S&P 500 Annualized Returns</h2>
+    <canvas id="annualizedReturnsChart" style="width: 100%; height: 500px; margin: 0 auto;"></canvas>
+</div>
+
+<!-- Button to navigate to performance page -->
+<div class="container text-center mt-4">
+    <a href="{{ url_for('performance') }}" class="btn btn-primary">See detailed performance of the portfolio</a>
+</div>
+
 <div class="value-proposition-section">
     <div class="container">
         <h2>What We Do</h2>
@@ -52,18 +63,6 @@
         <p>Top investors have even managed to consistently outperform the S&P 500 thanks to more advanced investment strategies.</p>
     </div>
 </div>
-
-<!-- Bar Chart for Annualized Returns -->
-<div class="container text-center mt-5">
-    <h2>Portfolio vs S&P 500 Annualized Returns</h2>
-    <canvas id="annualizedReturnsChart" style="max-width: 900px; height: 500px; margin: 0 auto;"></canvas>
-</div>
-
-<!-- Formula Section -->
-<div class="container text-center mt-5">
-    <h4>Annualized Return Calculation Debug:</h4>
-    <pre id="formulaDebug"></pre>  <!-- This is where the formula will be printed -->
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -90,8 +89,6 @@
             '3months': 90,
             '1month': 30
         };
-
-        let formulaDebugText = '';  // This will store the debug information
 
         for (const [period, days] of Object.entries(periods)) {
             const endDate = new Date(fullDates[fullDates.length - 1]);
@@ -130,20 +127,8 @@
 
                 portfolioAnnualizedReturns[period] = portfolioReturn.toFixed(1);
                 sp500AnnualizedReturns[period] = sp500Return.toFixed(1);
-
-                // Debug: Print the formula with values for each period
-                formulaDebugText += `\nPeriod: ${period}\n`;
-                formulaDebugText += `Portfolio Start Value: ${filteredPortfolioValues[0]}, End Value: ${filteredPortfolioValues[filteredPortfolioValues.length - 1]}\n`;
-                formulaDebugText += `S&P 500 Start Value: ${filteredSp500Values[0]}, End Value: ${filteredSp500Values[filteredSp500Values.length - 1]}\n`;
-                formulaDebugText += `Start Date: ${filteredDates[0]}, End Date: ${filteredDates[filteredDates.length - 1]}\n`;
-                formulaDebugText += `Portfolio Annualized Return: ${portfolioReturn.toFixed(2)}%\n`;
-                formulaDebugText += `S&P 500 Annualized Return: ${sp500Return.toFixed(2)}%\n`;
-                formulaDebugText += `-----------------------------------------\n`;
             }
         }
-
-        // Print the formula and values below the chart
-        document.getElementById('formulaDebug').textContent = formulaDebugText;
 
         updateChart();
     }
@@ -204,8 +189,16 @@
             options: {
                 responsive: true,
                 scales: {
+                    x: {
+                        grid: {
+                            display: false  // Remove grid lines on X-axis
+                        }
+                    },
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            display: false  // Remove grid lines on Y-axis
+                        },
                         title: {
                             display: true,
                             text: 'Annualized Return (%)'
