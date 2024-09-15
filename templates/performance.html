@@ -8,8 +8,8 @@
     <!-- Display Annualized Return -->
     <div>
         <h4>Annualized Return</h4>
-        <h5>Portfolio: <span id="annualizedReturn">-</span>%</h5>
-        <h5>S&P 500: <span id="sp500AnnualizedReturn">-</span>%</h5>
+        <h5>Portfolio: {{ simulated_portfolio_annualized_return }}%</h5>
+        <h5>S&P 500: {{ sp500_annualized_return_simulation }}%</h5>
     </div>
 <br>
     <!-- Time Filter Buttons -->
@@ -71,9 +71,6 @@
 
         // Update the chart with the normalized values
         updateChart(filteredDates, normalizedPortfolioValues, normalizedSp500Values);
-
-        // Recalculate the annualized return
-        updateAnnualizedReturn(filteredPortfolioValues, filteredSp500Values, filteredDates);
     }
 
     // Function to update the chart with new data
@@ -149,10 +146,9 @@
                         display: true,
                         position: 'bottom'
                     },
-                    tooltip: {  // Tooltip inside the plugins block
+                    tooltip: {
                         callbacks: {
                             label: function(tooltipItem) {
-                                // Show only the value for the first dataset
                                 return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2);
                             }
                         }
@@ -160,25 +156,6 @@
                 }
             }
         });
-    }
-
-    // Function to calculate and update the annualized return
-    function updateAnnualizedReturn(portfolioValues, sp500Values, dates) {
-        const startDate = new Date(dates[0]);
-        const endDate = new Date(dates[dates.length - 1]);
-
-        const portfolioReturn = calculateAnnualizedReturn(portfolioValues[0], portfolioValues[portfolioValues.length - 1], startDate, endDate);
-        const sp500Return = calculateAnnualizedReturn(sp500Values[0], sp500Values[sp500Values.length - 1], startDate, endDate);
-
-        document.getElementById('annualizedReturn').textContent = portfolioReturn.toFixed(1);
-        document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
-    }
-
-    // Helper function to calculate annualized return
-    function calculateAnnualizedReturn(startValue, endValue, startDate, endDate) {
-        const timeDiffInYears = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
-        if (timeDiffInYears === 0) return 0;
-        return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
     }
 
     // Initialize the chart with default data (last 3 years)
