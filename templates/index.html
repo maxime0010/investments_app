@@ -15,45 +15,45 @@
     <a href="{{ url_for('membership_pro') }}" class="btn mt-3">Join the club</a>
 </div>
 
-<div class="text-section">
-    <h1>Our AI consistently outperforms the S&P 500</h1>
-
-
-    <h4>Portfolio vs S&P 500 Annualized Returns</h2>
+<!-- Bar Chart for Annualized Returns -->
+<div class="container text-center mt-5">
+    <h2>Portfolio vs S&P 500 Annualized Returns</h2>
     <canvas id="annualizedReturnsChart" style="width: 100%; height: 400px; margin: 0 auto;"></canvas>
 
-    <a href="{{ url_for('performance') }}" class="btn mt-3">Performance of the portfolio</a>
+    <a href="{{ url_for('performance') }}" class="btn mt-3">See detailed performance of the portfolio</a>
 </div>
 
 <div class="text-section">
-        <h1>Our AI screens the stock market to build a top-investor grade portfolio</h1>
-        <div class="value-item">
-            <div class="value-text">
-                <h4>Comprehensive Screening</h4>
-                <p>Our algorithm covers all S&P 500 companies, ensuring no opportunity is missed.</p>
-            </div>
+    <h1>Our AI screens the stock market to build a top-investor grade portfolio</h1>
+    <div class="value-item">
+        <div class="value-text">
+            <h4><span class="highlighted-number">500</span> stocks covered, representing 80% of the total market capitalization of U.S. public companies</h4>
         </div>
-        <div class="value-item">
-            <div class="value-text">
-                <h4>Analyst Report Aggregation</h4>
-                <p>{{ num_reports }} reports written by {{ num_analysts }} analysts from {{ num_banks }} of the leading investment banks.</p>
-            </div>
+    </div>
+    <div class="value-item">
+        <div class="value-text">
+            <h4><span class="highlighted-number">{{ num_analysts }}</span> analysts from <span class="highlighted-number">{{ num_banks }}</span> of the leading investment banks referenced</h4>
         </div>
-        <div class="value-item">
-            <div class="value-text">
-                <h4>Advanced Risk-Return Analysis</h4>
-                <p>Our proprietary machine learning tool identifies the top 10 stocks with the best risk-return profiles, emphasizing analyst consensus and accuracy.</p>
-            </div>
+    </div>
+    <div class="value-item">
+        <div class="value-text">
+            <h4><span class="highlighted-number">{{ num_reports }}</span> analyst reports processed by our AI to perform recommendations</h4>
         </div>
-        <div class="value-item">
-            <div class="value-text">
-                <h4>Weekly Portfolio Updates</h4>
-                <p>Members receive a newsletter every Sunday with recommended adjustments to maximize risk and return.</p>
-            </div>
+    </div>
+    <div class="value-item">
+        <div class="value-text">
+            <h4><span class="highlighted-number">10</span> top-performing stocks identified every week based on their risk return profile</h4>
         </div>
     </div>
 </div>
 
+<div class="why-investment-club-section">
+    <div class="container">
+        <h2>Why This Investment Club?</h2>
+        <p>Investing in stocks is the shortest way to the good life. Historically, stocks have consistently outperformed other asset classes like bonds and real estate. The S&P 500 has delivered average annual returns of approximately 7-10% after inflation.</p>
+        <p>Top investors have even managed to consistently outperform the S&P 500 thanks to more advanced investment strategies.</p>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -183,6 +183,9 @@
                     x: {
                         grid: {
                             display: false  // Remove grid lines on X-axis
+                        },
+                        border: {
+                            display: false  // Remove the border on the X-axis
                         }
                     },
                     y: {
@@ -190,10 +193,7 @@
                         grid: {
                             display: false  // Remove grid lines on Y-axis
                         },
-                        title: {
-                            display: true,
-                            text: 'Annualized Return (%)'
-                        }
+                        display: false  // Remove the Y-axis completely
                     }
                 },
                 plugins: {
@@ -206,9 +206,17 @@
                                 return `${context.dataset.label}: ${context.raw}%`;
                             }
                         }
+                    },
+                    datalabels: {  // Add value labels on top of bars
+                        display: true,
+                        align: 'top',
+                        formatter: function(value) {
+                            return `${value}%`;
+                        }
                     }
                 }
-            }
+            },
+            plugins: [ChartDataLabels]  // Load Chart.js Data Labels Plugin
         });
     }
 
