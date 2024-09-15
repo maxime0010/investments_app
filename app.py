@@ -153,27 +153,27 @@ def get_logo_url(ticker):
     return None
 
 def get_top_stocks(latest_date):
-    conn = mysql.connector.connect(**db_config)
+    conn = get_db_connection()  # Use the pooled connection
     cursor = conn.cursor(dictionary=True)
 
+    # Optimized query with minimal joins and fetching only necessary fields
     query = """
-        SELECT p.ticker, MAX(r.name) as name, a.last_closing_price AS last_price, 
-               a.expected_return_combined_criteria, a.num_combined_criteria, MAX(p.ranking) as ranking, 
-               MAX(a.avg_combined_criteria) as target_price, s.indices
+        SELECT p.ticker, MAX(r.name) AS name, a.last_closing_price AS last_price, 
+               a.expected_return_combined_criteria, a.num_combined_criteria, 
+               MAX(p.ranking) AS ranking, MAX(a.avg_combined_criteria) AS target_price, 
+               s.indices, s.logo_url  -- Fetch logo_url directly
         FROM portfolio_simulation p
         JOIN analysis a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         JOIN stock s ON s.ticker = p.ticker
         WHERE p.date = %s
-        GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, a.num_combined_criteria, s.indices
+        GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, 
+                 a.num_combined_criteria, s.indices, s.logo_url
         ORDER BY ranking
         LIMIT 10
     """
     cursor.execute(query, (latest_date,))
     top_stocks = cursor.fetchall()
-
-    for stock in top_stocks:
-        stock['logo_url'] = get_logo_url(stock['ticker'])
 
     cursor.close()
     conn.close()
