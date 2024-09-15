@@ -53,11 +53,17 @@
     </div>
 </div>
 
-<!-- Annualized Return Section -->
+<!-- Annualized Return Section with Bubbles -->
 <div class="container mt-5">
     <h2>Annualized Return</h2>
-    <h5>Portfolio: <span id="annualizedReturn">-</span>%</h5>
-    <h5>S&P 500: <span id="sp500AnnualizedReturn">-</span>%</h5>
+    <div class="bubble-container">
+        <div class="bubble" id="portfolioBubble">-</div>
+        <h5>Portfolio</h5>
+    </div>
+    <div class="bubble-container">
+        <div class="bubble" id="sp500Bubble">-</div>
+        <h5>S&P 500</h5>
+    </div>
 </div>
 
 <!-- Time Filter Buttons -->
@@ -70,8 +76,28 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+    .bubble-container {
+        display: inline-block;
+        text-align: center;
+        margin: 20px;
+    }
+    .bubble {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    .bubble.portfolio { background-color: rgba(75, 192, 192, 0.8); }
+    .bubble.sp500 { background-color: rgba(255, 99, 132, 0.8); }
+</style>
+
 <script>
-    // Use fallback values in case the variables are not properly defined
     const fullDates = {{ dates_simulation | tojson | safe }} || [];
     const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
     const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
@@ -84,8 +110,8 @@
         const portfolioReturn = calculateAnnualizedReturn(portfolioValues[0], portfolioValues[portfolioValues.length - 1], startDate, endDate);
         const sp500Return = calculateAnnualizedReturn(sp500Values[0], sp500Values[sp500Values.length - 1], startDate, endDate);
 
-        document.getElementById('annualizedReturn').textContent = portfolioReturn.toFixed(1);
-        document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
+        updateBubble('portfolioBubble', portfolioReturn, 'portfolio');
+        updateBubble('sp500Bubble', sp500Return, 'sp500');
     }
 
     // Helper function to calculate annualized return
@@ -93,6 +119,24 @@
         const timeDiffInYears = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
         if (timeDiffInYears === 0) return 0;
         return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
+    }
+
+    // Update the size and color of the bubble dynamically based on value
+    function updateBubble(id, value, type) {
+        const bubble = document.getElementById(id);
+        bubble.textContent = value.toFixed(1) + '%';
+
+        // Change size dynamically based on value (scaling size based on value)
+        const size = Math.max(60, Math.min(Math.abs(value) * 10, 150)); // Size between 60px and 150px
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+
+        // Change color based on value
+        if (value > 0) {
+            bubble.style.backgroundColor = (type === 'portfolio') ? 'rgba(75, 192, 192, 0.8)' : 'rgba(255, 99, 132, 0.8)';
+        } else {
+            bubble.style.backgroundColor = (type === 'portfolio') ? 'rgba(192, 75, 75, 0.8)' : 'rgba(132, 99, 255, 0.8)';
+        }
     }
 
     function filterData(period) {
