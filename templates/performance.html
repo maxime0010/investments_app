@@ -8,16 +8,16 @@
     <!-- Display Annualized Return -->
     <div>
         <h4>Annualized Return</h4>
-        <h5>Portfolio: {{ simulated_portfolio_annualized_return }}%</h5>
-        <h5>S&P 500: {{ sp500_annualized_return_simulation }}%</h5>
+        <h5>Portfolio: <span id="annualizedReturn">-</span>%</h5>
+        <h5>S&P 500: <span id="sp500AnnualizedReturn">-</span>%</h5>
     </div>
 <br>
     <!-- Time Filter Buttons -->
     <div>
-        <button class="btn btn-primary" onclick="filterData('3years')">Last 3 Years</button>
-        <button class="btn btn-primary" onclick="filterData('12months')">Last 12 Months</button>
-        <button class="btn btn-primary" onclick="filterData('3months')">Last 3 Months</button>
-        <button class="btn btn-primary" onclick="filterData('1month')">Last Month</button>
+        <button class="btn btn-primary" onclick="updateAnnualizedReturn('3years')">Last 3 Years</button>
+        <button class="btn btn-primary" onclick="updateAnnualizedReturn('12months')">Last 12 Months</button>
+        <button class="btn btn-primary" onclick="updateAnnualizedReturn('3months')">Last 3 Months</button>
+        <button class="btn btn-primary" onclick="updateAnnualizedReturn('1month')">Last Month</button>
     </div>
 <br>
     <!-- Chart.js Canvas -->
@@ -28,10 +28,21 @@
 <script>
     let chart = null;
 
+    // Pre-calculated annualized return data from the backend
+    const annualizedReturns = {{ annualized_returns | tojson | safe }};
+
     // Function to normalize data to index 100 base
     function normalizeToIndex100(values) {
         const baseValue = values[0]; // First value as the base (index 100)
         return values.map(value => (value / baseValue) * 100);
+    }
+
+    // Function to update the annualized return display based on the selected period
+    function updateAnnualizedReturn(period) {
+        const portfolioReturn = annualizedReturns.portfolio[period];
+        const sp500Return = annualizedReturns.sp500[period];
+        document.getElementById('annualizedReturn').textContent = portfolioReturn.toFixed(1);
+        document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
     }
 
     function filterData(period) {
@@ -161,6 +172,7 @@
     // Initialize the chart with default data (last 3 years)
     document.addEventListener('DOMContentLoaded', function () {
         filterData('3years');
+        updateAnnualizedReturn('3years');  // Update the annualized return display for the default period
     });
 </script>
 {% endblock %}
