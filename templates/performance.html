@@ -134,7 +134,8 @@
                     x: {
                         type: 'time',
                         time: {
-                            unit: 'month'
+                            unit: 'month',
+                            tooltipFormat: 'MMM D, YYYY'  // Simplify date format, removing time
                         },
                         grid: {
                             display: false  // Minimalistic design: hide grid lines
@@ -160,7 +161,11 @@
                     tooltip: {
                         callbacks: {
                             label: function(tooltipItem) {
-                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2);
+                                // Show only the value for the first dataset
+                                if (tooltipItem.datasetIndex === 0) {  // Only for the first dataset
+                                    return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2);
+                                }
+                                return '';  // Don't show other datasets
                             }
                         }
                     }
