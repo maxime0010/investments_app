@@ -9,6 +9,8 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from functools import wraps
+from mysql.connector import Error
+
 
 # Helper function to calculate annualized return
 def calculate_annualized_return(start_value, end_value, start_date, end_date):
@@ -56,6 +58,18 @@ db_config = {
     'database': 'defaultdb',
     'port': 25060
 }
+
+def get_db_connection():
+    try:
+        # Reconnect if connection is lost or doesn't exist
+        conn = mysql.connector.connect(**db_config)
+        if conn.is_connected():
+            return conn
+        else:
+            raise mysql.connector.Error("Failed to connect to the database.")
+    except Error as err:
+        print(f"Error: {err}")
+        return None
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -269,79 +283,14 @@ def stock_detail(ticker):
 
 @app.route('/performance')
 def performance():
-    conn = mysql.connector.connect(**db_config)
+    # Get the database connection
+    conn = get_db_connection()
+    if not conn:
+        return "Database connection failed.", 500
+
     cursor = conn.cursor(dictionary=True)
 
-    # Get the latest date in the portfolio
-    latest_date = get_latest_portfolio_date()
-
-    # Define the periods: last 3 years, 12 months, 3 months, 1 month
-    periods = {
-        '3years': latest_date - timedelta(days=3*365),
-        '12months': latest_date - timedelta(days=365),
-        '3months': latest_date - timedelta(days=90),
-        '1month': latest_date - timedelta(days=30)
-    }
-
-    annualized_returns = {
-        'portfolio': {},
-        'sp500': {}
-    }
-
-    # Calculate annualized returns for each period
-    for period, start_date in periods.items():
-        # Fetch portfolio and S&P 500 values for the start date
-        cursor.execute("""
-            SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
-                   (SELECT close 
-                    FROM prices sp 
-                    WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
-                    ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-            FROM portfolio p
-            WHERE p.date >= %s
-            GROUP BY p.date
-            ORDER BY p.date ASC
-            LIMIT 1
-        """, (start_date,))
-        start_values = cursor.fetchone()
-
-        # Fetch portfolio and S&P 500 values for the end date (latest date)
-        cursor.execute("""
-            SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
-                   (SELECT close 
-                    FROM prices sp 
-                    WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
-                    ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-            FROM portfolio p
-            WHERE p.date = %s
-            GROUP BY p.date
-        """, (latest_date,))
-        end_values = cursor.fetchone()
-
-        # Calculate annualized returns for portfolio and S&P 500
-        portfolio_return = calculate_annualized_return(
-            start_values['total_portfolio_value'],
-            end_values['total_portfolio_value'],
-            start_date,
-            latest_date
-        ) * 100
-
-        sp500_return = calculate_annualized_return(
-            start_values['sp500_value'],
-            end_values['sp500_value'],
-            start_date,
-            latest_date
-        ) * 100
-
-        # Store the returns for the current period
-        annualized_returns['portfolio'][period] = round(portfolio_return, 1)
-        annualized_returns['sp500'][period] = round(sp500_return, 1)
-
-    cursor.close()
-    conn.close()
-
-    # Fetch actual and simulated portfolio data for chart rendering
-    cursor = conn.cursor(dictionary=True)
+    # Fetch actual portfolio values and S&P 500 data
     cursor.execute("""
         SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
                (SELECT close 
@@ -354,6 +303,7 @@ def performance():
     """)
     actual_portfolio_data = cursor.fetchall()
 
+    # Fetch simulated portfolio values and S&P 500 data
     cursor.execute("""
         SELECT ps.date, ps.total_value AS total_portfolio_value, 
                (SELECT close 
@@ -365,6 +315,9 @@ def performance():
     """)
     simulated_portfolio_data = cursor.fetchall()
 
+    cursor.close()
+    conn.close()
+
     # Extract data for chart display
     dates_actual = [row['date'].strftime('%Y-%m-%d') for row in actual_portfolio_data]
     actual_portfolio_values = [row['total_portfolio_value'] for row in actual_portfolio_data]
@@ -374,15 +327,13 @@ def performance():
     simulated_portfolio_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
     sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data]
 
-    # Pass calculated annualized returns and chart data to the template
     return render_template('performance.html', 
                            dates_actual=dates_actual, 
                            actual_values=actual_portfolio_values, 
                            sp500_values_actual=sp500_values_actual, 
                            dates_simulation=dates_simulation, 
                            simulation_values=simulated_portfolio_values, 
-                           sp500_values_simulation=sp500_values_simulation,
-                           annualized_returns=annualized_returns)
+                           sp500_values_simulation=sp500_values_simulation)
 
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
