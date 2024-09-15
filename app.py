@@ -300,12 +300,12 @@ def performance():
     cursor.close()
     conn.close()
 
-    # Extract dates and values for actual portfolio and S&P 500 (aligned with actual portfolio dates)
+    # Extract dates and values for actual portfolio and S&P 500
     dates_actual = [row['date'].strftime('%Y-%m-%d') for row in actual_portfolio_data]
     actual_portfolio_values = [row['total_portfolio_value'] for row in actual_portfolio_data]
     sp500_values_actual = [row['sp500_value'] for row in actual_portfolio_data]
 
-    # Extract dates and values for simulated portfolio and S&P 500 (aligned with simulated portfolio dates)
+    # Extract dates and values for simulated portfolio and S&P 500
     dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in simulated_portfolio_data]
     simulated_portfolio_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
     sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data]
