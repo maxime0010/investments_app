@@ -138,7 +138,6 @@ def get_simulated_top_stocks(latest_date):
     return top_stocks
 
 @app.route('/portfolio')
-@cache.cached(timeout=300)  # Cache the portfolio page for 5 minutes
 def portfolio():
     is_member = False
 
