@@ -22,12 +22,6 @@
 <br>
     <!-- Chart.js Canvas -->
     <canvas id="simulationPerformanceChart"></canvas>
-
-    <!-- Formula Section -->
-    <div class="container text-center mt-5">
-        <h4>Annualized Return Calculation Debug:</h4>
-        <pre id="formulaDebug"></pre>  <!-- This is where the formula will be printed -->
-    </div>
 {% endblock %}
 
 {% block scripts %}
@@ -157,12 +151,15 @@
                     },
                     tooltip: {
                         callbacks: {
+                            title: function(tooltipItems) {
+                                return 'Date: ' + tooltipItems[0].label;  // Display the date as the title of the tooltip
+                            },
                             label: function(tooltipItem) {
-                                // Show only the value for the first dataset
-                                if (tooltipItem.datasetIndex === 0) {  // Only for the first dataset
-                                    return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2);
+                                if (tooltipItem.datasetIndex === 0) {
+                                    return `Portfolio: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
+                                } else {
+                                    return `S&P 500: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
                                 }
-                                return '';  // Don't show other datasets
                             }
                         }
                     }
@@ -181,24 +178,6 @@
 
         document.getElementById('annualizedReturn').textContent = portfolioReturn.toFixed(1);
         document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
-
-        // Print the detailed calculation
-        printFormula(portfolioValues[0], portfolioValues[portfolioValues.length - 1], startDate, endDate, portfolioReturn, "Portfolio");
-        printFormula(sp500Values[0], sp500Values[sp500Values.length - 1], startDate, endDate, sp500Return, "S&P 500");
-    }
-
-    // Function to print the formula and values
-    function printFormula(startValue, endValue, startDate, endDate, returnValue, label) {
-        const formulaText = `
-            ${label} Calculation:
-            Start Value: ${startValue}, End Value: ${endValue}
-            Start Date: ${startDate.toDateString()}, End Date: ${endDate.toDateString()}
-            Annualized Return: ${returnValue.toFixed(2)}%
-            -----------------------------------------------
-        `;
-
-        // Append the formula to the formula debug section
-        document.getElementById('formulaDebug').textContent += formulaText;
     }
 
     // Helper function to calculate annualized return
