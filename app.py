@@ -558,8 +558,84 @@ def view_newsletter(date):
 
 @app.route('/')
 def index():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    # Get the latest available date in the portfolio
+    latest_date = get_latest_portfolio_date()
+
+    # Define periods: last 3 years, 12 months, 3 months, and 1 month
+    periods = {
+        '3years': latest_date - timedelta(days=3*365),
+        '12months': latest_date - timedelta(days=365),
+        '3months': latest_date - timedelta(days=90),
+        '1month': latest_date - timedelta(days=30)
+    }
+
+    annualized_returns = {
+        'portfolio': {},
+        'sp500': {}
+    }
+
+    for period, start_date in periods.items():
+        # Fetch portfolio and S&P 500 values for the start date
+        cursor.execute("""
+            SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+                   (SELECT close 
+                    FROM prices sp 
+                    WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                    ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+            FROM portfolio p
+            WHERE p.date >= %s
+            ORDER BY p.date ASC
+            LIMIT 1
+        """, (start_date,))
+        start_values = cursor.fetchone()
+
+        # Fetch portfolio and S&P 500 values for the end date (latest date)
+        cursor.execute("""
+            SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+                   (SELECT close 
+                    FROM prices sp 
+                    WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                    ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+            FROM portfolio p
+            WHERE p.date = %s
+        """, (latest_date,))
+        end_values = cursor.fetchone()
+
+        # Calculate annualized returns for portfolio and S&P 500
+        portfolio_return = calculate_annualized_return(
+            start_values['total_portfolio_value'],
+            end_values['total_portfolio_value'],
+            start_date,
+            latest_date
+        ) * 100
+
+        sp500_return = calculate_annualized_return(
+            start_values['sp500_value'],
+            end_values['sp500_value'],
+            start_date,
+            latest_date
+        ) * 100
+
+        # Store the returns for the current period
+        annualized_returns['portfolio'][period] = round(portfolio_return, 1)
+        annualized_returns['sp500'][period] = round(sp500_return, 1)
+
+    cursor.close()
+    conn.close()
+
+    # Get the statistics (number of reports, analysts, banks)
     num_reports, num_analysts, num_banks = get_ratings_statistics()
-    return render_template('index.html', num_reports=num_reports, num_analysts=num_analysts, num_banks=num_banks)
+
+    return render_template(
+        'index.html',
+        num_reports=num_reports,
+        num_analysts=num_analysts,
+        num_banks=num_banks,
+        annualized_returns=annualized_returns
+    )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
