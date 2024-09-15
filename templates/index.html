@@ -16,11 +16,12 @@
 </div>
 
 <!-- Bar Chart for Annualized Returns -->
-<div class="container text-center mt-5">
-    <h2>Portfolio vs S&P 500 Annualized Returns</h2>
+<div class="text-section">
+        <h1>Our AI consistently outperforms the S&P 500</h1>
+    <h4>Portfolio vs S&P 500 Annualized Returns</h4>
     <canvas id="annualizedReturnsChart" style="width: 100%; height: 400px; margin: 0 auto;"></canvas>
 
-    <a href="{{ url_for('performance') }}" class="btn mt-3">See detailed performance of the portfolio</a>
+    <a href="{{ url_for('performance') }}" class="btn mt-3">Performance of the portfolio</a>
 </div>
 
 <div class="text-section">
@@ -46,19 +47,12 @@
         </div>
     </div>
 </div>
-
-<div class="why-investment-club-section">
-    <div class="container">
-        <h2>Why This Investment Club?</h2>
-        <p>Investing in stocks is the shortest way to the good life. Historically, stocks have consistently outperformed other asset classes like bonds and real estate. The S&P 500 has delivered average annual returns of approximately 7-10% after inflation.</p>
-        <p>Top investors have even managed to consistently outperform the S&P 500 thanks to more advanced investment strategies.</p>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
-<!-- Include Chart.js for bar chart -->
+<!-- Include Chart.js and Data Labels plugin -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script> <!-- Include Data Labels Plugin -->
 
 <script>
     let chart = null;  // Initialize chart globally
