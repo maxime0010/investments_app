@@ -548,65 +548,45 @@ def index():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Get the latest available date in the portfolio
-    latest_date = get_latest_portfolio_date()
+    # Fetch actual and simulated portfolio data
+    cursor.execute("""
+        SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+               (SELECT close 
+                FROM prices sp 
+                WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+        FROM portfolio p
+        GROUP BY p.date
+        ORDER BY p.date
+    """)
+    actual_portfolio_data = cursor.fetchall()
 
-    # Define periods: last 3 years, 12 months, 3 months, and 1 month
-    periods = {
-        '3years': latest_date - timedelta(days=3*365),
-        '12months': latest_date - timedelta(days=365),
-        '3months': latest_date - timedelta(days=90),
-        '1month': latest_date - timedelta(days=30)
-    }
-
-    annualized_returns = {
-        'portfolio': {},
-        'sp500': {}
-    }
-
-    # Loop through each period and calculate the annualized return
-    for period, start_date in periods.items():
-        # Fetch portfolio and S&P 500 values for the start and end dates
-        cursor.execute("""
-            SELECT 
-                (SELECT SUM(p.total_value) FROM portfolio p WHERE p.date >= %s GROUP BY p.date ORDER BY p.date ASC LIMIT 1) AS start_portfolio_value,
-                (SELECT close FROM prices sp WHERE sp.ticker = 'SPX' AND sp.date <= %s ORDER BY sp.date DESC LIMIT 1) AS start_sp500_value,
-                (SELECT SUM(p.total_value) FROM portfolio p WHERE p.date = %s GROUP BY p.date LIMIT 1) AS end_portfolio_value,
-                (SELECT close FROM prices sp WHERE sp.ticker = 'SPX' AND sp.date <= %s ORDER BY sp.date DESC LIMIT 1) AS end_sp500_value
-        """, (start_date, start_date, latest_date, latest_date))
-
-        values = cursor.fetchone()
-
-        if not values or not values['start_portfolio_value'] or not values['end_portfolio_value']:
-            # Handle the case where start or end values are missing
-            print(f"[WARNING] Missing portfolio or S&P 500 values for period: {period}")
-            annualized_returns['portfolio'][period] = 0
-            annualized_returns['sp500'][period] = 0
-            continue
-
-        # Calculate annualized returns for portfolio and S&P 500
-        portfolio_return = calculate_annualized_return(
-            values['start_portfolio_value'],
-            values['end_portfolio_value'],
-            start_date,
-            latest_date
-        ) * 100
-
-        sp500_return = calculate_annualized_return(
-            values['start_sp500_value'],
-            values['end_sp500_value'],
-            start_date,
-            latest_date
-        ) * 100
-
-        # Store the returns for the current period
-        annualized_returns['portfolio'][period] = round(portfolio_return, 1)
-        annualized_returns['sp500'][period] = round(sp500_return, 1)
+    cursor.execute("""
+        SELECT ps.date, ps.total_value AS total_portfolio_value, 
+               (SELECT close 
+                FROM prices sp 
+                WHERE sp.ticker = 'SPX' AND sp.date <= ps.date 
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+        FROM portfolio_simulation ps
+        ORDER BY ps.date
+    """)
+    simulated_portfolio_data = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    # Get the statistics (number of reports, analysts, banks)
+    # Extract data for chart display
+    if simulated_portfolio_data:
+        dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in simulated_portfolio_data]
+        simulation_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
+        sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data]
+    else:
+        # Fallback in case of empty data
+        dates_simulation = []
+        simulation_values = []
+        sp500_values_simulation = []
+
+    # Get statistics
     num_reports, num_analysts, num_banks = get_ratings_statistics()
 
     return render_template(
@@ -614,7 +594,9 @@ def index():
         num_reports=num_reports,
         num_analysts=num_analysts,
         num_banks=num_banks,
-        annualized_returns=annualized_returns
+        dates_simulation=dates_simulation,
+        simulation_values=simulation_values,
+        sp500_values_simulation=sp500_values_simulation
     )
     
 
