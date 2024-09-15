@@ -564,46 +564,37 @@ def index():
         'sp500': {}
     }
 
+    # Loop through each period and calculate the annualized return
     for period, start_date in periods.items():
-        # Fetch portfolio and S&P 500 values for the start date
+        # Fetch portfolio and S&P 500 values for the start and end dates
         cursor.execute("""
-            SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
-                   (SELECT close 
-                    FROM prices sp 
-                    WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
-                    ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-            FROM portfolio p
-            WHERE p.date >= %s
-            GROUP BY p.date
-            ORDER BY p.date ASC
-            LIMIT 1
-        """, (start_date,))
-        start_values = cursor.fetchone()
+            SELECT 
+                (SELECT SUM(p.total_value) FROM portfolio p WHERE p.date >= %s GROUP BY p.date ORDER BY p.date ASC LIMIT 1) AS start_portfolio_value,
+                (SELECT close FROM prices sp WHERE sp.ticker = 'SPX' AND sp.date <= %s ORDER BY sp.date DESC LIMIT 1) AS start_sp500_value,
+                (SELECT SUM(p.total_value) FROM portfolio p WHERE p.date = %s GROUP BY p.date LIMIT 1) AS end_portfolio_value,
+                (SELECT close FROM prices sp WHERE sp.ticker = 'SPX' AND sp.date <= %s ORDER BY sp.date DESC LIMIT 1) AS end_sp500_value
+        """, (start_date, start_date, latest_date, latest_date))
 
-        # Fetch portfolio and S&P 500 values for the end date (latest date)
-        cursor.execute("""
-            SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
-                   (SELECT close 
-                    FROM prices sp 
-                    WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
-                    ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-            FROM portfolio p
-            WHERE p.date = %s
-            GROUP BY p.date
-        """, (latest_date,))
-        end_values = cursor.fetchone()
+        values = cursor.fetchone()
+
+        if not values or not values['start_portfolio_value'] or not values['end_portfolio_value']:
+            # Handle the case where start or end values are missing
+            print(f"[WARNING] Missing portfolio or S&P 500 values for period: {period}")
+            annualized_returns['portfolio'][period] = 0
+            annualized_returns['sp500'][period] = 0
+            continue
 
         # Calculate annualized returns for portfolio and S&P 500
         portfolio_return = calculate_annualized_return(
-            start_values['total_portfolio_value'],
-            end_values['total_portfolio_value'],
+            values['start_portfolio_value'],
+            values['end_portfolio_value'],
             start_date,
             latest_date
         ) * 100
 
         sp500_return = calculate_annualized_return(
-            start_values['sp500_value'],
-            end_values['sp500_value'],
+            values['start_sp500_value'],
+            values['end_sp500_value'],
             start_date,
             latest_date
         ) * 100
@@ -625,6 +616,7 @@ def index():
         num_banks=num_banks,
         annualized_returns=annualized_returns
     )
+    
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
