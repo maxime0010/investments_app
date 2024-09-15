@@ -65,41 +65,81 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Initialize chart globally so it's accessible throughout
-    let chart = null;  
+    let chart = null;  // Initialize chart globally so it's accessible throughout
 
-    // Simulated data for Portfolio and S&P 500 annualized returns
-    let portfolioAnnualizedReturns = {
-        '3years': 10.5,  // Simulated value, replace with dynamic data
-        '12months': 8.3,
-        '3months': 6.2,
-        '1month': 4.1
-    };
-    let sp500AnnualizedReturns = {
-        '3years': 7.8,   // Simulated value, replace with dynamic data
-        '12months': 6.5,
-        '3months': 5.0,
-        '1month': 3.0
-    };
+    // Store dynamically calculated annualized returns for portfolio and S&P 500
+    let portfolioAnnualizedReturns = {};
+    let sp500AnnualizedReturns = {};
 
-    // Prepare data for the bar chart
-    const labels = ['Last 3 Years', 'Last 12 Months', 'Last 3 Months', 'Last Month'];
-    const portfolioData = [
-        portfolioAnnualizedReturns['3years'],
-        portfolioAnnualizedReturns['12months'],
-        portfolioAnnualizedReturns['3months'],
-        portfolioAnnualizedReturns['1month']
-    ];
-    const sp500Data = [
-        sp500AnnualizedReturns['3years'],
-        sp500AnnualizedReturns['12months'],
-        sp500AnnualizedReturns['3months'],
-        sp500AnnualizedReturns['1month']
-    ];
+    // Use fallback values in case the variables are not properly defined
+    const fullDates = {{ dates_simulation | tojson | safe }} || [];
+    const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
+    const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
 
-    // Create and display the bar chart
+    // Function to calculate and store the annualized returns for all periods at once
+    function calculateAllAnnualizedReturns() {
+        const periods = {
+            '3years': 3 * 365,
+            '12months': 365,
+            '3months': 90,
+            '1month': 30
+        };
+
+        for (const [period, days] of Object.entries(periods)) {
+            const endDate = new Date(fullDates[fullDates.length - 1]);
+            let startDate = new Date(endDate);
+            startDate.setDate(endDate.getDate() - days);
+
+            // Filter data for the given period
+            const filteredDates = [];
+            const filteredPortfolioValues = [];
+            const filteredSp500Values = [];
+
+            for (let i = 0; i < fullDates.length; i++) {
+                const currentDate = new Date(fullDates[i]);
+                if (currentDate >= startDate) {
+                    filteredDates.push(fullDates[i]);
+                    filteredPortfolioValues.push(fullPortfolioValues[i]);
+                    filteredSp500Values.push(fullSp500Values[i]);
+                }
+            }
+
+            // Calculate the annualized returns
+            const portfolioReturn = calculateAnnualizedReturn(filteredPortfolioValues[0], filteredPortfolioValues[filteredPortfolioValues.length - 1], new Date(filteredDates[0]), new Date(filteredDates[filteredDates.length - 1]));
+            const sp500Return = calculateAnnualizedReturn(filteredSp500Values[0], filteredSp500Values[filteredSp500Values.length - 1], new Date(filteredDates[0]), new Date(filteredDates[filteredDates.length - 1]));
+
+            portfolioAnnualizedReturns[period] = portfolioReturn.toFixed(1);
+            sp500AnnualizedReturns[period] = sp500Return.toFixed(1);
+        }
+
+        updateChart();
+    }
+
+    // Helper function to calculate annualized return
+    function calculateAnnualizedReturn(startValue, endValue, startDate, endDate) {
+        const timeDiffInYears = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+        if (timeDiffInYears === 0) return 0;
+        return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
+    }
+
+    // Create and update the bar chart
     function updateChart() {
         const ctx = document.getElementById('annualizedReturnsChart').getContext('2d');
+
+        // Prepare data for the bar chart
+        const labels = ['Last 3 Years', 'Last 12 Months', 'Last 3 Months', 'Last Month'];
+        const portfolioData = [
+            portfolioAnnualizedReturns['3years'] || 0,
+            portfolioAnnualizedReturns['12months'] || 0,
+            portfolioAnnualizedReturns['3months'] || 0,
+            portfolioAnnualizedReturns['1month'] || 0
+        ];
+        const sp500Data = [
+            sp500AnnualizedReturns['3years'] || 0,
+            sp500AnnualizedReturns['12months'] || 0,
+            sp500AnnualizedReturns['3months'] || 0,
+            sp500AnnualizedReturns['1month'] || 0
+        ];
 
         // Destroy previous chart if it exists
         if (chart) {
@@ -155,9 +195,9 @@
         });
     }
 
-    // Display the chart on page load with all periods at once
+    // Initialize the page with the calculated annualized returns for all periods
     document.addEventListener('DOMContentLoaded', function () {
-        updateChart();
+        calculateAllAnnualizedReturns();
     });
 </script>
 {% endblock %}
