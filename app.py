@@ -499,7 +499,7 @@ def weekly_updates():
     # Example list of updates
     updates = [
         {"date": "2024-09-01", "title": "Newsletter #1 - Week of Sept 1st"},
-        {"date": "2024-09-08", "title": "Newsletter #2 - Week of Sept 8th"}
+        {"date": "2024-09-08", "title": "Newsletter #2 - Week of Sept 8th"},
         {"date": "2024-09-15", "title": "Newsletter #3 - Week of Sept 15th"}
     ]
 
