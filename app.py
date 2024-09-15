@@ -782,6 +782,11 @@ def coverage():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
+    # Step 1: Fetch the most recent date from analysis_simulation table
+    cursor.execute("SELECT MAX(date) AS latest_date FROM analysis_simulation")
+    latest_date = cursor.fetchone()['latest_date']
+
+    # Step 2: Fetch stocks only for the latest date
     query = """
         SELECT s.name AS stock_name, a.ticker, s.indices, a.last_closing_price,
                a.average_price_target,  
@@ -790,9 +795,10 @@ def coverage():
                a.expected_return_combined_criteria
         FROM analysis_simulation a
         JOIN stock s ON a.ticker = s.ticker
+        WHERE a.date = %s  -- Only select records from the most recent date
         ORDER BY s.name ASC
     """
-    cursor.execute(query)
+    cursor.execute(query, (latest_date,))
     coverage_data = cursor.fetchall()
 
     # Query to fetch the most recent update date from the ratings table
@@ -822,7 +828,7 @@ def coverage():
     num_stocks = len(filtered_coverage_data)
 
     return render_template('coverage.html', coverage_data=filtered_coverage_data, num_stocks=num_stocks, last_updated=last_updated, recent_days='30', is_member=is_member)
-
+    
 @app.route('/stock_simulation/<ticker>')
 def stock_simulation(ticker):
     conn = mysql.connector.connect(**db_config)
