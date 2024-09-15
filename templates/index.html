@@ -15,20 +15,18 @@
     <a href="{{ url_for('membership_pro') }}" class="btn mt-3">Join the club</a>
 </div>
 
-<!-- Bar Chart for Annualized Returns -->
-<div class="container text-center mt-5">
+<div class="text-section">
+    <h1>Our AI consistently outperforms the S&P 500</h1>
+
+
     <h2>Portfolio vs S&P 500 Annualized Returns</h2>
-    <canvas id="annualizedReturnsChart" style="width: 100%; height: 500px; margin: 0 auto;"></canvas>
+    <canvas id="annualizedReturnsChart" style="width: 100%; height: 400px; margin: 0 auto;"></canvas>
+
+    <a href="{{ url_for('performance') }}" class="btn mt-3">See detailed performance of the portfolio</a>
 </div>
 
-<!-- Button to navigate to performance page -->
-<div class="container text-center mt-4">
-    <a href="{{ url_for('performance') }}" class="btn btn-primary">See detailed performance of the portfolio</a>
-</div>
-
-<div class="value-proposition-section">
-    <div class="container">
-        <h2>What We Do</h2>
+<div class="text-section">
+        <h1>Our AI screens the stock market to build a top-investor grade portfolio</h1>
         <div class="value-item">
             <div class="value-text">
                 <h4>Comprehensive Screening</h4>
@@ -56,13 +54,6 @@
     </div>
 </div>
 
-<div class="why-investment-club-section">
-    <div class="container">
-        <h2>Why This Investment Club?</h2>
-        <p>Investing in stocks is the shortest way to the good life. Historically, stocks have consistently outperformed other asset classes like bonds and real estate. The S&P 500 has delivered average annual returns of approximately 7-10% after inflation.</p>
-        <p>Top investors have even managed to consistently outperform the S&P 500 thanks to more advanced investment strategies.</p>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
