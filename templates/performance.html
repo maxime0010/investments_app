@@ -24,22 +24,23 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Colors for portfolio and S&P 500
         const portfolioColor = 'rgba(75, 192, 192, 1)';  // Blue for the portfolio
         const sp500Color = 'rgba(255, 99, 132, 1)';      // Red for the S&P 500
 
-        // Data for the chart
-        const fullDates = {{ dates_simulation | tojson }};
-        const fullPortfolioValues = {{ simulation_values | tojson }};
-        const fullSp500Values = {{ sp500_values_simulation | tojson }};
-        
+        // Full datasets passed from Flask as JSON
+        const fullDates = {{ dates_simulation | tojson | safe }};
+        const fullPortfolioValues = {{ simulation_values | tojson | safe }};
+        const fullSp500Values = {{ sp500_values_simulation | tojson | safe }};
+
         let chart;
-        
-        // Function to filter data based on the selected period
+
+        // Filter data based on selected period
         function filterData(period) {
             const endDate = new Date(fullDates[fullDates.length - 1]);
             let startDate;
 
-            // Set the start date based on the selected period
+            // Define the start date based on the selected period
             if (period === '3years') {
                 startDate = new Date(endDate);
                 startDate.setFullYear(startDate.getFullYear() - 3);
@@ -68,12 +69,14 @@
                 }
             }
 
-            // Update the chart and recalculate the annualized return
+            // Update the chart with filtered data
             updateChart(filteredDates, filteredPortfolioValues, filteredSp500Values);
+
+            // Recalculate annualized returns based on filtered data
             updateAnnualizedReturn(filteredPortfolioValues, filteredSp500Values, filteredDates);
         }
 
-        // Function to update the chart with filtered data
+        // Update the chart with new data
         function updateChart(dates, portfolioValues, sp500Values) {
             if (chart) {
                 chart.destroy();  // Destroy the existing chart before creating a new one
@@ -122,7 +125,7 @@
             });
         }
 
-        // Function to calculate and update the annualized return
+        // Function to calculate annualized return
         function updateAnnualizedReturn(portfolioValues, sp500Values, dates) {
             const startDate = new Date(dates[0]);
             const endDate = new Date(dates[dates.length - 1]);
