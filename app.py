@@ -90,6 +90,10 @@ def members_only(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# Stripe-related functionality omitted for brevity. Include your Stripe routes as needed.
+
+# Simulated Portfolio Functions
+
 def get_latest_simulated_portfolio_date():
     """Retrieve the latest date from the portfolio_simulation table."""
     conn = get_db_connection()
@@ -179,3 +183,166 @@ def performance():
                            dates_simulation=dates_simulation, 
                            simulation_values=simulated_portfolio_values, 
                            sp500_values_simulation=sp500_values_simulation)
+
+# User Management and Authentication Routes
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user and check_password_hash(user['password_hash'], password):
+            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
+            login_user(user_obj)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid email or password', 'danger')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('index'))
+
+@app.route('/membership-step1', methods=['GET', 'POST'])
+def membership_step1():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        password_hash = generate_password_hash(password)
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Check if the email is already registered
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            flash('Email is already registered. Please sign in.', 'danger')
+            return redirect(url_for('login'))
+
+        # Insert new user into the database
+        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, password_hash))
+        conn.commit()
+
+        # Fetch the newly created user to log them in
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if user:
+            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
+            login_user(user_obj)
+            return redirect(url_for('membership_step2'))
+
+    return render_template('membership_step1.html')
+
+@app.route('/profile')
+@login_required
+def profile():
+    email = current_user.email
+    subscription_status, customer_id, error = get_subscription_status(email)
+
+    if error:
+        return render_template('profile.html', error=error)
+
+    if not subscription_status:
+        return redirect(url_for('subscribe'))
+
+    return render_template('profile.html', email=email, subscription_status=subscription_status, customer_id=customer_id)
+
+@app.route('/subscribe', methods=['POST'])
+@login_required
+def subscribe():
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            customer_email=current_user.email,
+            line_items=[{
+                'price': os.getenv('STRIPE_PRICE_ID'),  # Replace with your actual price ID
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('profile', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('profile', _external=True),
+        )
+        return redirect(session.url, code=303)
+
+    except stripe.error.StripeError as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/coverage')
+def coverage():
+    is_member = False
+
+    if current_user.is_authenticated:
+        # Retrieve the email from the database using the user ID
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT email FROM users WHERE id = %s", (current_user.id,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user:
+            email = user['email']
+            subscription_status, customer_id, error = get_subscription_status(email)
+
+            if subscription_status == 'active':
+                is_member = True
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT s.name AS stock_name, a.ticker, s.indices, a.last_closing_price,
+               a.average_price_target,  
+               a.avg_combined_criteria,  
+               a.num_analysts, a.num_recent_analysts, a.num_high_success_analysts,
+               a.expected_return_combined_criteria
+        FROM analysis a
+        JOIN stock s ON a.ticker = s.ticker
+        ORDER BY s.name ASC
+    """
+    cursor.execute(query)
+    coverage_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('coverage.html', coverage_data=coverage_data)
+
+# Helper Functions for Stripe and Subscription Handling
+
+def get_subscription_status(email):
+    try:
+        customer_list = stripe.Customer.list(email=email).data
+        if not customer_list:
+            return None, None, 'No customer found with the provided email address'
+
+        customer_id = customer_list[0].id
+        subscriptions = stripe.Subscription.list(customer=customer_id)
+        subscription_status = subscriptions.data[0].status if subscriptions.data else None
+        return subscription_status, customer_id, None
+
+    except stripe.error.StripeError as e:
+        return None, None, str(e)
+
+# Error handling and additional utility routes omitted for brevity
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
