@@ -9,7 +9,6 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from functools import wraps
-from flask_caching import Cache
 
 # Flask configuration
 app = Flask(__name__)
@@ -28,9 +27,6 @@ app.config['MAIL_PASSWORD'] = os.getenv('BREVO_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'hello@goodlife.money')
 
 mail = Mail(app)
-
-# Flask-Caching setup with Redis
-cache = Cache(app, config={'CACHE_TYPE': 'redis', 'CACHE_DEFAULT_TIMEOUT': 300})
 
 # Database connection pooling configuration
 db_pool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=5, **{
@@ -106,34 +102,26 @@ def get_latest_simulated_portfolio_date():
 
 def get_simulated_top_stocks(latest_date):
     """Fetch top stocks from portfolio_simulation based on the latest date."""
-    # Try to retrieve from cache first
-    cache_key = f"top_simulated_stocks_{latest_date}"
-    top_stocks = cache.get(cache_key)
-    
-    if not top_stocks:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
 
-        query = """
-            SELECT ps.ticker, MAX(r.name) as name, ps.total_value AS last_price, 
-                   ps.stock_price AS expected_return_combined_criteria, ps.quantity AS num_combined_criteria, 
-                   MAX(ps.ranking) as ranking, s.indices
-            FROM portfolio_simulation ps
-            JOIN ratings r ON r.ticker = ps.ticker
-            JOIN stock s ON s.ticker = ps.ticker
-            WHERE ps.date = %s
-            GROUP BY ps.ticker, ps.total_value, ps.stock_price, ps.quantity, s.indices
-            ORDER BY ranking
-            LIMIT 10
-        """
-        cursor.execute(query, (latest_date,))
-        top_stocks = cursor.fetchall()
+    query = """
+        SELECT ps.ticker, MAX(r.name) as name, ps.total_value AS last_price, 
+               ps.stock_price AS expected_return_combined_criteria, ps.quantity AS num_combined_criteria, 
+               MAX(ps.ranking) as ranking, s.indices
+        FROM portfolio_simulation ps
+        JOIN ratings r ON r.ticker = ps.ticker
+        JOIN stock s ON s.ticker = ps.ticker
+        WHERE ps.date = %s
+        GROUP BY ps.ticker, ps.total_value, ps.stock_price, ps.quantity, s.indices
+        ORDER BY ranking
+        LIMIT 10
+    """
+    cursor.execute(query, (latest_date,))
+    top_stocks = cursor.fetchall()
 
-        cursor.close()
-        conn.close()
-
-        # Cache the result
-        cache.set(cache_key, top_stocks, timeout=300)  # Cache for 5 minutes
+    cursor.close()
+    conn.close()
 
     return top_stocks
 
@@ -143,20 +131,16 @@ def portfolio():
 
     if current_user.is_authenticated:
         email = current_user.email
-        cache_key = f"subscription_status_{email}"
-        subscription_status = cache.get(cache_key)
 
-        if not subscription_status:
-            conn = get_db_connection()
-            cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT email FROM users WHERE id = %s", (current_user.id,))
-            user = cursor.fetchone()
-            cursor.close()
-            conn.close()
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT email FROM users WHERE id = %s", (current_user.id,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
 
-            if user:
-                subscription_status, customer_id, error = get_subscription_status(user['email'])
-                cache.set(cache_key, subscription_status, timeout=300)  # Cache for 5 minutes
+        if user:
+            subscription_status, customer_id, error = get_subscription_status(user['email'])
 
         if subscription_status == 'active':
             is_member = True
@@ -165,8 +149,6 @@ def portfolio():
     top_stocks = get_simulated_top_stocks(latest_date)
 
     return render_template('portfolio.html', stocks=top_stocks, last_updated=latest_date, is_member=is_member)
-
-# Continue with the rest of the code...
 
 @app.route('/performance')
 def performance():
