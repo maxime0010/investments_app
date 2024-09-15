@@ -65,7 +65,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    let chart = null;  // Initialize chart globally so it's accessible throughout
+    let chart = null;  // Initialize chart globally
 
     // Store dynamically calculated annualized returns for portfolio and S&P 500
     let portfolioAnnualizedReturns = {};
@@ -104,12 +104,25 @@
                 }
             }
 
-            // Calculate the annualized returns
-            const portfolioReturn = calculateAnnualizedReturn(filteredPortfolioValues[0], filteredPortfolioValues[filteredPortfolioValues.length - 1], new Date(filteredDates[0]), new Date(filteredDates[filteredDates.length - 1]));
-            const sp500Return = calculateAnnualizedReturn(filteredSp500Values[0], filteredSp500Values[filteredSp500Values.length - 1], new Date(filteredDates[0]), new Date(filteredDates[filteredDates.length - 1]));
+            // Ensure there's enough data to calculate
+            if (filteredDates.length >= 2) {
+                // Calculate the annualized returns
+                const portfolioReturn = calculateAnnualizedReturn(
+                    filteredPortfolioValues[0],
+                    filteredPortfolioValues[filteredPortfolioValues.length - 1],
+                    new Date(filteredDates[0]),
+                    new Date(filteredDates[filteredDates.length - 1])
+                );
+                const sp500Return = calculateAnnualizedReturn(
+                    filteredSp500Values[0],
+                    filteredSp500Values[filteredSp500Values.length - 1],
+                    new Date(filteredDates[0]),
+                    new Date(filteredDates[filteredDates.length - 1])
+                );
 
-            portfolioAnnualizedReturns[period] = portfolioReturn.toFixed(1);
-            sp500AnnualizedReturns[period] = sp500Return.toFixed(1);
+                portfolioAnnualizedReturns[period] = portfolioReturn.toFixed(1);
+                sp500AnnualizedReturns[period] = sp500Return.toFixed(1);
+            }
         }
 
         updateChart();
