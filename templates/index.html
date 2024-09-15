@@ -24,28 +24,34 @@
     <a href="{{ url_for('performance') }}" class="btn mt-3">Performance of the portfolio</a>
 </div>
 
-<!-- Enhanced Last Section with Count-Up Effect -->
 <div class="text-section">
     <h1>Our AI screens the stock market to build a top-investor grade portfolio</h1>
 
     <div class="value-item">
-        <div class="value-text">
-            <h4><span class="highlighted-number" data-count="500">0</span> stocks covered, representing 80% of the total market capitalization of U.S. public companies</h4>
+        <div class="number-section">
+            <div class="highlighted-number" data-count="500">0</div>
+            <div class="number-description">stocks covered, representing 80% of the total market capitalization of U.S. public companies</div>
         </div>
     </div>
+    
     <div class="value-item">
-        <div class="value-text">
-            <h4><span class="highlighted-number" data-count="{{ num_analysts }}">0</span> analysts from <span data-count="{{ num_banks }}">0</span> of the leading investment banks referenced</h4>
+        <div class="number-section">
+            <div class="highlighted-number" data-count="{{ num_analysts }}">0</div>
+            <div class="number-description">analysts from {{ num_banks }} of the leading investment banks referenced</div>
         </div>
     </div>
+
     <div class="value-item">
-        <div class="value-text">
-            <h4><span class="highlighted-number" data-count="{{ num_reports }}">0</span> analyst reports processed by our AI to perform recommendations</h4>
+        <div class="number-section">
+            <div class="highlighted-number" data-count="{{ num_reports }}">0</div>
+            <div class="number-description">analyst reports processed by our AI to generate recommendations</div>
         </div>
     </div>
+
     <div class="value-item">
-        <div class="value-text">
-            <h4><span class="highlighted-number" data-count="10">0</span> top-performing stocks identified every week based on their risk return profile</h4>
+        <div class="number-section">
+            <div class="highlighted-number" data-count="10">0</div>
+            <div class="number-description">top-performing stocks identified weekly based on their risk-return profile</div>
         </div>
     </div>
 </div>
