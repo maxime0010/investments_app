@@ -53,10 +53,11 @@
     </div>
 </div>
 
-<!-- Bar Chart for Annualized Returns -->
+<!-- Annualized Return Section -->
 <div class="container mt-5">
-    <h2>Portfolio vs S&P 500 Annualized Returns</h2>
-    <canvas id="annualizedReturnsChart"></canvas>
+    <h2>Annualized Return</h2>
+    <h5>Portfolio: <span id="annualizedReturn">-</span>%</h5>
+    <h5>S&P 500: <span id="sp500AnnualizedReturn">-</span>%</h5>
 </div>
 
 <!-- Time Filter Buttons -->
@@ -69,30 +70,22 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Include Chart.js for bar chart -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    let portfolioAnnualizedReturns = {};  // Store dynamic annualized returns for the portfolio
-    let sp500AnnualizedReturns = {};  // Store dynamic annualized returns for the S&P 500
-
     // Use fallback values in case the variables are not properly defined
     const fullDates = {{ dates_simulation | tojson | safe }} || [];
     const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
     const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
 
     // Function to calculate and update the annualized return
-    function updateAnnualizedReturn(period, portfolioValues, sp500Values, dates) {
+    function updateAnnualizedReturn(portfolioValues, sp500Values, dates) {
         const startDate = new Date(dates[0]);
         const endDate = new Date(dates[dates.length - 1]);
 
         const portfolioReturn = calculateAnnualizedReturn(portfolioValues[0], portfolioValues[portfolioValues.length - 1], startDate, endDate);
         const sp500Return = calculateAnnualizedReturn(sp500Values[0], sp500Values[sp500Values.length - 1], startDate, endDate);
 
-        portfolioAnnualizedReturns[period] = portfolioReturn.toFixed(1);
-        sp500AnnualizedReturns[period] = sp500Return.toFixed(1);
-
-        updateChart();
+        document.getElementById('annualizedReturn').textContent = portfolioReturn.toFixed(1);
+        document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
     }
 
     // Helper function to calculate annualized return
@@ -132,75 +125,7 @@
         }
 
         // Update the annualized return for the filtered data
-        updateAnnualizedReturn(period, filteredPortfolioValues, filteredSp500Values, filteredDates);
-    }
-
-    // Create and update the bar chart
-    function updateChart() {
-        const ctx = document.getElementById('annualizedReturnsChart').getContext('2d');
-        
-        // Prepare data for the bar chart
-        const labels = ['Last 3 Years', 'Last 12 Months', 'Last 3 Months', 'Last Month'];
-        const portfolioData = [
-            portfolioAnnualizedReturns['3years'] || 0,
-            portfolioAnnualizedReturns['12months'] || 0,
-            portfolioAnnualizedReturns['3months'] || 0,
-            portfolioAnnualizedReturns['1month'] || 0
-        ];
-        const sp500Data = [
-            sp500AnnualizedReturns['3years'] || 0,
-            sp500AnnualizedReturns['12months'] || 0,
-            sp500AnnualizedReturns['3months'] || 0,
-            sp500AnnualizedReturns['1month'] || 0
-        ];
-
-        // Create the bar chart
-        const chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Portfolio',
-                        data: portfolioData,
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',  // Blue color
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'S&P 500',
-                        data: sp500Data,
-                        backgroundColor: 'rgba(255, 99, 132, 0.6)',  // Red color
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Annualized Return (%)'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.raw}%`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        updateAnnualizedReturn(filteredPortfolioValues, filteredSp500Values, filteredDates);
     }
 
     // Initialize the page with the default data (last 3 years)
