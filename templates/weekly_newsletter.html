@@ -13,6 +13,9 @@
                 <li class="list-group-item">
                     <a href="{{ url_for('view_newsletter', date='2024-09-08') }}">Newsletter #2 - Week of Sept 8th</a>
                 </li>
+                <li class="list-group-item">
+                    <a href="{{ url_for('view_newsletter', date='2024-09-15') }}">Newsletter #3 - Week of Sept 15th</a>
+                </li>
             </ul>
         {% else %}
             <div class="overlay">
@@ -23,5 +26,6 @@
             </div>
         {% endif %}
     </div>
+    <p></p>
 </div>
 {% endblock %}
