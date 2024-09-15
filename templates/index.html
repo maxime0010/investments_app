@@ -77,10 +77,11 @@
 <script>
     let chart = null;
 
-    // Data passed from Flask (dates_simulation, simulation_values, sp500_values_simulation)
-    const fullDates = {{ dates_simulation | tojson | safe }};
-    const fullPortfolioValues = {{ simulation_values | tojson | safe }};
-    const fullSp500Values = {{ sp500_values_simulation | tojson | safe }};
+    // Use fallback values in case the variables are not properly defined
+    const fullDates = {{ dates_simulation | tojson | safe }} || [];
+    const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
+    const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
+
 
     // Function to normalize data to index 100 base
     function normalizeToIndex100(values) {
