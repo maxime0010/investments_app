@@ -18,28 +18,24 @@
 <div class="value-proposition-section">
     <div class="container">
         <h2>What We Do</h2>
-        <!-- Value proposition sections -->
         <div class="value-item">
             <div class="value-text">
                 <h4>Comprehensive Screening</h4>
                 <p>Our algorithm covers all S&P 500 companies, ensuring no opportunity is missed.</p>
             </div>
         </div>
-
         <div class="value-item">
             <div class="value-text">
                 <h4>Analyst Report Aggregation</h4>
                 <p>{{ num_reports }} reports written by {{ num_analysts }} analysts from {{ num_banks }} of the leading investment banks.</p>
             </div>
         </div>
-
         <div class="value-item">
             <div class="value-text">
                 <h4>Advanced Risk-Return Analysis</h4>
                 <p>Our proprietary machine learning tool identifies the top 10 stocks with the best risk-return profiles, emphasizing analyst consensus and accuracy.</p>
             </div>
         </div>
-
         <div class="value-item">
             <div class="value-text">
                 <h4>Weekly Portfolio Updates</h4>
@@ -52,8 +48,7 @@
 <div class="why-investment-club-section">
     <div class="container">
         <h2>Why This Investment Club?</h2>
-        <p>Investing in stocks is the shortest way to the good life. Historically, stocks have consistently outperformed other asset classes like bonds and real estate. The S&P 500 has delivered average annual returns of approximately 7-10% after inflation.</p>
-        <p>Top investors have even managed to consistently outperform the S&P 500 thanks to more advanced investment strategies.</p>
+        <p>Investing in stocks is the shortest way to the good life. Historically, stocks have consistently outperformed other asset classes like bonds and real estate.</p>
     </div>
 </div>
 
@@ -73,7 +68,10 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Chart.js (version 3+) and Date Adapter -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
 <script>
     let chart = null;
 
@@ -81,7 +79,6 @@
     const fullDates = {{ dates_simulation | tojson | safe }} || [];
     const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
     const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
-
 
     // Function to normalize data to index 100 base
     function normalizeToIndex100(values) {
@@ -152,7 +149,7 @@
                 labels: dates,
                 datasets: [
                     {
-                        label: 'Portfolio (Base Index 100)',
+                        label: 'Simulated Portfolio (Base Index 100)',
                         data: portfolioValues,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: gradientPortfolio,
