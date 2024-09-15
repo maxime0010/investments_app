@@ -53,65 +53,47 @@
     </div>
 </div>
 
-<!-- Annualized Return Section with Bubbles -->
-<div class="container mt-5">
-    <h2>Annualized Return</h2>
-    <div class="bubble-container">
-        <div class="bubble" id="portfolioBubble">-</div>
-        <h5>Portfolio</h5>
-    </div>
-    <div class="bubble-container">
-        <div class="bubble" id="sp500Bubble">-</div>
-        <h5>S&P 500</h5>
-    </div>
+<!-- Time Filter Buttons -->
+<div class="container text-center mt-5">
+    <button class="btn btn-primary mx-2" onclick="filterData('3years')">Last 3 Years</button>
+    <button class="btn btn-primary mx-2" onclick="filterData('12months')">Last 12 Months</button>
+    <button class="btn btn-primary mx-2" onclick="filterData('3months')">Last 3 Months</button>
+    <button class="btn btn-primary mx-2" onclick="filterData('1month')">Last Month</button>
 </div>
 
-<!-- Time Filter Buttons -->
-<div class="container mt-3">
-    <button class="btn btn-primary" onclick="filterData('3years')">Last 3 Years</button>
-    <button class="btn btn-primary" onclick="filterData('12months')">Last 12 Months</button>
-    <button class="btn btn-primary" onclick="filterData('3months')">Last 3 Months</button>
-    <button class="btn btn-primary" onclick="filterData('1month')">Last Month</button>
+<!-- Bar Chart for Annualized Returns -->
+<div class="container text-center mt-5">
+    <h2>Portfolio vs S&P 500 Annualized Returns</h2>
+    <canvas id="annualizedReturnsChart" style="max-width: 600px; margin: 0 auto;"></canvas>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<style>
-    .bubble-container {
-        display: inline-block;
-        text-align: center;
-        margin: 20px;
-    }
-    .bubble {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-weight: bold;
-        font-size: 16px;
-    }
-    .bubble.portfolio { background-color: rgba(75, 192, 192, 0.8); }
-    .bubble.sp500 { background-color: rgba(255, 99, 132, 0.8); }
-</style>
+<!-- Include Chart.js for bar chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    // Simulated data for Portfolio and S&P 500 annualized returns
+    let portfolioAnnualizedReturns = {};  // Store dynamic annualized returns for the portfolio
+    let sp500AnnualizedReturns = {};  // Store dynamic annualized returns for the S&P 500
+
+    // Use fallback values in case the variables are not properly defined
     const fullDates = {{ dates_simulation | tojson | safe }} || [];
     const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
     const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
 
     // Function to calculate and update the annualized return
-    function updateAnnualizedReturn(portfolioValues, sp500Values, dates) {
+    function updateAnnualizedReturn(period, portfolioValues, sp500Values, dates) {
         const startDate = new Date(dates[0]);
         const endDate = new Date(dates[dates.length - 1]);
 
         const portfolioReturn = calculateAnnualizedReturn(portfolioValues[0], portfolioValues[portfolioValues.length - 1], startDate, endDate);
         const sp500Return = calculateAnnualizedReturn(sp500Values[0], sp500Values[sp500Values.length - 1], startDate, endDate);
 
-        updateBubble('portfolioBubble', portfolioReturn, 'portfolio');
-        updateBubble('sp500Bubble', sp500Return, 'sp500');
+        portfolioAnnualizedReturns[period] = portfolioReturn.toFixed(1);
+        sp500AnnualizedReturns[period] = sp500Return.toFixed(1);
+
+        updateChart();
     }
 
     // Helper function to calculate annualized return
@@ -119,24 +101,6 @@
         const timeDiffInYears = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
         if (timeDiffInYears === 0) return 0;
         return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
-    }
-
-    // Update the size and color of the bubble dynamically based on value
-    function updateBubble(id, value, type) {
-        const bubble = document.getElementById(id);
-        bubble.textContent = value.toFixed(1) + '%';
-
-        // Change size dynamically based on value (scaling size based on value)
-        const size = Math.max(60, Math.min(Math.abs(value) * 10, 150)); // Size between 60px and 150px
-        bubble.style.width = size + 'px';
-        bubble.style.height = size + 'px';
-
-        // Change color based on value
-        if (value > 0) {
-            bubble.style.backgroundColor = (type === 'portfolio') ? 'rgba(75, 192, 192, 0.8)' : 'rgba(255, 99, 132, 0.8)';
-        } else {
-            bubble.style.backgroundColor = (type === 'portfolio') ? 'rgba(192, 75, 75, 0.8)' : 'rgba(132, 99, 255, 0.8)';
-        }
     }
 
     function filterData(period) {
@@ -169,7 +133,80 @@
         }
 
         // Update the annualized return for the filtered data
-        updateAnnualizedReturn(filteredPortfolioValues, filteredSp500Values, filteredDates);
+        updateAnnualizedReturn(period, filteredPortfolioValues, filteredSp500Values, filteredDates);
+    }
+
+    // Create and update the bar chart
+    function updateChart() {
+        const ctx = document.getElementById('annualizedReturnsChart').getContext('2d');
+
+        // Prepare data for the bar chart
+        const labels = ['Last 3 Years', 'Last 12 Months', 'Last 3 Months', 'Last Month'];
+        const portfolioData = [
+            portfolioAnnualizedReturns['3years'] || 0,
+            portfolioAnnualizedReturns['12months'] || 0,
+            portfolioAnnualizedReturns['3months'] || 0,
+            portfolioAnnualizedReturns['1month'] || 0
+        ];
+        const sp500Data = [
+            sp500AnnualizedReturns['3years'] || 0,
+            sp500AnnualizedReturns['12months'] || 0,
+            sp500AnnualizedReturns['3months'] || 0,
+            sp500AnnualizedReturns['1month'] || 0
+        ];
+
+        // Destroy previous chart if it exists
+        if (chart) {
+            chart.destroy();
+        }
+
+        // Create the bar chart
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Portfolio',
+                        data: portfolioData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',  // Blue color
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'S&P 500',
+                        data: sp500Data,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',  // Red color
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Annualized Return (%)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     // Initialize the page with the default data (last 3 years)
