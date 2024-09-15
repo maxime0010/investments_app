@@ -150,6 +150,14 @@
                         position: 'bottom'
                     }
                 }
+                tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                // Show only the value for the first dataset
+                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2);
+                            }
+                        }
+                    }
             }
         });
     }
