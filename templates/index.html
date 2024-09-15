@@ -13,49 +13,60 @@
 </div>
 
 <div class="text-section">
-    <h1>Our AI consistently outperforms the S&P 500
-</h1>
-    
+    <h1>Cutting-edge tools used by top-performing investors made available to retail investors</h1>
+    <a href="{{ url_for('membership_pro') }}" class="btn mt-3">Join the club</a>
+</div>
 
 <!-- Bar Chart for Annualized Returns -->
-    <h4>Portfolio vs S&P 500 Annualized Returns</h4>
+<div class="container text-center mt-5">
+    <h2>Portfolio vs S&P 500 Annualized Returns</h2>
     <canvas id="annualizedReturnsChart" style="width: 100%; height: 400px; margin: 0 auto;"></canvas>
 
-    <a href="{{ url_for('performance') }}" class="btn mt-3">Performance of the portfolio</a>
+    <a href="{{ url_for('performance') }}" class="btn mt-3">See detailed performance of the portfolio</a>
 </div>
 
-<!-- Enhanced Last Section with Count-Up Effect -->
+<!-- Improved Last Section with Better Separation of Numbers and Text -->
 <div class="text-section">
-    <h1>Our AI screens the stock market to build a top-investor grade portfolio</h1>
+    <h1>Our AI screens the stock market to build a top-investor-grade portfolio</h1>
 
     <div class="value-item">
-        <div class="value-text">
-            <h4><span class="highlighted-number" data-count="500">0</span> stocks covered, representing 80% of the total market capitalization of U.S. public companies</h4>
+        <div class="value-text number-section">
+            <span class="highlighted-number" data-count="500">0</span>
+            <span class="number-description">stocks covered, representing 80% of the total market capitalization of U.S. public companies</span>
         </div>
     </div>
     <div class="value-item">
-        <div class="value-text">
-            <h4><span class="highlighted-number" data-count="{{ num_analysts }}">0</span> analysts from <span class="highlighted-number" data-count="{{ num_banks }}">0</span> of the leading investment banks referenced</h4>
+        <div class="value-text number-section">
+            <span class="highlighted-number" data-count="{{ num_analysts }}">0</span>
+            <span class="number-description">analysts from {{ num_banks }} of the leading investment banks referenced</span>
         </div>
     </div>
     <div class="value-item">
-        <div class="value-text">
-            <h4><span class="highlighted-number" data-count="{{ num_reports }}">0</span> analyst reports processed by our AI to perform recommendations</h4>
+        <div class="value-text number-section">
+            <span class="highlighted-number" data-count="{{ num_reports }}">0</span>
+            <span class="number-description">analyst reports processed by our AI to generate recommendations</span>
         </div>
     </div>
     <div class="value-item">
-        <div class="value-text">
-            <h4><span class="highlighted-number" data-count="10">0</span> top-performing stocks identified every week based on their risk return profile</h4>
+        <div class="value-text number-section">
+            <span class="highlighted-number" data-count="10">0</span>
+            <span class="number-description">top-performing stocks identified weekly based on their risk-return profile</span>
         </div>
     </div>
 </div>
 
+<div class="why-investment-club-section">
+    <div class="container">
+        <h2>Why This Investment Club?</h2>
+        <p>Investing in stocks is the shortest way to the good life. Historically, stocks have consistently outperformed other asset classes like bonds and real estate. The S&P 500 has delivered average annual returns of approximately 7-10% after inflation.</p>
+        <p>Top investors have even managed to consistently outperform the S&P 500 thanks to more advanced investment strategies.</p>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-<!-- Include Chart.js and Data Labels plugin -->
+<!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
 <!-- Count-Up Effect Script -->
 <script>
@@ -138,7 +149,7 @@
                 );
                 const sp500Return = calculateAnnualizedReturn(
                     filteredSp500Values[0],
-                    filteredSp500Values[filteredSp500Values.length - 1],
+                    filteredSp500Values[sp500Values.length - 1],
                     new Date(filteredDates[0]),
                     new Date(filteredDates[filteredDates.length - 1])
                 );
@@ -220,20 +231,9 @@
                                 return `${context.dataset.label}: ${context.raw}%`;
                             }
                         }
-                    },
-                    datalabels: {
-                        display: true,
-                        anchor: 'end',
-                        align: 'end',
-                        offset: -10,
-                        formatter: function(value) {
-                            return `${value}%`;
-                        },
-                        font: { weight: 'bold' }
                     }
                 }
-            },
-            plugins: [ChartDataLabels]
+            }
         });
     }
 
