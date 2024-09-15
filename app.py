@@ -788,7 +788,7 @@ def coverage():
                a.avg_combined_criteria,  
                a.num_analysts, a.num_recent_analysts, a.num_high_success_analysts,
                a.expected_return_combined_criteria
-        FROM analysis a
+        FROM analysis_simulation a
         JOIN stock s ON a.ticker = s.ticker
         ORDER BY s.name ASC
     """
