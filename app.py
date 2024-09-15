@@ -587,6 +587,7 @@ def index():
                     ORDER BY sp.date DESC LIMIT 1) AS sp500_value
             FROM portfolio p
             WHERE p.date >= %s
+            GROUP BY p.date
             ORDER BY p.date ASC
             LIMIT 1
         """, (start_date,))
@@ -601,6 +602,7 @@ def index():
                     ORDER BY sp.date DESC LIMIT 1) AS sp500_value
             FROM portfolio p
             WHERE p.date = %s
+            GROUP BY p.date
         """, (latest_date,))
         end_values = cursor.fetchone()
 
