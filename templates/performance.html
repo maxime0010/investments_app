@@ -156,8 +156,10 @@
                             },
                             label: function(tooltipItem) {
                                 if (tooltipItem.datasetIndex === 0) {
+                                    // Show only the Portfolio value for each date
                                     return `Portfolio: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
-                                } else {
+                                } else if (tooltipItem.datasetIndex === 1) {
+                                    // Show only the S&P 500 value for each date
                                     return `S&P 500: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
                                 }
                             }
