@@ -148,9 +148,8 @@
                     legend: {
                         display: true,
                         position: 'bottom'
-                    }
-                }
-                tooltip: {
+                    },
+                    tooltip: {  // Tooltip inside the plugins block
                         callbacks: {
                             label: function(tooltipItem) {
                                 // Show only the value for the first dataset
@@ -158,6 +157,7 @@
                             }
                         }
                     }
+                }
             }
         });
     }
@@ -186,5 +186,4 @@
         filterData('3years');
     });
 </script>
-<br>
 {% endblock %}
