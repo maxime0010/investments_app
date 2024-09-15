@@ -272,7 +272,76 @@ def performance():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch actual portfolio values and S&P 500 data
+    # Get the latest date in the portfolio
+    latest_date = get_latest_portfolio_date()
+
+    # Define the periods: last 3 years, 12 months, 3 months, 1 month
+    periods = {
+        '3years': latest_date - timedelta(days=3*365),
+        '12months': latest_date - timedelta(days=365),
+        '3months': latest_date - timedelta(days=90),
+        '1month': latest_date - timedelta(days=30)
+    }
+
+    annualized_returns = {
+        'portfolio': {},
+        'sp500': {}
+    }
+
+    # Calculate annualized returns for each period
+    for period, start_date in periods.items():
+        # Fetch portfolio and S&P 500 values for the start date
+        cursor.execute("""
+            SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+                   (SELECT close 
+                    FROM prices sp 
+                    WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                    ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+            FROM portfolio p
+            WHERE p.date >= %s
+            GROUP BY p.date
+            ORDER BY p.date ASC
+            LIMIT 1
+        """, (start_date,))
+        start_values = cursor.fetchone()
+
+        # Fetch portfolio and S&P 500 values for the end date (latest date)
+        cursor.execute("""
+            SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+                   (SELECT close 
+                    FROM prices sp 
+                    WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                    ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+            FROM portfolio p
+            WHERE p.date = %s
+            GROUP BY p.date
+        """, (latest_date,))
+        end_values = cursor.fetchone()
+
+        # Calculate annualized returns for portfolio and S&P 500
+        portfolio_return = calculate_annualized_return(
+            start_values['total_portfolio_value'],
+            end_values['total_portfolio_value'],
+            start_date,
+            latest_date
+        ) * 100
+
+        sp500_return = calculate_annualized_return(
+            start_values['sp500_value'],
+            end_values['sp500_value'],
+            start_date,
+            latest_date
+        ) * 100
+
+        # Store the returns for the current period
+        annualized_returns['portfolio'][period] = round(portfolio_return, 1)
+        annualized_returns['sp500'][period] = round(sp500_return, 1)
+
+    cursor.close()
+    conn.close()
+
+    # Fetch actual and simulated portfolio data for chart rendering
+    cursor = conn.cursor(dictionary=True)
     cursor.execute("""
         SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
                (SELECT close 
@@ -285,7 +354,6 @@ def performance():
     """)
     actual_portfolio_data = cursor.fetchall()
 
-    # Fetch simulated portfolio values and S&P 500 data
     cursor.execute("""
         SELECT ps.date, ps.total_value AS total_portfolio_value, 
                (SELECT close 
@@ -297,40 +365,16 @@ def performance():
     """)
     simulated_portfolio_data = cursor.fetchall()
 
-    cursor.close()
-    conn.close()
-
-    # Extract dates and values for actual portfolio and S&P 500
+    # Extract data for chart display
     dates_actual = [row['date'].strftime('%Y-%m-%d') for row in actual_portfolio_data]
     actual_portfolio_values = [row['total_portfolio_value'] for row in actual_portfolio_data]
     sp500_values_actual = [row['sp500_value'] for row in actual_portfolio_data]
 
-    # Extract dates and values for simulated portfolio and S&P 500
     dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in simulated_portfolio_data]
     simulated_portfolio_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
     sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data]
 
-    # Calculate annualized returns for actual portfolio and S&P 500
-    start_date_actual = datetime.strptime(dates_actual[0], '%Y-%m-%d')
-    end_date_actual = datetime.strptime(dates_actual[-1], '%Y-%m-%d')
-
-    actual_portfolio_annualized_return = calculate_annualized_return(
-        actual_portfolio_values[0], actual_portfolio_values[-1], start_date_actual, end_date_actual) * 100
-
-    sp500_annualized_return_actual = calculate_annualized_return(
-        sp500_values_actual[0], sp500_values_actual[-1], start_date_actual, end_date_actual) * 100
-
-    # Calculate annualized returns for simulated portfolio and S&P 500
-    start_date_simulation = datetime.strptime(dates_simulation[0], '%Y-%m-%d')
-    end_date_simulation = datetime.strptime(dates_simulation[-1], '%Y-%m-%d')
-
-    simulated_portfolio_annualized_return = calculate_annualized_return(
-        simulated_portfolio_values[0], simulated_portfolio_values[-1], start_date_simulation, end_date_simulation) * 100
-
-    sp500_annualized_return_simulation = calculate_annualized_return(
-        sp500_values_simulation[0], sp500_values_simulation[-1], start_date_simulation, end_date_simulation) * 100
-
-    # Pass these values to your template, formatted to 1 decimal place
+    # Pass calculated annualized returns and chart data to the template
     return render_template('performance.html', 
                            dates_actual=dates_actual, 
                            actual_values=actual_portfolio_values, 
@@ -338,12 +382,7 @@ def performance():
                            dates_simulation=dates_simulation, 
                            simulation_values=simulated_portfolio_values, 
                            sp500_values_simulation=sp500_values_simulation,
-                           actual_portfolio_annualized_return=f"{actual_portfolio_annualized_return:.1f}",
-                           sp500_annualized_return_actual=f"{sp500_annualized_return_actual:.1f}",
-                           simulated_portfolio_annualized_return=f"{simulated_portfolio_annualized_return:.1f}",
-                           sp500_annualized_return_simulation=f"{sp500_annualized_return_simulation:.1f}")
-
-
+                           annualized_returns=annualized_returns)
 
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
