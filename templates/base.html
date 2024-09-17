@@ -113,34 +113,49 @@
             margin: 0;
         }
 
-                /* Image Section with Full Black Overlay */
-        .image-section {
-            position: relative;
-            background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg');
-            background-size: cover;
-            background-position: center;
-            height: 400px;
-            width: 100%;
-            margin-bottom: 2rem;
-        }
+/* Image Section */
+.image-section {
+    position: relative;
+    background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 300px; /* Reduced height */
+    width: 100%;
+    margin-bottom: 2rem;
+}
 
-        /* Text Overlay - White, centered, large */
-        .overlay-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            z-index: 2;
-        }
+/* Responsive font size and padding for overlay-text */
+.overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    padding: 10px; /* Adjusted padding */
+    text-align: center;
+    z-index: 2;
+}
 
-        .overlay-text h2 {
-            font-size: 2.5rem; /* Increase the font size */
-            font-weight: bold;
-        }
+.overlay-text h2 {
+    font-size: 1.5rem; /* Adjusted font size for smaller screens */
+    font-weight: bold;
+}
 
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    .image-section {
+        height: 200px; /* Adjust height for small screens */
+    }
+
+    .overlay-text h2 {
+        font-size: 1.2rem; /* Adjust font size for small screens */
+    }
+
+    .overlay-text {
+        padding: 5px; /* Adjust padding for small screens */
+    }
+}
+        
         .text-section-image {
             margin-top: 20px;
         }
