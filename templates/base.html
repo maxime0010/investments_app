@@ -137,24 +137,12 @@
 }
 
 .overlay-text h2 {
-    font-size: 1.5rem; /* Adjusted font size for smaller screens */
-    font-weight: bold;
+    font-size: 1.5rem; /* Smaller font size for mobile */
+    line-height: 1.4; /* Improved line height for better readability */
+    word-wrap: break-word; /* Force text to wrap if it's too long */
+    padding: 1px; /* Ensure some padding around the text */
 }
 
-/* Media queries for responsive design */
-@media (max-width: 768px) {
-    .image-section {
-        height: 200px; /* Adjust height for small screens */
-    }
-
-    .overlay-text h2 {
-        font-size: 1.2rem; /* Adjust font size for small screens */
-    }
-
-    .overlay-text {
-        padding: 5px; /* Adjust padding for small screens */
-    }
-}
         
         .text-section-image {
             margin-top: 20px;
@@ -371,6 +359,26 @@
             display: none;
         }
 
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    .image-section {
+        height: 200px; /* Adjust height for small screens */
+    }
+
+    .overlay-text h2 {
+        font-size: 1.2rem; /* Adjust font size for small screens */
+    }
+
+    .overlay-text {
+        padding: 5px; /* Adjust padding for small screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .overlay-text h2 {
+        font-size: 1rem; /* Even smaller font size for extra-small screens */
+    }
+}
         
     </style>
 
