@@ -369,3 +369,14 @@
     }
 }
       
+
+@media (max-width: 768px) {
+    #annualizedReturnsChart {
+        height: 300px;  /* Reduce height for mobile */
+    }
+}
+@media (max-width: 576px) {
+    #annualizedReturnsChart {
+        height: 250px;  /* Further reduce height for very small screens */
+    }
+}
