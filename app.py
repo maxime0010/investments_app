@@ -150,7 +150,7 @@ def get_top_stocks(latest_date):
                a.expected_return_combined_criteria, a.num_combined_criteria, MAX(p.ranking) as ranking, 
                MAX(a.avg_combined_criteria) as target_price, s.indices
         FROM portfolio_simulation p
-        JOIN analysis a ON p.ticker = a.ticker
+        JOIN analysis_simulation a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         JOIN stock s ON s.ticker = p.ticker
         WHERE p.date = %s
@@ -207,7 +207,7 @@ def stock_detail(ticker):
     # Fetch the expected return, number of analysts with success rate above median, and recent updates
     cursor.execute("""
         SELECT expected_return_combined_criteria, num_recent_analysts, num_high_success_analysts
-        FROM analysis
+        FROM analysis_simulation
         WHERE ticker = %s
     """, (ticker,))
     analysis_data = cursor.fetchone()
