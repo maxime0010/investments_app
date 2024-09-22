@@ -153,7 +153,7 @@ def get_top_stocks(latest_date):
         JOIN analysis_simulation a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         JOIN stock s ON s.ticker = p.ticker
-        WHERE p.date = %s
+        WHERE p.date = %s AND a.date = %s
         GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, a.num_combined_criteria, s.indices
         ORDER BY ranking
         LIMIT 10
