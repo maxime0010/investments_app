@@ -158,7 +158,7 @@ def get_top_stocks(latest_date):
         ORDER BY ranking
         LIMIT 10
     """
-    cursor.execute(query, (latest_date,))
+    cursor.execute(query, (latest_date, latest_date))
     top_stocks = cursor.fetchall()
 
     for stock in top_stocks:
