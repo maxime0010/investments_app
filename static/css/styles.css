@@ -380,3 +380,45 @@
         height: 250px;  /* Further reduce height for very small screens */
     }
 }
+
+    .matrix-section {
+        margin-top: 50px;
+        text-align: center;
+    }
+    
+    .matrix-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .matrix-row {
+        display: flex;
+    }
+
+    .matrix-cell {
+        width: 150px;
+        height: 150px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #ddd;
+        margin: 5px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .low-consensus { background-color: #f9f9f9; }
+    .high-consensus { background-color: #f0f0f0; }
+    .low-return { color: #666; }
+    .high-return { color: #222; }
+    
+    /* Highlighted top-right quadrant */
+    .highlighted {
+        background-color: #4caf50;
+        color: white;
+        font-weight: bold;
+    }
