@@ -205,11 +205,13 @@ def stock_detail(ticker):
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # Fetch the expected return, number of analysts with success rate above median, and recent updates
+        # Fetch the most recent expected return, number of analysts with success rate above median, and recent updates
         cursor.execute("""
             SELECT expected_return_combined_criteria, num_recent_analysts, num_high_success_analysts
             FROM analysis_simulation
             WHERE ticker = %s
+            ORDER BY date DESC
+            LIMIT 1
         """, (ticker,))
         analysis_data = cursor.fetchone()
 
@@ -270,6 +272,7 @@ def stock_detail(ticker):
         analyst['grey_out'] = analyst['last_update'] < (datetime.today().date() - timedelta(days=30)) or analyst['overall_success_rate'] < median_success_rate
 
     return render_template('stock_detail.html', ticker=ticker, analysis_data=analysis_data, analysts_data=analysts_data, median_success_rate=median_success_rate)
+
 
 @app.route('/performance')
 def performance():
