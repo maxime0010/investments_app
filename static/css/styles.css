@@ -379,7 +379,9 @@
     #annualizedReturnsChart {
         height: 250px;  /* Further reduce height for very small screens */
     }
-    .matrix-section {
+}
+
+.matrix-section {
         margin-top: 50px;
         text-align: center;
     }
@@ -458,4 +460,3 @@
     .matrix-container {
         position: relative;
     }
-
