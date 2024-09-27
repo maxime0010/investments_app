@@ -379,20 +379,40 @@
     #annualizedReturnsChart {
         height: 250px;  /* Further reduce height for very small screens */
     }
-}
-
     .matrix-section {
         margin-top: 50px;
         text-align: center;
     }
-    
+
     .matrix-container {
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
-        max-width: 400px;
-        margin: 0 auto;
+        position: relative;
+    }
+
+    .matrix-y-axis {
+        position: absolute;
+        top: 50%;
+        left: -120px;
+        transform: translateY(-50%) rotate(-90deg);
+        font-size: 14px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .matrix-x-axis {
+        margin-top: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .matrix-grid {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        padding: 5px;
     }
 
     .matrix-row {
@@ -406,19 +426,36 @@
         justify-content: center;
         align-items: center;
         border: 1px solid #ddd;
-        margin: 5px;
+        margin: 3px;
+        background-color: #f8f8f8;
         text-align: center;
+        font-size: 14px;
+        color: #777;
+    }
+
+    .matrix-cell p {
+        margin: 0;
+        font-size: 13px;
+    }
+
+    /* Highlighted quadrant (top-right) */
+    .highlighted {
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .highlighted p {
         font-size: 14px;
     }
 
-    .low-consensus { background-color: #f9f9f9; }
-    .high-consensus { background-color: #f0f0f0; }
-    .low-return { color: #666; }
-    .high-return { color: #222; }
-    
-    /* Highlighted top-right quadrant */
-    .highlighted {
-        background-color: #4caf50;
-        color: white;
-        font-weight: bold;
+    /* Add some differentiation between quadrants */
+    .low-consensus.low-return { background-color: #fafafa; }
+    .low-consensus.high-return { background-color: #f0f0f0; }
+    .high-consensus.low-return { background-color: #eaeaea; }
+
+    .matrix-container {
+        position: relative;
     }
+
