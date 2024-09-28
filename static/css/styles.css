@@ -468,7 +468,7 @@
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .matrix-y-axis {
-        left: calc(50% - 220px); /* Adjust the axis closer to the center */
+        left: calc(50% - 270px); /* Adjust the axis closer to the center */
         font-size: 14px; /* Smaller font size for the axis */
     }
 
@@ -491,7 +491,7 @@
 
 @media (max-width: 576px) {
     .matrix-y-axis {
-        left: calc(50% - 150px); /* Further adjust axis for small screens */
+        left: calc(50% - 200px); /* Further adjust axis for small screens */
     }
 
     .matrix-cell {
