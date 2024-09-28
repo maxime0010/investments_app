@@ -201,13 +201,13 @@ def portfolio():
 
 @app.route('/stock/<ticker>')
 def stock_detail(ticker):
-    conn = mysql.connector.connect(**db_config)
+    conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # Fetch the most recent expected return, number of analysts with success rate above median, and recent updates
+        # Fetch expected return, short and long recommendation
         cursor.execute("""
-            SELECT expected_return_combined_criteria, num_recent_analysts, num_high_success_analysts
+            SELECT expected_return_combined_criteria, short_recommendation, long_recommendation
             FROM analysis_simulation
             WHERE ticker = %s
             ORDER BY date DESC
@@ -215,30 +215,7 @@ def stock_detail(ticker):
         """, (ticker,))
         analysis_data = cursor.fetchone()
 
-        # Fetch the latest non-zero stock price
-        cursor.execute("""
-            SELECT close
-            FROM prices
-            WHERE ticker = %s AND close > 0
-            ORDER BY date DESC
-            LIMIT 1
-        """, (ticker,))
-        latest_stock_price_result = cursor.fetchone()
-        latest_stock_price = latest_stock_price_result['close'] if latest_stock_price_result else None
-
-        # Fetch and calculate the median success rate directly in SQL
-        cursor.execute("""
-            WITH ordered_analysts AS (
-                SELECT overall_success_rate, ROW_NUMBER() OVER (ORDER BY overall_success_rate) AS rn, COUNT(*) OVER() AS cnt
-                FROM analysts
-            )
-            SELECT ROUND(AVG(overall_success_rate), 2) AS median_success_rate
-            FROM ordered_analysts
-            WHERE rn IN (FLOOR((cnt + 1) / 2), CEIL((cnt + 1) / 2));
-        """)
-        median_success_rate = cursor.fetchone()['median_success_rate']
-
-        # Fetch only the latest rating for each analyst
+        # Fetch the most recent analyst data
         cursor.execute("""
             SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, 
                    r.date AS last_update, a.overall_success_rate,
@@ -252,26 +229,18 @@ def stock_detail(ticker):
                 WHERE r2.analyst_name = r.analyst_name AND r2.ticker = r.ticker
             )
             ORDER BY r.date DESC, r.analyst_name ASC
-        """, (median_success_rate, ticker))
+        """, (ticker,))
         analysts_data = cursor.fetchall()
 
     finally:
         cursor.close()
         conn.close()
 
-    # Prepare data for rendering
-    for analyst in analysts_data:
-        if analyst['price_target'] is not None and latest_stock_price is not None:
-            analyst['expected_return'] = ((analyst['price_target'] - latest_stock_price) / latest_stock_price) * 100
-        else:
-            analyst['expected_return'] = None  # Handle zero or missing stock price
-
-        # Highlight if updated in the last 30 days or if the analyst is a top performer
-        analyst['updated_last_30_days'] = 'Yes' if analyst['updated_last_30_days'] else 'No'
-        analyst['is_top_performer'] = 'Yes' if analyst['is_top_performer'] else 'No'
-        analyst['grey_out'] = analyst['last_update'] < (datetime.today().date() - timedelta(days=30)) or analyst['overall_success_rate'] < median_success_rate
-
-    return render_template('stock_detail.html', ticker=ticker, analysis_data=analysis_data, analysts_data=analysts_data, median_success_rate=median_success_rate)
+    return render_template('stock_detail.html', 
+                           ticker=ticker, 
+                           stock_name=get_stock_name(ticker), 
+                           analysis_data=analysis_data, 
+                           analysts_data=analysts_data)
 
 
 @app.route('/performance')
