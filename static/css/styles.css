@@ -396,7 +396,7 @@
     .matrix-y-axis {
         position: absolute;
         top: 50%;
-        left: -50px; /* Adjusted to be closer to the axis */
+        left: calc(50% - 105px); /* Centered relative to matrix, adjusted for spacing */
         transform: translateY(-50%) rotate(-90deg);
         font-size: 16px;
         font-weight: bold;
@@ -444,7 +444,7 @@
     .icon {
         width: 50px;
         height: 50px;
-        margin-bottom: 10px;
+        margin-bottom: 5px; /* Reduced space between icon and text */
     }
 
     /* Highlighted quadrant (top-right) */
@@ -455,9 +455,9 @@
     }
 
     /* Background color adjustments */
-    .low-return.high-consensus { background-color: #d4edda; }  /* Light Green */
-    .low-return.low-consensus { background-color: #f8d7da; }   /* Light Red */
-    .high-return.low-consensus { background-color: #fff3cd; }  /* Light Yellow */
+    .low-return.high-consensus { background-color: #e0e0e0; }  /* Grey */
+    .low-return.low-consensus { background-color: #e0e0e0; }   /* Grey */
+    .high-return.low-consensus { background-color: #e0e0e0; }  /* Grey */
     .high-return.high-consensus { background-color: #28a745; } /* Highlighted Green */
 
     .matrix-container {
