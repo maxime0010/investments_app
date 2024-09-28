@@ -2,11 +2,41 @@
 
 {% block content %}
 <div class="container my-5">
-    <h1>{{ ticker }} Analysts Overview</h1>
-    <p><strong>Expected Return:</strong> {{ analysis_data.expected_return_combined_criteria }}%</p>
-    <p><strong>Number of Analysts with Updates in the Last 30 Days:</strong> {{ analysis_data.num_recent_analysts }}</p>
-    <p><strong>Number of Analysts with Success Rate Above Median:</strong> {{ analysis_data.num_high_success_analysts }}</p>
+    <!-- Stock Title and Ticker -->
+    <h1 class="display-4">{{ stock_name }} <small class="text-muted">({{ ticker }})</small></h1>
+    
+    <!-- Expected Return -->
+    <div class="my-4">
+        <h3>Expected Return:</h3>
+        <p class="lead">{{ analysis_data.expected_return_combined_criteria }}%</p>
+    </div>
 
+    <!-- Investment Rationale -->
+    <div class="my-4">
+        <h3>Investment Rationale:</h3>
+        
+        <!-- Short Version -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Summary</strong>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ analysis_data.short_recommendation }}</p>
+            </div>
+        </div>
+        
+        <!-- Detailed Version -->
+        <div class="card">
+            <div class="card-header">
+                <strong>Detailed Analysis</strong>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ analysis_data.long_recommendation }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysts Table -->
     <table class="table table-striped mt-4">
         <thead>
             <tr>
@@ -17,7 +47,7 @@
                 <th scope="col">Expected Return</th>
                 <th scope="col">Success Rate</th>
                 <th scope="col">Updated in the Last 30 Days</th>
-                <th scope="col">Analyst is Top Performer</th>
+                <th scope="col">Top Performer</th>
             </tr>
         </thead>
         <tbody>
