@@ -381,7 +381,7 @@
     }
 }
 
-.matrix-section {
+    .matrix-section {
         margin-top: 50px;
         text-align: center;
     }
@@ -398,14 +398,14 @@
         top: 50%;
         left: -120px;
         transform: translateY(-50%) rotate(-90deg);
-        font-size: 14px;
+        font-size: 16px;
         font-weight: bold;
         color: #555;
     }
 
     .matrix-x-axis {
         margin-top: 10px;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: bold;
         color: #555;
     }
@@ -413,8 +413,8 @@
     .matrix-grid {
         display: flex;
         flex-direction: column;
-        border: 1px solid #ddd;
-        padding: 5px;
+        border: 2px solid #ddd;
+        padding: 10px;
     }
 
     .matrix-row {
@@ -422,13 +422,13 @@
     }
 
     .matrix-cell {
-        width: 150px;
-        height: 150px;
+        width: 200px;
+        height: 200px;
         display: flex;
         justify-content: center;
         align-items: center;
-        border: 1px solid #ddd;
-        margin: 3px;
+        border: 2px solid #ddd;
+        margin: 5px;
         background-color: #f8f8f8;
         text-align: center;
         font-size: 14px;
@@ -437,25 +437,27 @@
 
     .matrix-cell p {
         margin: 0;
-        font-size: 13px;
+        font-size: 14px;
+    }
+
+    .icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 10px;
     }
 
     /* Highlighted quadrant (top-right) */
     .highlighted {
-        background-color: #28a745;
-        color: white;
         font-weight: bold;
+        color: white;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
     }
 
-    .highlighted p {
-        font-size: 14px;
-    }
-
-    /* Add some differentiation between quadrants */
-    .low-consensus.low-return { background-color: #fafafa; }
-    .low-consensus.high-return { background-color: #f0f0f0; }
-    .high-consensus.low-return { background-color: #eaeaea; }
+    /* Background color adjustments */
+    .low-return.high-consensus { background-color: #d4edda; }  /* Light Green */
+    .low-return.low-consensus { background-color: #f8d7da; }   /* Light Red */
+    .high-return.low-consensus { background-color: #fff3cd; }  /* Light Yellow */
+    .high-return.high-consensus { background-color: #28a745; } /* Highlighted Green */
 
     .matrix-container {
         position: relative;
