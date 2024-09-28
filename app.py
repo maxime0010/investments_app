@@ -205,6 +205,16 @@ def stock_detail(ticker):
     cursor = conn.cursor(dictionary=True)
 
     try:
+        # Fetch the stock name from the 'stock' table
+        cursor.execute("""
+            SELECT name
+            FROM stock
+            WHERE ticker = %s
+            LIMIT 1
+        """, (ticker,))
+        stock_name_result = cursor.fetchone()
+        stock_name = stock_name_result['name'] if stock_name_result else "Unknown Stock"
+
         # Fetch the most recent expected return, number of analysts with success rate above median, and recent updates
         cursor.execute("""
             SELECT expected_return_combined_criteria, num_recent_analysts, num_high_success_analysts
@@ -291,6 +301,7 @@ def stock_detail(ticker):
 
     return render_template('stock_detail.html', 
                            ticker=ticker, 
+                           stock_name=stock_name,  # Pass stock name to the template
                            analysis_data=analysis_data, 
                            analysts_data=analysts_data, 
                            median_success_rate=median_success_rate)
