@@ -62,16 +62,12 @@
                         {% if not is_member and not loop.first %}
                             [Members only]
                         {% else %}
-                            {{ stock.expected_return_combined_criteria | default(0) | float | round(2) }}%
+                            {{ stock.expected_return_combined_criteria | default(0) | int }}%
                         {% endif %}
                         <br>
 
-                        <strong>Number of Analysts:</strong> 
-                        {% if not is_member and not loop.first %}
-                            [Members only]
-                        {% else %}
-                            {{ stock.num_combined_criteria }}
-                        {% endif %}
+                        <!-- More Details Button -->
+                        <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-primary mt-3">More Details</a>
                     </p>
                 </div>
 
