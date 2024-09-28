@@ -507,3 +507,40 @@
     }
 }
 
+
+/* Style the Join the Club button */
+.btn-black {
+    background-color: #000;
+    color: #fff;
+    border: 2px solid #000;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-black:hover {
+    background-color: #fff;
+    color: #000;
+}
+
+.join-club-btn {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Always show Join the Club next to the hamburger menu on mobile */
+.navbar-toggler + .btn-black {
+    display: inline-block;
+}
+
+/* Hide the Join the Club button for mobile when the menu is open */
+@media (min-width: 992px) {
+    .d-lg-none {
+        display: none !important;
+    }
+
+    .d-lg-block {
+        display: inline-block !important;
+    }
+}
