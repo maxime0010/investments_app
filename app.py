@@ -215,6 +215,9 @@ def stock_detail(ticker):
         stock_name_result = cursor.fetchone()
         stock_name = stock_name_result['name'] if stock_name_result else "Unknown Stock"
 
+        # Fetch the logo URL for the company
+        logo_url = get_logo_url(ticker)
+
         # Fetch the most recent expected return, number of analysts with success rate above median, and recent updates
         cursor.execute("""
             SELECT expected_return_combined_criteria, num_recent_analysts, num_high_success_analysts
@@ -302,6 +305,7 @@ def stock_detail(ticker):
     return render_template('stock_detail.html', 
                            ticker=ticker, 
                            stock_name=stock_name,  # Pass stock name to the template
+                           logo_url=logo_url,      # Pass the logo URL to the template
                            analysis_data=analysis_data, 
                            analysts_data=analysts_data, 
                            median_success_rate=median_success_rate)
