@@ -2,9 +2,15 @@
 
 {% block content %}
 <div class="container my-5">
-    <!-- Stock Title and Ticker -->
-    <h1 class="display-4">{{ stock_name }} <small class="text-muted">({{ ticker }})</small></h1>
-    
+    <!-- Stock Title, Ticker, and Logo -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Stock Name and Ticker -->
+        <h1 class="display-4">{{ stock_name }} <small class="text-muted">({{ ticker }})</small></h1>
+
+        <!-- Company Logo -->
+        <img src="{{ logo_url }}" alt="{{ stock_name }} Logo" class="img-fluid" style="max-height: 80px;">
+    </div>
+
     <!-- Expected Return -->
     <div class="my-4">
         <h3>Expected Return:</h3>
@@ -35,7 +41,7 @@
             </div>
         </div>
     </div>
-
+        <h3>Analysts Ratings</h3>
     <!-- Analysts Table -->
     <table class="table table-striped mt-4">
         <thead>
