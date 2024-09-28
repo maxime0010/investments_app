@@ -396,7 +396,7 @@
     .matrix-y-axis {
         position: absolute;
         top: 50%;
-        left: -120px;
+        left: -50px; /* Adjusted to be closer to the axis */
         transform: translateY(-50%) rotate(-90deg);
         font-size: 16px;
         font-weight: bold;
@@ -425,6 +425,7 @@
         width: 200px;
         height: 200px;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         border: 2px solid #ddd;
@@ -441,8 +442,8 @@
     }
 
     .icon {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         margin-bottom: 10px;
     }
 
