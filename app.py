@@ -205,15 +205,25 @@ def stock_detail(ticker):
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # Fetch expected return, short and long recommendation
+        # Fetch the most recent expected return and related data from analysis_simulation
         cursor.execute("""
-            SELECT expected_return_combined_criteria, short_recommendation, long_recommendation
+            SELECT expected_return_combined_criteria
             FROM analysis_simulation
             WHERE ticker = %s
             ORDER BY date DESC
             LIMIT 1
         """, (ticker,))
         analysis_data = cursor.fetchone()
+
+        # Fetch the most recent short and long recommendations from the chatgpt table
+        cursor.execute("""
+            SELECT short_recommendation, long_recommendation
+            FROM chatgpt
+            WHERE ticker = %s
+            ORDER BY date DESC
+            LIMIT 1
+        """, (ticker,))
+        recommendation_data = cursor.fetchone()
 
         # Fetch the most recent analyst data
         cursor.execute("""
@@ -229,18 +239,27 @@ def stock_detail(ticker):
                 WHERE r2.analyst_name = r.analyst_name AND r2.ticker = r.ticker
             )
             ORDER BY r.date DESC, r.analyst_name ASC
-        """, (ticker,))
+        """, (median_success_rate, ticker))
         analysts_data = cursor.fetchall()
 
     finally:
         cursor.close()
         conn.close()
 
+    # Merge the recommendation data into the analysis_data
+    if recommendation_data:
+        analysis_data['short_recommendation'] = recommendation_data['short_recommendation']
+        analysis_data['long_recommendation'] = recommendation_data['long_recommendation']
+    else:
+        analysis_data['short_recommendation'] = "No short recommendation available."
+        analysis_data['long_recommendation'] = "No long recommendation available."
+
     return render_template('stock_detail.html', 
                            ticker=ticker, 
                            stock_name=get_stock_name(ticker), 
                            analysis_data=analysis_data, 
                            analysts_data=analysts_data)
+
 
 
 @app.route('/performance')
