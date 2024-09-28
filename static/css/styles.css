@@ -325,6 +325,11 @@
             position: relative;
         }
 
+        .cardsmall {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
         .card-body {
             position: relative;
             z-index: 2; /* Ensure content is above the overlay */
