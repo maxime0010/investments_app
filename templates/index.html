@@ -3,14 +3,15 @@
 {% block title %}Join the Club - Good Life{% endblock %}
 
 {% block content %}
-<div class="image-section">
+<div class="image-section hero-section">
     <div class="overlay"></div>
     <div class="overlay-text">
-        <h2>The top 10 performing stocks, handpicked by AI. Delivered to your inbox every week.</h2>
-        <!-- "Join the Club" Button with White Background -->
-        <a href="{{ url_for('membership_pro') }}" class="btn join-club-btn mt-3">Join the Club</a>
+        <h1 class="display-4">Top 10 Performing Stocks, Handpicked by AI</h1>
+        <p class="lead">Delivered to your inbox every week. Stay ahead of the market with our expert insights.</p>
+        <a href="{{ url_for('membership_pro') }}" class="btn btn-primary btn-lg mt-4 hero-cta">Join the Club</a>
     </div>
 </div>
+
 
 <div class="text-section">
     <h1>Our AI consistently outperforms the S&P 500
