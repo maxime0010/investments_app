@@ -548,11 +548,14 @@
 
 /* Hero Section Styles */
 .hero-section {
-    background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg'); /* Replace with an impactful image */
+    background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg'); /* Replace with a higher-quality image */
     background-size: cover;
     background-position: center;
-    height: 500px;
+    height: 600px;  /* Increased height for more impact */
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .hero-section .overlay {
@@ -561,39 +564,81 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Translucent overlay for better text readability */
+    background-color: rgba(0, 0, 0, 0.5);  /* Dark overlay for contrast */
     z-index: 1;
 }
 
-.hero-section .container {
+.hero-section .overlay-text {
     position: relative;
     z-index: 2;
+    text-align: center;
+    color: #fff;
 }
 
 .hero-section h1 {
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: bold;
     color: #fff;
 }
 
-.hero-section p {
-    font-size: 1.5rem;
+.hero-section .lead {
+    font-size: 1.75rem;  /* Large font for better readability */
     color: #fff;
+    margin-bottom: 30px;
 }
 
 .hero-cta {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     padding: 15px 40px;
     font-weight: bold;
     text-transform: uppercase;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .hero-cta:hover {
     background-color: #fff;
     color: #007bff;
+    transform: scale(1.05);  /* Slight hover effect for button */
 }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        height: 400px;  /* Smaller height for tablet */
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;  /* Adjusted font size for smaller screens */
+    }
+
+    .hero-section .lead {
+        font-size: 1.25rem;  /* Adjusted font size for smaller screens */
+    }
+
+    .hero-cta {
+        font-size: 1.2rem;  /* Adjusted button size for smaller screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        height: 300px;  /* Smaller height for mobile */
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+
+    .hero-section .lead {
+        font-size: 1rem;
+    }
+
+    .hero-cta {
+        font-size: 1rem;
+    }
+}
+
 
 /* Key Membership Benefits Section (Namespaced to avoid conflicts) */
 .membership-benefit-card {
