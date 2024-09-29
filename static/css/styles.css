@@ -548,7 +548,7 @@
 
 /* Hero Section Styles */
 .hero-section {
-    background-image: url('https://example.com/hero-image.jpg'); /* Replace with an impactful image */
+    background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg'); /* Replace with an impactful image */
     background-size: cover;
     background-position: center;
     height: 500px;
