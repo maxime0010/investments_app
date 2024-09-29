@@ -431,8 +431,25 @@ def confirm_email(user_id):
 @app.route('/membership-step2')
 @login_required
 def membership_step2():
-    stripe_lookup_key = os.getenv('STRIPE_LOOKUP_KEY')
-    return render_template('membership_step2.html', stripe_lookup_key=stripe_lookup_key)
+    try:
+        # Create a checkout session directly when the user hits this route
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            customer_email=current_user.email,  # Use the current user's email for Stripe checkout
+            line_items=[{
+                'price': os.getenv('STRIPE_PRICE_ID'),  # Replace with your actual Stripe price ID
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('cancel', _external=True),
+        )
+        # Redirect user directly to Stripe's checkout page
+        return redirect(checkout_session.url, code=303)
+    except Exception as e:
+        print(f"Error creating checkout session: {e}")
+        return str(e), 500
+
 
 
 @app.route('/create-checkout-session', methods=['POST'])
