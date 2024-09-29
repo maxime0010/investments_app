@@ -484,7 +484,8 @@ def create_checkout_session():
 
 @app.route('/cancel')
 def cancel():
-    return "Payment was canceled."
+    return render_template('cancel.html')
+
 
 
 @app.route('/logout')
