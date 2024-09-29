@@ -102,28 +102,26 @@
             margin: 0;
         }
 
-/* Image Section */
+/* Ensure the parent section is positioned correctly */
 .image-section {
-    position: relative;
+    position: relative;  /* Ensures the child elements can be positioned relative to this */
+    display: flex;       /* Enable Flexbox */
+    justify-content: center;  /* Horizontal centering */
+    align-items: center;      /* Vertical centering */
+    height: 500px;       /* Ensure there's enough height to center the text */
     background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg');
     background-size: cover;
     background-position: center;
-    height: 500px; /* Reduced height */
-    width: 100%;
-    margin-bottom: 2rem;
 }
 
 /* Responsive font size and padding for overlay-text */
 .overlay-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    padding: 5px; /* Adjusted padding */
     text-align: center;
+    color: white;
+    padding: 5px;
     z-index: 2;
 }
+
 
 .overlay-text h2 {
     font-size: 1.5rem; /* Smaller font size for mobile */
