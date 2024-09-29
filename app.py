@@ -367,6 +367,10 @@ def performance():
 
 @app.route('/membership-step1', methods=['GET', 'POST'])
 def membership_step1():
+    # If the user is already logged in, redirect to membership_step2
+    if current_user.is_authenticated:
+        return redirect(url_for('membership_step2'))
+    
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -400,6 +404,7 @@ def membership_step1():
             return redirect(url_for('membership_step2'))
 
     return render_template('membership_step1.html')
+
 
 
 def send_confirmation_email(email, user_id):
