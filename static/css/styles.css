@@ -761,3 +761,70 @@
     background-color: #0056b3; /* Darker blue on hover */
     transform: scale(1.05);    /* Slight zoom effect on hover */
 }
+
+/* Our Team Section */
+.our-team-section {
+    background-color: #f8f9fa; /* Light background for contrast */
+    padding: 50px 0;
+}
+
+.team-member {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+}
+
+.member-photo img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Circular Image */
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.member-info {
+    margin-left: 20px; /* Spacing between image and text */
+}
+
+.member-info h4 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.member-info p {
+    font-size: 1rem;
+    color: #555;
+}
+
+.linkedin-link {
+    color: #0077b5; /* LinkedIn brand color */
+    margin-top: 10px;
+    text-decoration: none;
+}
+
+.linkedin-link:hover {
+    color: #005582;
+}
+
+.linkedin-link i {
+    transition: color 0.3s ease;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .team-member {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .member-info {
+        margin-left: 0;
+        margin-top: 15px;
+    }
+
+    .member-photo img {
+        width: 120px;
+        height: 120px;
+    }
+}
