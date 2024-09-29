@@ -441,6 +441,7 @@ def membership_step2():
                 'quantity': 1,
             }],
             mode='subscription',
+            allow_promotion_codes=True,
             success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('cancel', _external=True),
         )
@@ -468,6 +469,7 @@ def create_checkout_session():
                 },
             ],
             mode='subscription',
+            allow_promotion_codes=True,
             success_url=YOUR_DOMAIN + '/success?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=YOUR_DOMAIN + '/cancel',
         )
