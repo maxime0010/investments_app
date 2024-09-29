@@ -108,7 +108,7 @@
     display: flex;       /* Enable Flexbox */
     justify-content: center;  /* Horizontal centering */
     align-items: center;      /* Vertical centering */
-    height: 500px;       /* Ensure there's enough height to center the text */
+    height: 300px;       /* Ensure there's enough height to center the text */
     background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg');
     background-size: cover;
     background-position: center;
@@ -118,7 +118,7 @@
 .overlay-text {
     text-align: center;
     color: white;
-    padding: 5px;
+    padding: 50px;
     z-index: 2;
 }
 
