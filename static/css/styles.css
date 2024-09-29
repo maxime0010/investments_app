@@ -764,7 +764,7 @@
 
 /* Our Team Section */
 .our-team-section {
-    background-color: #f8f9fa; /* Light background for contrast */
+    background-color: #fff; /* White background for a clean look */
     padding: 50px 0;
 }
 
@@ -776,30 +776,30 @@
 }
 
 .member-photo img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%; /* Circular Image */
+    width: 100px; /* Smaller circular image */
+    height: 100px;
+    border-radius: 50%; /* Circular image */
     object-fit: cover;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .member-info {
-    margin-left: 20px; /* Spacing between image and text */
+    margin-left: 20px; /* Space between image and text */
 }
 
 .member-info h4 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
+    font-size: 1.3rem; /* Adjusted font size */
+    margin-bottom: 0;
 }
 
 .member-info p {
     font-size: 1rem;
     color: #555;
+    margin-top: 10px;
 }
 
 .linkedin-link {
     color: #0077b5; /* LinkedIn brand color */
-    margin-top: 10px;
     text-decoration: none;
 }
 
@@ -824,7 +824,7 @@
     }
 
     .member-photo img {
-        width: 120px;
-        height: 120px;
+        width: 80px;
+        height: 80px;
     }
 }
