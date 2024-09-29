@@ -6,42 +6,41 @@
 <!-- Hero Section -->
 <div class="jumbotron jumbotron-fluid text-center bg-primary text-white">
     <div class="container">
-        <h1 class="display-4">Unlock Premium Features with Good Life Membership</h1>
-        <p class="lead">Become a Good Life member to access exclusive tools and in-depth analysis.</p>
-        <a href="{{ url_for('membership_step1') }}" class="btn btn-light btn-lg mt-3">Get Started Now</a>
+        <h1 class="display-4">Join the Good Life Investment Club</h1>
+        <p class="lead">Access exclusive stock picks, detailed analysis, and weekly insights to maximize your portfolio returns.</p>
+        <a href="{{ url_for('membership_step1') }}" class="btn btn-light btn-lg mt-3">Join the Club</a>
     </div>
 </div>
 
-<!-- Features Section -->
+<!-- Key Membership Benefits Section -->
 <div class="container my-5">
-    <h2 class="text-center mb-4">Why Become a Member?</h2>
+    <h2 class="text-center mb-4">What You Get as a Member</h2>
     <div class="row">
-        <div class="col-md-6">
-            <h4>Access to Market Insights from Top Analysts</h4>
-            <p>Gain exclusive access to data typically reserved for institutional investors. This includes non-aggregated price targets from leading analysts, accuracy ratings of analysts, and real-time updates based on the latest broker reports.</p>
+        <!-- Top 10 Best Performing Stocks -->
+        <div class="col-md-12 mb-4">
+            <h4 class="text-center">Top 10 Best Performing Stocks</h4>
+            <p class="text-center">Every week, our AI picks the 10 best-performing stocks based on detailed analysis of top analyst reports. Stay ahead of the market with expert-curated insights.</p>
         </div>
-        <div class="col-md-6">
-            <h4>AI-Generated Stock Portfolios</h4>
-            <p>Leverage stock portfolios crafted by our proprietary AI-enabled methodology. Our continually improving algorithm is designed to maximize your portfolio's risk-return profile and consistently outperform the S&P 500.</p>
+        
+        <!-- Qualitative and Quantitative Analysis -->
+        <div class="col-md-12 mb-4">
+            <h4 class="text-center">Detailed Analysis for Each Stock</h4>
+            <p class="text-center">Get a deep dive into each stock’s performance, including both qualitative and quantitative analysis. Understand the investment rationale and expected returns for informed decision-making.</p>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <h4>Weekly Newsletter</h4>
-            <p>Receive weekly updates directly in your inbox, including key portfolio adjustments. Stay informed and rebalance your portfolio regularly with the latest intelligence.</p>
-        </div>
-        <div class="col-md-6">
-            <h4>Just $5 a Month</h4>
-            <p>Gain access to best-in-class portfolio optimization tools at a fraction of the cost of market-standard solutions.</p>
+
+        <!-- Weekly Newsletter -->
+        <div class="col-md-12 mb-4">
+            <h4 class="text-center">Weekly Portfolio Updates</h4>
+            <p class="text-center">Receive a weekly newsletter highlighting key changes to our stock portfolio, so you can adjust your own investments based on the latest market trends and insights.</p>
         </div>
     </div>
 </div>
 
-<!-- Call to Action Section -->
+<!-- Call to Action Section with Large Button -->
 <div class="container text-center my-5">
-    <h2>Ready to Elevate Your Investment Game?</h2>
-    <p>Join Good Life today and start making smarter investments with the tools and insights that matter.</p>
-    <a href="{{ url_for('membership_step1') }}" class="btn btn-primary btn-lg">Get Started</a>
+    <h2>Ready to Maximize Your Portfolio?</h2>
+    <p>Join the Good Life club today and get exclusive access to the tools and insights that can help you make smarter, more profitable investment decisions.</p>
+    <a href="{{ url_for('membership_step1') }}" class="btn btn-primary btn-lg">Join the Club</a>
 </div>
 
 {% endblock %}
