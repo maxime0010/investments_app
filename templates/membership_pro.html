@@ -4,43 +4,56 @@
 
 {% block content %}
 <!-- Hero Section -->
-<div class="jumbotron jumbotron-fluid text-center bg-primary text-white">
+<div class="jumbotron jumbotron-fluid text-center bg-primary text-white position-relative hero-section">
+    <div class="overlay"></div> <!-- Translucent overlay for text readability -->
     <div class="container">
-        <h1 class="display-4">Join the Good Life Investment Club</h1>
-        <p class="lead">Access exclusive stock picks, detailed analysis, and weekly insights to maximize your portfolio returns.</p>
-        <a href="{{ url_for('membership_step1') }}" class="btn btn-light btn-lg mt-3">Join the Club</a>
+        <h1 class="display-4 font-weight-bold">Join the Good Life Investment Club</h1>
+        <p class="lead">Exclusive stock picks, expert analysis, and weekly insights designed to maximize your portfolio returns.</p>
+        <a href="{{ url_for('membership_step1') }}" class="btn btn-light btn-lg mt-4 hero-cta">Join the Club</a>
     </div>
 </div>
 
 <!-- Key Membership Benefits Section -->
 <div class="container my-5">
-    <h2 class="text-center mb-4">What You Get as a Member</h2>
+    <h2 class="text-center mb-5">What You Get as a Member</h2>
     <div class="row">
-        <!-- Top 10 Best Performing Stocks -->
-        <div class="col-md-12 mb-4">
-            <h4 class="text-center">Top 10 Best Performing Stocks</h4>
-            <p class="text-center">Every week, our AI picks the 10 best-performing stocks based on detailed analysis of top analyst reports. Stay ahead of the market with expert-curated insights.</p>
+        <!-- Card 1: Top 10 Best Performing Stocks -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100 shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-3x mb-3 text-primary"></i>
+                    <h4 class="card-title">Top 10 Best Performing Stocks</h4>
+                    <p class="card-text">Get weekly updates with the top 10 best-performing stocks, powered by AI analysis of the latest analyst reports.</p>
+                </div>
+            </div>
         </div>
-        
-        <!-- Qualitative and Quantitative Analysis -->
-        <div class="col-md-12 mb-4">
-            <h4 class="text-center">Detailed Analysis for Each Stock</h4>
-            <p class="text-center">Get a deep dive into each stock’s performance, including both qualitative and quantitative analysis. Understand the investment rationale and expected returns for informed decision-making.</p>
+        <!-- Card 2: Detailed Stock Analysis -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100 shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-search-dollar fa-3x mb-3 text-success"></i>
+                    <h4 class="card-title">Detailed Stock Analysis</h4>
+                    <p class="card-text">Access in-depth qualitative and quantitative analysis for each stock to understand investment rationale and potential returns.</p>
+                </div>
+            </div>
         </div>
-
-        <!-- Weekly Newsletter -->
-        <div class="col-md-12 mb-4">
-            <h4 class="text-center">Weekly Portfolio Updates</h4>
-            <p class="text-center">Receive a weekly newsletter highlighting key changes to our stock portfolio, so you can adjust your own investments based on the latest market trends and insights.</p>
+        <!-- Card 3: Weekly Portfolio Updates -->
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100 shadow-sm">
+                <div class="card-body">
+                    <i class="fas fa-envelope-open-text fa-3x mb-3 text-warning"></i>
+                    <h4 class="card-title">Weekly Portfolio Updates</h4>
+                    <p class="card-text">Stay informed with weekly newsletters that provide updates on portfolio performance and key market insights.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Call to Action Section with Large Button -->
-<div class="container text-center my-5">
-    <h2>Ready to Maximize Your Portfolio?</h2>
-    <p>Join the Good Life club today and get exclusive access to the tools and insights that can help you make smarter, more profitable investment decisions.</p>
-    <a href="{{ url_for('membership_step1') }}" class="btn btn-primary btn-lg">Join the Club</a>
+<div class="container-fluid call-to-action-section text-center py-5">
+    <h2 class="font-weight-bold">Ready to Maximize Your Portfolio?</h2>
+    <p class="lead mb-4">Join the Good Life club today and unlock exclusive tools, analysis, and insights to boost your investment performance.</p>
+    <a href="{{ url_for('membership_step1') }}" class="btn btn-primary btn-lg call-to-action-btn">Join the Club</a>
 </div>
-
 {% endblock %}
