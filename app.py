@@ -997,7 +997,7 @@ def show_report(ticker, report_id):
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # Fetch stock details, report data for the given report_id
+        # Fetch stock details and report data
         cursor.execute("""
             SELECT r.*, s.name AS stock_name, s.ticker_symbol 
             FROM Reports r
@@ -1017,7 +1017,7 @@ def show_report(ticker, report_id):
         cursor.execute("SELECT * FROM BusinessSegments WHERE report_id = %s", (report_id,))
         business_segments = cursor.fetchall()
 
-        # Fetch valuation metrics
+        # Fetch valuation metrics (including valuation_method)
         cursor.execute("SELECT * FROM ValuationMetrics WHERE report_id = %s", (report_id,))
         valuation_metrics = cursor.fetchone()
 
