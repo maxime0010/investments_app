@@ -1042,7 +1042,14 @@ def show_report(ticker, report_date):
         valuation_metrics=valuation_metrics,
         risk_factors=risk_factors
     )
-    
+
+
+# Custom filter to format large numbers and remove decimals
+@app.template_filter('format_number')
+def format_number(value):
+    if isinstance(value, (int, float)):
+        return f"{int(value):,}"  # Remove decimals and format with commas
+    return value
 
 
 
