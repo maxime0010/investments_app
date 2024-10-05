@@ -1042,7 +1042,7 @@ def show_report(ticker, report_date):
         valuation_metrics=valuation_metrics,
         risk_factors=risk_factors
     )
-    )
+    
 
 
 
