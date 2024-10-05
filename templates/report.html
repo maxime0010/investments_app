@@ -21,9 +21,20 @@
         <section class="report-section">
             <h2 class="section-title">Executive Summary</h2>
             <div class="section-content">
-                <p>{{ report_data.executive_summary }}</p>
                 <p><strong>Recommendation:</strong> {{ report_data.recommendation }} <br>
                 <strong>Price Target:</strong> ${{ report_data.price_target }}</p>
+                <p><strong>Key Drivers:</strong></p>
+                <ul>
+                    {% for driver in report_data.key_drivers %}
+                    <li>{{ driver }}</li>
+                    {% endfor %}
+                </ul>
+                <p><strong>Key Risks:</strong></p>
+                <ul>
+                    {% for risk in report_data.key_risks %}
+                    <li>{{ risk }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         </section>
 
@@ -75,14 +86,17 @@
             <h2 class="section-title">Valuation Metrics</h2>
             <div class="section-content">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <p><strong>P/E Ratio:</strong> {{ valuation_metrics.pe_ratio }}</p>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <p><strong>EV/EBITDA:</strong> {{ valuation_metrics.ev_ebitda }}</p>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <p><strong>Price/Sales Ratio:</strong> {{ valuation_metrics.price_sales_ratio }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p><strong>Valuation Method:</strong> {{ valuation_metrics.valuation_method }}</p>
                     </div>
                 </div>
             </div>
