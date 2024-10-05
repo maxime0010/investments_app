@@ -991,6 +991,50 @@ def page_not_found(e):
     return render_template('404.html'), 404
 
 
+@app.route('/report/<ticker>')
+def show_report(ticker):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch stock details, report data, etc.
+    cursor.execute("SELECT * FROM reports WHERE ticker = %s", (ticker,))
+    report_data = cursor.fetchone()
+
+    # Fetch financial data
+    cursor.execute("SELECT * FROM FinancialPerformance WHERE ticker = %s", (ticker,))
+    financial_data = cursor.fetchone()
+
+    # Fetch business segments
+    cursor.execute("SELECT * FROM BusinessSegments WHERE ticker = %s", (ticker,))
+    business_segments = cursor.fetchall()
+
+    # Fetch valuation metrics
+    cursor.execute("SELECT * FROM ValuationMetrics WHERE ticker = %s", (ticker,))
+    valuation_metrics = cursor.fetchone()
+
+    # Fetch risk factors
+    cursor.execute("SELECT risk FROM RiskFactors WHERE ticker = %s", (ticker,))
+    risk_factors = [row['risk'] for row in cursor.fetchall()]
+
+    conn.close()
+
+    # Render the report page
+    return render_template(
+        'report.html', 
+        ticker=ticker,
+        stock_name="Apple Inc.",
+        stock_logo="https://logo-url.com/aapl.png",  # Example logo URL
+        report_data=report_data,
+        financial_data=financial_data,
+        business_segments=business_segments,
+        valuation_metrics=valuation_metrics,
+        risk_factors=risk_factors
+    )
+
+
+
 if __name__ == '__main__':
     app.debug = True
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+
+
