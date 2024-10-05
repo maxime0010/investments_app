@@ -991,38 +991,38 @@ def page_not_found(e):
     return render_template('404.html'), 404
 
 
-@app.route('/report/<ticker>/<report_id>')
-def show_report(ticker, report_id):
+@app.route('/report/<ticker>/<report_date>')
+def show_report(ticker, report_date):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # Fetch stock details and report data
+        # Fetch stock details and report data using ticker and report_date
         cursor.execute("""
             SELECT r.*, s.name AS stock_name, s.ticker_symbol 
             FROM Reports r
             JOIN StockInformation s ON r.stock_id = s.stock_id
-            WHERE s.ticker_symbol = %s AND r.report_id = %s
-            """, (ticker, report_id))
+            WHERE s.ticker_symbol = %s AND DATE(r.report_date) = %s
+            """, (ticker, report_date))
         report_data = cursor.fetchone()
 
         if not report_data:
             return "Report not found.", 404
 
         # Fetch financial data
-        cursor.execute("SELECT * FROM FinancialPerformance WHERE report_id = %s", (report_id,))
+        cursor.execute("SELECT * FROM FinancialPerformance WHERE report_id = %s", (report_data['report_id'],))
         financial_data = cursor.fetchone()
 
         # Fetch business segments
-        cursor.execute("SELECT * FROM BusinessSegments WHERE report_id = %s", (report_id,))
+        cursor.execute("SELECT * FROM BusinessSegments WHERE report_id = %s", (report_data['report_id'],))
         business_segments = cursor.fetchall()
 
         # Fetch valuation metrics (including valuation_method)
-        cursor.execute("SELECT * FROM ValuationMetrics WHERE report_id = %s", (report_id,))
+        cursor.execute("SELECT * FROM ValuationMetrics WHERE report_id = %s", (report_data['report_id'],))
         valuation_metrics = cursor.fetchone()
 
         # Fetch risk factors
-        cursor.execute("SELECT risk FROM RiskFactors WHERE report_id = %s", (report_id,))
+        cursor.execute("SELECT risk FROM RiskFactors WHERE report_id = %s", (report_data['report_id'],))
         risk_factors = [row['risk'] for row in cursor.fetchall()]
 
     finally:
@@ -1033,7 +1033,7 @@ def show_report(ticker, report_id):
     return render_template(
         'report.html', 
         ticker=ticker,
-        report_id=report_id,
+        report_date=report_date,
         stock_name=report_data['stock_name'],
         stock_logo="https://logo-url.com/" + ticker + ".png",
         report_data=report_data,
