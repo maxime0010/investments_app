@@ -991,44 +991,57 @@ def page_not_found(e):
     return render_template('404.html'), 404
 
 
-@app.route('/report/<ticker>')
-def show_report(ticker):
+@app.route('/report/<ticker>/<report_id>')
+def show_report(ticker, report_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch stock details, report data, etc.
-    cursor.execute("SELECT * FROM reports WHERE ticker = %s", (ticker,))
-    report_data = cursor.fetchone()
+    try:
+        # Fetch stock details, report data for the given report_id
+        cursor.execute("""
+            SELECT r.*, s.name AS stock_name, s.ticker_symbol 
+            FROM Reports r
+            JOIN StockInformation s ON r.stock_id = s.stock_id
+            WHERE s.ticker_symbol = %s AND r.report_id = %s
+            """, (ticker, report_id))
+        report_data = cursor.fetchone()
 
-    # Fetch financial data
-    cursor.execute("SELECT * FROM FinancialPerformance WHERE ticker = %s", (ticker,))
-    financial_data = cursor.fetchone()
+        if not report_data:
+            return "Report not found.", 404
 
-    # Fetch business segments
-    cursor.execute("SELECT * FROM BusinessSegments WHERE ticker = %s", (ticker,))
-    business_segments = cursor.fetchall()
+        # Fetch financial data
+        cursor.execute("SELECT * FROM FinancialPerformance WHERE report_id = %s", (report_id,))
+        financial_data = cursor.fetchone()
 
-    # Fetch valuation metrics
-    cursor.execute("SELECT * FROM ValuationMetrics WHERE ticker = %s", (ticker,))
-    valuation_metrics = cursor.fetchone()
+        # Fetch business segments
+        cursor.execute("SELECT * FROM BusinessSegments WHERE report_id = %s", (report_id,))
+        business_segments = cursor.fetchall()
 
-    # Fetch risk factors
-    cursor.execute("SELECT risk FROM RiskFactors WHERE ticker = %s", (ticker,))
-    risk_factors = [row['risk'] for row in cursor.fetchall()]
+        # Fetch valuation metrics
+        cursor.execute("SELECT * FROM ValuationMetrics WHERE report_id = %s", (report_id,))
+        valuation_metrics = cursor.fetchone()
 
-    conn.close()
+        # Fetch risk factors
+        cursor.execute("SELECT risk FROM RiskFactors WHERE report_id = %s", (report_id,))
+        risk_factors = [row['risk'] for row in cursor.fetchall()]
 
-    # Render the report page
+    finally:
+        cursor.close()
+        conn.close()
+
+    # Render the report page with the fetched data
     return render_template(
         'report.html', 
         ticker=ticker,
-        stock_name="Apple Inc.",
-        stock_logo="https://logo-url.com/aapl.png",  # Example logo URL
+        report_id=report_id,
+        stock_name=report_data['stock_name'],
+        stock_logo="https://logo-url.com/" + ticker + ".png",
         report_data=report_data,
         financial_data=financial_data,
         business_segments=business_segments,
         valuation_metrics=valuation_metrics,
         risk_factors=risk_factors
+    )
     )
 
 
