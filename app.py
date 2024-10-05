@@ -999,7 +999,7 @@ def show_report(ticker, report_date):
     try:
         # Fetch stock details and report data using ticker and report_date
         cursor.execute("""
-            SELECT r.*, s.name AS stock_name, s.ticker_symbol 
+            SELECT r.*, s.stock_name AS stock_name, s.ticker_symbol 
             FROM Reports r
             JOIN StockInformation s ON r.stock_id = s.stock_id
             WHERE s.ticker_symbol = %s AND DATE(r.report_date) = %s
