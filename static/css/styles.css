@@ -828,3 +828,48 @@
         height: 80px;
     }
 }
+
+
+/* General Styling for Report Sections */
+.report-page {
+    padding: 20px;
+}
+
+.hero-section {
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.overlay-text {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.section-content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Financial Table Styling */
+.table {
+    margin-top: 20px;
+}
