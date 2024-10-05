@@ -22,7 +22,7 @@
             <h2 class="section-title">Executive Summary</h2>
             <div class="section-content">
                 <p><strong>Recommendation:</strong> {{ report_data.recommendation }} <br>
-                <strong>Price Target:</strong> ${{ report_data.price_target }}</p>
+                <strong>Price Target:</strong> ${{ report_data.price_target | format_number }}</p>
                 <p><strong>Key Drivers:</strong></p>
                 <ul>
                     {% for driver in report_data.key_drivers %}
@@ -48,9 +48,9 @@
                         <p><strong>Net Income (Q3):</strong> ${{ financial_data.net_income_q3 | format_number }} billion</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>EPS (Q3):</strong> ${{ financial_data.eps_q3 }}</p>
-                        <p><strong>Gross Margin:</strong> {{ financial_data.gross_margin }}%</p>
-                        <p><strong>Operating Margin:</strong> {{ financial_data.operating_margin }}%</p>
+                        <p><strong>EPS (Q3):</strong> ${{ financial_data.eps_q3 | format_number }}</p>
+                        <p><strong>Gross Margin:</strong> {{ financial_data.gross_margin | format_number }}%</p>
+                        <p><strong>Operating Margin:</strong> {{ financial_data.operating_margin | format_number }}%</p>
                     </div>
                 </div>
             </div>
@@ -73,7 +73,7 @@
                         <tr>
                             <td>{{ segment.name }}</td>
                             <td>${{ segment.revenue | format_number }} billion</td>
-                            <td>{{ segment.growth_rate }}%</td>
+                            <td>{{ segment.growth_rate | format_number }}%</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -87,13 +87,13 @@
             <div class="section-content">
                 <div class="row">
                     <div class="col-md-3">
-                        <p><strong>P/E Ratio:</strong> {{ valuation_metrics.pe_ratio }}</p>
+                        <p><strong>P/E Ratio:</strong> {{ valuation_metrics.pe_ratio | format_number }}</p>
                     </div>
                     <div class="col-md-3">
-                        <p><strong>EV/EBITDA:</strong> {{ valuation_metrics.ev_ebitda }}</p>
+                        <p><strong>EV/EBITDA:</strong> {{ valuation_metrics.ev_ebitda | format_number }}</p>
                     </div>
                     <div class="col-md-3">
-                        <p><strong>Price/Sales Ratio:</strong> {{ valuation_metrics.price_sales_ratio }}</p>
+                        <p><strong>Price/Sales Ratio:</strong> {{ valuation_metrics.price_sales_ratio | format_number }}</p>
                     </div>
                     <div class="col-md-3">
                         <p><strong>Valuation Method:</strong> {{ valuation_metrics.valuation_method }}</p>
