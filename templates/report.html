@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock Performance Report{% endblock %}
+
+{% block content %}
+<div class="report-page">
+
+    <!-- Hero Section with the stock logo -->
+    <section class="hero-section" style="background-image: url('{{ stock_logo }}');">
+        <div class="overlay"></div>
+        <div class="overlay-text">
+            <h1>{{ stock_name }} ({{ ticker }})</h1>
+            <p>Comprehensive Performance Analysis & Insights</p>
+        </div>
+    </section>
+
+    <!-- Main content -->
+    <div class="container my-5">
+
+        <!-- Executive Summary Section -->
+        <section class="report-section">
+            <h2 class="section-title">Executive Summary</h2>
+            <div class="section-content">
+                <p>{{ report_data.executive_summary }}</p>
+                <p><strong>Recommendation:</strong> {{ report_data.recommendation }} <br>
+                <strong>Price Target:</strong> ${{ report_data.price_target }}</p>
+            </div>
+        </section>
+
+        <!-- Financial Performance Section -->
+        <section class="report-section">
+            <h2 class="section-title">Financial Performance</h2>
+            <div class="section-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Revenue (Q3):</strong> ${{ financial_data.revenue_q3 | format_number }} billion</p>
+                        <p><strong>Net Income (Q3):</strong> ${{ financial_data.net_income_q3 | format_number }} billion</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>EPS (Q3):</strong> ${{ financial_data.eps_q3 }}</p>
+                        <p><strong>Gross Margin:</strong> {{ financial_data.gross_margin }}%</p>
+                        <p><strong>Operating Margin:</strong> {{ financial_data.operating_margin }}%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Business Segments Section -->
+        <section class="report-section">
+            <h2 class="section-title">Business Segments</h2>
+            <div class="section-content">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Segment</th>
+                            <th>Revenue (Q3)</th>
+                            <th>Growth Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for segment in business_segments %}
+                        <tr>
+                            <td>{{ segment.name }}</td>
+                            <td>${{ segment.revenue | format_number }} billion</td>
+                            <td>{{ segment.growth_rate }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Valuation Metrics Section -->
+        <section class="report-section">
+            <h2 class="section-title">Valuation Metrics</h2>
+            <div class="section-content">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>P/E Ratio:</strong> {{ valuation_metrics.pe_ratio }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>EV/EBITDA:</strong> {{ valuation_metrics.ev_ebitda }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Price/Sales Ratio:</strong> {{ valuation_metrics.price_sales_ratio }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk Factors Section -->
+        <section class="report-section">
+            <h2 class="section-title">Risk Factors</h2>
+            <div class="section-content">
+                <ul>
+                    {% for risk in risk_factors %}
+                    <li>{{ risk }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+</div>
+{% endblock %}
