@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Display Company Logo and Name -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-4">{{ company_name }} <small class="text-muted">({{ ticker }})</small></h1>
+        <img src="{{ logo_url }}" alt="{{ company_name }} Logo" class="img-fluid" style="max-height: 80px;">
+    </div>
+
+    <!-- Display Question and Answer -->
+    <div class="p-4 shadow-lg" style="background-color: #f8f9fa; border-radius: 8px;">
+        <h2 class="mb-4">{{ question_data.question }}</h2>
+        <p class="lead">{{ question_data.answer }}</p>
+    </div>
+
+    <!-- Back to Analysis Button -->
+    <div class="mt-5">
+        <a href="{{ url_for('stock_detail', ticker=ticker) }}" class="btn btn-primary">Back to Analysis</a>
+    </div>
+</div>
+{% endblock %}
