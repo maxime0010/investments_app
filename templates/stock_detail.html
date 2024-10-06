@@ -61,9 +61,15 @@
                         <p class="box-text">Expected Return: {{ analyst.expected_return | round(2) }}%</p>
                         <p class="box-text">Success Rate: {{ analyst.overall_success_rate | round(2) }}%</p>
                     </div>
-                    <div class="box-footer text-center {% if analyst.updated_last_30_days == 'Yes' %}bg-success text-white{% else %}bg-light{% endif %}">
-                        <small>{{ analyst.updated_last_30_days == 'Yes' ? "Updated Recently" : "Last Update: " ~ analyst.last_update.strftime('%Y-%m-%d') }}</small>
-                    </div>
+<div class="box-footer text-center {% if analyst.updated_last_30_days == 'Yes' %}bg-success text-white{% else %}bg-light{% endif %}">
+    <small>
+        {% if analyst.updated_last_30_days == 'Yes' %}
+            Updated Recently
+        {% else %}
+            Last Update: {{ analyst.last_update.strftime('%Y-%m-%d') }}
+        {% endif %}
+    </small>
+</div>
                 </div>
             </div>
             {% endfor %}
