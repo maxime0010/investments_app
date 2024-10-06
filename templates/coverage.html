@@ -8,12 +8,16 @@
     <p>Number of stocks covered: <strong>{{ num_stocks }}</strong></p>
     <p>Last updated on: <strong>{{ last_updated.strftime('%Y-%m-%d') }}</strong></p>
 
-    <!-- Responsive grid layout for stocks -->
+    <!-- Responsive grid layout for stocks (4 per row) -->
     <div class="row">
         {% for stock in coverage_data %}
-        <div class="col-md-6 mb-4">
-            <div class="p-3 border rounded bg-light">
-                <h4><a href="{{ url_for('stock_detail', ticker=stock.ticker) }}">{{ stock.stock_name }}</a> <small class="text-muted">({{ stock.ticker }})</small></h4>
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="p-3 border rounded bg-light text-center h-100">
+                <!-- Logo at the top -->
+                <img src="{{ stock.logo_url }}" alt="{{ stock.stock_name }} logo" class="img-fluid mb-2" style="max-height: 50px;">
+                
+                <h4><a href="{{ url_for('stock_detail', ticker=stock.ticker) }}">{{ stock.stock_name }}</a></h4>
+                <h6 class="text-muted">{{ stock.ticker }}</h6>
                 
                 <!-- Indices Badges -->
                 <div class="mb-2">
