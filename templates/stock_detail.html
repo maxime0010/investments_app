@@ -2,6 +2,14 @@
 
 {% block content %}
 <div class="container my-5">
+    <!-- Stock Title, Ticker, and Logo -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Stock Name and Ticker -->
+        <h1 class="display-4">{{ stock_name }} <small class="text-muted">({{ ticker }})</small></h1>
+
+        <!-- Company Logo -->
+        <img src="{{ logo_url }}" alt="{{ stock_name }} Logo" class="img-fluid" style="max-height: 80px;">
+    </div>
 
     <!-- Section 1: Investment Recommendation -->
     <div class="box mb-5 p-4 shadow-lg">
@@ -41,13 +49,7 @@
         <p>{{ analysis_data.long_recommendation }}</p>
     </div>
 
-    <!-- Section 3: Company Analysis -->
-    <div class="box mb-5 p-4 shadow-lg">
-        <h2 class="box-title mb-4">Company Analysis</h2>
-        <p>Content will be added here...</p>
-    </div>
-
-    <!-- Section 4: Analysts Ratings -->
+    <!-- Section 3: Analysts Ratings -->
     <div class="mb-5">
         <h2 class="mb-4">Analysts Ratings</h2>
         <div class="row">
@@ -57,25 +59,25 @@
                     <div class="box-body">
                         <h5 class="box-title">{{ analyst.analyst_name }}</h5>
                         <h6 class="box-subtitle mb-2 text-muted">{{ analyst.bank }}</h6>
-<p class="box-text">Price Target: ${{ analyst.price_target | default('N/A') if analyst.price_target is none else analyst.price_target | round(2) }}</p>
-<p class="box-text">Expected Return: 
-    {% if analyst.expected_return is not none %}
-        {{ analyst.expected_return | round(2) }}%
-    {% else %}
-        N/A
-    {% endif %}
-</p>
+                        <p class="box-text">Price Target: ${{ analyst.price_target | default('N/A') if analyst.price_target is none else analyst.price_target | round(2) }}</p>
+                        <p class="box-text">Expected Return: 
+                            {% if analyst.expected_return is not none %}
+                                {{ analyst.expected_return | round(2) }}%
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </p>
                         <p class="box-text">Success Rate: {{ analyst.overall_success_rate | round(2) }}%</p>
                     </div>
-<div class="box-footer text-center {% if analyst.updated_last_30_days == 'Yes' %}bg-success text-white{% else %}bg-light{% endif %}">
-    <small>
-        {% if analyst.updated_last_30_days == 'Yes' %}
-            Updated Recently
-        {% else %}
-            Last Update: {{ analyst.last_update.strftime('%Y-%m-%d') }}
-        {% endif %}
-    </small>
-</div>
+                    <div class="box-footer text-center {% if analyst.updated_last_30_days == 'Yes' %}bg-success text-white{% else %}bg-light{% endif %}">
+                        <small>
+                            {% if analyst.updated_last_30_days == 'Yes' %}
+                                Updated Recently
+                            {% else %}
+                                Last Update: {{ analyst.last_update.strftime('%Y-%m-%d') }}
+                            {% endif %}
+                        </small>
+                    </div>
                 </div>
             </div>
             {% endfor %}
