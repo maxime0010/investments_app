@@ -873,3 +873,49 @@
 .table {
     margin-top: 20px;
 }
+
+
+/* Box Styling */
+.box {
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.box-body {
+    padding: 20px;
+}
+
+.box-footer {
+    padding: 10px;
+    background-color: #f8f9fa;
+}
+
+.box h5, .box h6, .box p {
+    margin-bottom: 10px;
+}
+
+/* Custom Styling for Numbers */
+.highlighted-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.number-description {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Button Styling */
+.btn-success {
+    background-color: #28a745;
+    border: none;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+
