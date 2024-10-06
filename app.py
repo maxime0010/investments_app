@@ -161,12 +161,14 @@ def get_top_stocks(latest_date):
     cursor.execute(query, (latest_date, latest_date))
     top_stocks = cursor.fetchall()
 
+    # Add logo URLs to the stocks
     for stock in top_stocks:
         stock['logo_url'] = get_logo_url(stock['ticker'])
 
     cursor.close()
     conn.close()
     return top_stocks
+
 
 
 @app.route('/pro')
