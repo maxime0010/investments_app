@@ -935,6 +935,10 @@ def coverage():
     cursor.execute(query, (latest_date,))
     coverage_data = cursor.fetchall()
 
+    # Fetch the logo URLs and add them to each stock
+    for stock in coverage_data:
+        stock['logo_url'] = get_logo_url(stock['ticker'])
+
     # Query to fetch the most recent update date from the ratings table
     cursor.execute("SELECT MAX(date) AS last_updated FROM ratings")
     last_updated = cursor.fetchone()['last_updated']
@@ -961,7 +965,13 @@ def coverage():
 
     num_stocks = len(filtered_coverage_data)
 
-    return render_template('coverage.html', coverage_data=filtered_coverage_data, num_stocks=num_stocks, last_updated=last_updated, recent_days='30', is_member=is_member)
+    return render_template('coverage.html', 
+                           coverage_data=filtered_coverage_data, 
+                           num_stocks=num_stocks, 
+                           last_updated=last_updated, 
+                           recent_days='30', 
+                           is_member=is_member)
+
     
 @app.route('/stock_simulation/<ticker>')
 def stock_simulation(ticker):
