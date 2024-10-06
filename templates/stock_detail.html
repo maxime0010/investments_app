@@ -40,22 +40,19 @@
         </div>
     </div>
 
-    <!-- Section 2: Company Analysis (SWOT with collapsible answers) -->
+    <!-- Section 2: Company Analysis (SWOT with compact questions layout) -->
     <div class="mb-5">
         <h2 class="mb-4">Company Analysis</h2>
 
         <!-- Strengths -->
         <div class="mb-4">
             <h4>Strengths</h4>
-            <div>
+            <div class="row">
                 {% for report in swot_reports.strengths %}
-                <div class="swot-card mb-3">
-                    <button class="swot-question" onclick="toggleAnswer('strengths{{ loop.index }}')">
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('view_answer', question_id=report.id) }}" class="swot-link">
                         {{ report.question }}
-                    </button>
-                    <div id="strengths{{ loop.index }}" class="swot-answer">
-                        <p>{{ report.answer }}</p>
-                    </div>
+                    </a>
                 </div>
                 {% endfor %}
             </div>
@@ -64,15 +61,12 @@
         <!-- Weaknesses -->
         <div class="mb-4">
             <h4>Weaknesses</h4>
-            <div>
+            <div class="row">
                 {% for report in swot_reports.weaknesses %}
-                <div class="swot-card mb-3">
-                    <button class="swot-question" onclick="toggleAnswer('weaknesses{{ loop.index }}')">
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('view_answer', question_id=report.id) }}" class="swot-link">
                         {{ report.question }}
-                    </button>
-                    <div id="weaknesses{{ loop.index }}" class="swot-answer">
-                        <p>{{ report.answer }}</p>
-                    </div>
+                    </a>
                 </div>
                 {% endfor %}
             </div>
@@ -81,15 +75,12 @@
         <!-- Opportunities -->
         <div class="mb-4">
             <h4>Opportunities</h4>
-            <div>
+            <div class="row">
                 {% for report in swot_reports.opportunities %}
-                <div class="swot-card mb-3">
-                    <button class="swot-question" onclick="toggleAnswer('opportunities{{ loop.index }}')">
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('view_answer', question_id=report.id) }}" class="swot-link">
                         {{ report.question }}
-                    </button>
-                    <div id="opportunities{{ loop.index }}" class="swot-answer">
-                        <p>{{ report.answer }}</p>
-                    </div>
+                    </a>
                 </div>
                 {% endfor %}
             </div>
@@ -98,30 +89,16 @@
         <!-- Risks -->
         <div class="mb-4">
             <h4>Risks</h4>
-            <div>
+            <div class="row">
                 {% for report in swot_reports.threats %}
-                <div class="swot-card mb-3">
-                    <button class="swot-question" onclick="toggleAnswer('threats{{ loop.index }}')">
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('view_answer', question_id=report.id) }}" class="swot-link">
                         {{ report.question }}
-                    </button>
-                    <div id="threats{{ loop.index }}" class="swot-answer">
-                        <p>{{ report.answer }}</p>
-                    </div>
+                    </a>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
-
-<script>
-function toggleAnswer(id) {
-    var element = document.getElementById(id);
-    if (element.style.display === "none") {
-        element.style.display = "block";
-    } else {
-        element.style.display = "none";
-    }
-}
-</script>
 {% endblock %}
