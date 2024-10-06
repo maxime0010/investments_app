@@ -267,7 +267,47 @@ def stock_detail(ticker):
             'risks': [report for report in swot_data if report['dimension'] == 'Risks']
         }
 
-        # Fetch analysts ratings or other data as necessary...
+        # Fetch short and long recommendations from the chatgpt table for Strategic Rationale
+        cursor.execute("""
+            SELECT short_recommendation, long_recommendation
+            FROM chatgpt
+            WHERE ticker = %s
+            ORDER BY date DESC
+            LIMIT 1
+        """, (ticker,))
+        recommendation_data = cursor.fetchone()
+
+        if recommendation_data:
+            analysis_data['short_recommendation'] = recommendation_data['short_recommendation']
+            analysis_data['long_recommendation'] = recommendation_data['long_recommendation']
+        else:
+            analysis_data['short_recommendation'] = "No short recommendation available."
+            analysis_data['long_recommendation'] = "No long recommendation available."
+
+        # Fetch analysts' ratings
+        cursor.execute("""
+            SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, 
+                   r.date AS last_update, a.overall_success_rate,
+                   (r.date >= CURDATE() - INTERVAL 30 DAY) AS updated_last_30_days,
+                   (a.overall_success_rate > %s) AS is_top_performer
+            FROM ratings r
+            JOIN analysts a ON r.analyst_name = a.name_full
+            WHERE r.ticker = %s AND r.date = (
+                SELECT MAX(r2.date)
+                FROM ratings r2
+                WHERE r2.analyst_name = r.analyst_name AND r2.ticker = r.ticker
+            )
+            ORDER BY r.date DESC, r.analyst_name ASC
+        """, (50, ticker))  # Assuming top performers are those with a success rate above 50%
+        analysts_data = cursor.fetchall()
+
+        # Calculate expected return for each analyst
+        for analyst in analysts_data:
+            analyst['price_target'] = float(analyst['price_target']) if analyst['price_target'] else None
+            if analyst['price_target'] is not None and analysis_data['last_closing_price'] is not None:
+                analyst['expected_return'] = ((analyst['price_target'] - analysis_data['last_closing_price']) / analysis_data['last_closing_price']) * 100
+            else:
+                analyst['expected_return'] = None  # Handle missing or invalid data
 
     finally:
         cursor.close()
@@ -279,7 +319,8 @@ def stock_detail(ticker):
                            logo_url=logo_url,    
                            analysis_data=analysis_data, 
                            stock_in_portfolio=stock_in_portfolio, 
-                           swot_reports=swot_reports)  # Pass SWOT reports to the template
+                           swot_reports=swot_reports,  # Pass SWOT reports to the template
+                           analysts_data=analysts_data)  # Pass analysts' data to the template
 
 
 
