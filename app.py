@@ -1117,6 +1117,54 @@ def format_number(value):
 
 
 
+from flask import make_response
+
+@app.route('/sitemap.xml', methods=['GET'])
+def sitemap():
+    """Generate sitemap.xml."""
+    pages = []
+
+    # Add static routes
+    ten_days_ago = (datetime.now() - timedelta(days=10)).date().isoformat()
+
+    # List of static URLs
+    static_urls = [
+        {'url': url_for('index', _external=True), 'lastmod': ten_days_ago},
+        {'url': url_for('membership_pro', _external=True), 'lastmod': ten_days_ago},
+        {'url': url_for('portfolio', _external=True), 'lastmod': ten_days_ago},
+        # Add more static pages here
+    ]
+
+    # Add static URLs to pages
+    for url in static_urls:
+        pages.append(url)
+
+    # Add dynamic routes (like stock pages)
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch all stock tickers from the 'stock' table
+    cursor.execute("SELECT ticker FROM stock")
+    tickers = cursor.fetchall()
+
+    for ticker in tickers:
+        pages.append({
+            'url': url_for('stock_detail', ticker=ticker['ticker'], _external=True),
+            'lastmod': ten_days_ago  # Or use dynamic last modified date if available
+        })
+
+    cursor.close()
+    conn.close()
+
+    # Generate XML sitemap
+    sitemap_xml = render_template('sitemap_template.xml', pages=pages)
+    response = make_response(sitemap_xml)
+    response.headers["Content-Type"] = "application/xml"
+
+    return response
+
+
+
 if __name__ == '__main__':
     app.debug = True
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
