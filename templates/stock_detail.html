@@ -2,74 +2,73 @@
 
 {% block content %}
 <div class="container my-5">
-    <!-- Stock Title, Ticker, and Logo -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <!-- Stock Name and Ticker -->
-        <h1 class="display-4">{{ stock_name }} <small class="text-muted">({{ ticker }})</small></h1>
 
-        <!-- Company Logo -->
-        <img src="{{ logo_url }}" alt="{{ stock_name }} Logo" class="img-fluid" style="max-height: 80px;">
-    </div>
-
-    <!-- Expected Return -->
-    <div class="my-4">
-        <h3>Expected Return:</h3>
-        <p class="lead">{{ analysis_data.expected_return_combined_criteria }}%</p>
-    </div>
-
-    <!-- Investment Rationale -->
-    <div class="my-4">
-        <h3>Investment Rationale:</h3>
-        
-        <!-- Short Version -->
-        <div class="card mb-3">
-            <div class="card-header">
-                <strong>Summary</strong>
+    <!-- Section 1: Investment Recommendation -->
+    <div class="box mb-5 p-4 shadow-lg">
+        <h2 class="box-title mb-4">Investment Recommendation</h2>
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <div class="number-section">
+                    <span class="highlighted-number">{{ analysis_data.last_closing_price }}</span>
+                    <span class="number-description">Current Price</span>
+                </div>
             </div>
-            <div class="card-body">
-                <p class="card-text">{{ analysis_data.short_recommendation }}</p>
+            <div class="col-md-4 text-center">
+                <div class="number-section">
+                    <span class="highlighted-number">{{ analysis_data.avg_combined_criteria }}</span>
+                    <span class="number-description">Price Target</span>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="number-section">
+                    <span class="highlighted-number">{{ analysis_data.expected_return_combined_criteria }}%</span>
+                    <span class="number-description">Expected Return</span>
+                </div>
             </div>
         </div>
-        
-        <!-- Detailed Version -->
-        <div class="card">
-            <div class="card-header">
-                <strong>Detailed Analysis</strong>
-            </div>
-            <div class="card-body">
-                <p class="card-text">{{ analysis_data.long_recommendation }}</p>
-            </div>
+        <div class="text-center mt-4">
+            {% if stock_in_portfolio %}
+                <button class="btn btn-success btn-lg px-5">BUY</button>
+            {% else %}
+                <button class="btn btn-danger btn-lg px-5">SELL</button>
+            {% endif %}
         </div>
     </div>
-        <h3>Analysts Ratings</h3>
-    <!-- Analysts Table -->
-    <table class="table table-striped mt-4">
-        <thead>
-            <tr>
-                <th scope="col">Analyst</th>
-                <th scope="col">Bank</th>
-                <th scope="col">Price Target</th>
-                <th scope="col">Last Update</th>
-                <th scope="col">Expected Return</th>
-                <th scope="col">Success Rate</th>
-                <th scope="col">Updated in the Last 30 Days</th>
-                <th scope="col">Top Performer</th>
-            </tr>
-        </thead>
-        <tbody>
+
+    <!-- Section 2: Strategic Rationale -->
+    <div class="box mb-5 p-4 shadow-lg">
+        <h2 class="box-title mb-4">Strategic Rationale</h2>
+        <p>{{ analysis_data.long_recommendation }}</p>
+    </div>
+
+    <!-- Section 3: Company Analysis -->
+    <div class="box mb-5 p-4 shadow-lg">
+        <h2 class="box-title mb-4">Company Analysis</h2>
+        <p>Content will be added here...</p>
+    </div>
+
+    <!-- Section 4: Analysts Ratings -->
+    <div class="mb-5">
+        <h2 class="mb-4">Analysts Ratings</h2>
+        <div class="row">
             {% for analyst in analysts_data %}
-            <tr class="{% if analyst.grey_out %}text-muted{% endif %}">
-                <td>{{ analyst.analyst_name }}</td>
-                <td>{{ analyst.bank }}</td>
-                <td>${{ analyst.price_target | round(2) if analyst.price_target is not none else 'N/A' }}</td>
-                <td>{{ analyst.last_update.strftime('%Y-%m-%d') }}</td>
-                <td>{{ analyst.expected_return | round(2) if analyst.expected_return is not none else 'N/A' }}%</td>
-                <td>{{ analyst.overall_success_rate | round(2) }}%</td>
-                <td class="{% if analyst.updated_last_30_days == 'Yes' %}bg-success text-white{% endif %}">{{ analyst.updated_last_30_days }}</td>
-                <td class="{% if analyst.is_top_performer == 'Yes' %}bg-success text-white{% endif %}">{{ analyst.is_top_performer }}</td>
-            </tr>
+            <div class="col-md-4 mb-4">
+                <div class="box h-100 shadow">
+                    <div class="box-body">
+                        <h5 class="box-title">{{ analyst.analyst_name }}</h5>
+                        <h6 class="box-subtitle mb-2 text-muted">{{ analyst.bank }}</h6>
+                        <p class="box-text">Price Target: ${{ analyst.price_target | round(2) }}</p>
+                        <p class="box-text">Expected Return: {{ analyst.expected_return | round(2) }}%</p>
+                        <p class="box-text">Success Rate: {{ analyst.overall_success_rate | round(2) }}%</p>
+                    </div>
+                    <div class="box-footer text-center {% if analyst.updated_last_30_days == 'Yes' %}bg-success text-white{% else %}bg-light{% endif %}">
+                        <small>{{ analyst.updated_last_30_days == 'Yes' ? "Updated Recently" : "Last Update: " ~ analyst.last_update.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
