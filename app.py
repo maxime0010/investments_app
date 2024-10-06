@@ -264,7 +264,7 @@ def stock_detail(ticker):
             'strengths': [report for report in swot_data if report['dimension'] == 'Strengths'],
             'weaknesses': [report for report in swot_data if report['dimension'] == 'Weaknesses'],
             'opportunities': [report for report in swot_data if report['dimension'] == 'Opportunities'],
-            'threats': [report for report in swot_data if report['dimension'] == 'Threats']
+            'risks': [report for report in swot_data if report['dimension'] == 'Risks']
         }
 
         # Calculate the median success rate
@@ -335,6 +335,48 @@ def stock_detail(ticker):
                            analysts_data=analysts_data,
                            swot_reports=swot_reports  # Pass SWOT reports to the template
     )
+
+
+@app.route('/answer/<int:question_id>')
+def view_answer(question_id):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch the question, answer, and ticker based on question_id
+    cursor.execute("""
+        SELECT question, answer, ticker
+        FROM InvestmentReports
+        WHERE id = %s
+        LIMIT 1
+    """, (question_id,))
+    question_data = cursor.fetchone()
+
+    # Fetch company name and logo URL based on the ticker
+    if question_data:
+        ticker = question_data['ticker']
+        cursor.execute("""
+            SELECT name
+            FROM stock
+            WHERE ticker = %s
+            LIMIT 1
+        """, (ticker,))
+        stock_data = cursor.fetchone()
+
+        company_name = stock_data['name'] if stock_data else "Unknown Company"
+        logo_url = get_logo_url(ticker)  # Assuming get_logo_url() is defined to fetch the logo URL
+
+        cursor.close()
+        conn.close()
+
+        return render_template('view_answer.html', 
+                               question_data=question_data, 
+                               company_name=company_name, 
+                               logo_url=logo_url, 
+                               ticker=ticker)
+    else:
+        cursor.close()
+        conn.close()
+        return "Question not found.", 404
 
 
 
