@@ -7,58 +7,51 @@
     <h1 class="mb-4">Coverage</h1>
     <p>Number of stocks covered: <strong>{{ num_stocks }}</strong></p>
     <p>Last updated on: <strong>{{ last_updated.strftime('%Y-%m-%d') }}</strong></p>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Ticker</th>
-                <th scope="col">Indices</th>
-                <th scope="col">Last Closing Price</th>
-                <th scope="col">Average Price Target</th> <!-- New column -->
-                <th scope="col">Updates in the last {{ recent_days }} days</th>
-                <th scope="col">Top Performing Analysts</th>
-                <th scope="col">Refined Price Target</th>
-                <th scope="col">Expected Return</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for stock in coverage_data %}
-            <tr>
-                <td><a href="{{ url_for('stock_detail', ticker=stock.ticker) }}">{{ stock.stock_name }}</a></td>
-                <td><a href="{{ url_for('stock_detail', ticker=stock.ticker) }}">{{ stock.ticker }}</a></td>
-                <td>
+
+    <!-- Responsive grid layout for stocks -->
+    <div class="row">
+        {% for stock in coverage_data %}
+        <div class="col-md-6 mb-4">
+            <div class="p-3 border rounded bg-light">
+                <h4><a href="{{ url_for('stock_detail', ticker=stock.ticker) }}">{{ stock.stock_name }}</a> <small class="text-muted">({{ stock.ticker }})</small></h4>
+                
+                <!-- Indices Badges -->
+                <div class="mb-2">
                     {% for index in stock.indices.split(',') %}
                         <span class="badge badge-tag">{{ index }}</span>
                     {% endfor %}
-                </td>
-                <td>
-                    {{ stock.last_closing_price | round(2) if stock.last_closing_price > 0 else '-' }}
-                </td>
-                <td>
-                    {{ stock.average_price_target | round(2) if stock.average_price_target > 0 else '-' }}
-                </td>
+                </div>
+
+                <!-- Stock Details -->
+                <p><strong>Last Closing Price:</strong> 
+                    ${{ stock.last_closing_price | round(2) if stock.last_closing_price > 0 else '-' }} 
+                </p>
+                <p><strong>Average Price Target:</strong> 
+                    ${{ stock.average_price_target | round(2) if stock.average_price_target > 0 else '-' }}
+                </p>
+
                 {% if is_member %}
-                    <td>
+                    <p><strong>Updates in last {{ recent_days }} days:</strong> 
                         {{ stock.num_recent_analysts if stock.num_recent_analysts > 0 else '-' }}
-                    </td>
-                    <td>
+                    </p>
+                    <p><strong>Top Performing Analysts:</strong> 
                         {{ stock.num_high_success_analysts if stock.num_high_success_analysts > 0 else '-' }}
-                    </td>
-                    <td>
-                        {{ stock.avg_combined_criteria | round(2) if stock.avg_combined_criteria > 0 else '-' }}
-                    </td>
-                    <td>
+                    </p>
+                    <p><strong>Refined Price Target:</strong> 
+                        ${{ stock.avg_combined_criteria | round(2) if stock.avg_combined_criteria > 0 else '-' }}
+                    </p>
+                    <p><strong>Expected Return:</strong> 
                         {{ stock.expected_return_combined_criteria | round(2) if stock.expected_return_combined_criteria > 0 else '-' }}%
-                    </td>
+                    </p>
                 {% else %}
-                    <td class="greyed-out-cell"></td>
-                    <td class="greyed-out-cell"></td>
-                    <td class="greyed-out-cell"></td>
-                    <td class="greyed-out-cell"></td>
+                    <p class="text-muted"><strong>Updates in last {{ recent_days }} days:</strong> Restricted</p>
+                    <p class="text-muted"><strong>Top Performing Analysts:</strong> Restricted</p>
+                    <p class="text-muted"><strong>Refined Price Target:</strong> Restricted</p>
+                    <p class="text-muted"><strong>Expected Return:</strong> Restricted</p>
                 {% endif %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
