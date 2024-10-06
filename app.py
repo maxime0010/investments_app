@@ -244,7 +244,19 @@ def stock_detail(ticker):
         """, (ticker, latest_date))
         stock_in_portfolio = cursor.fetchone() is not None
 
-        # Fetch ratings and recommendations (this part was already correct)
+        # Calculate the median success rate
+        cursor.execute("""
+            WITH ordered_analysts AS (
+                SELECT overall_success_rate, ROW_NUMBER() OVER (ORDER BY overall_success_rate) AS rn, COUNT(*) OVER() AS cnt
+                FROM analysts
+            )
+            SELECT ROUND(AVG(overall_success_rate), 2) AS median_success_rate
+            FROM ordered_analysts
+            WHERE rn IN (FLOOR((cnt + 1) / 2), CEIL((cnt + 1) / 2));
+        """)
+        median_success_rate = cursor.fetchone()['median_success_rate']
+
+        # Fetch only the latest rating for each analyst
         cursor.execute("""
             SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, 
                    r.date AS last_update, a.overall_success_rate,
@@ -302,6 +314,7 @@ def stock_detail(ticker):
                            analysis_data=analysis_data, 
                            stock_in_portfolio=stock_in_portfolio,  # Check if stock is in the portfolio
                            analysts_data=analysts_data)
+
 
 
 
