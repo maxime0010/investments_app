@@ -249,6 +249,22 @@ def stock_detail(ticker):
         """, (ticker, latest_date))
         stock_in_portfolio = cursor.fetchone() is not None
 
+        # Fetch SWOT analysis from InvestmentReports
+        cursor.execute("""
+            SELECT dimension, question, answer
+            FROM InvestmentReports
+            WHERE ticker = %s
+            ORDER BY date DESC
+        """, (ticker,))
+        swot_data = cursor.fetchall()
+
+        swot_reports = {
+            'strengths': [report for report in swot_data if report['dimension'] == 'Strengths'],
+            'weaknesses': [report for report in swot_data if report['dimension'] == 'Weaknesses'],
+            'opportunities': [report for report in swot_data if report['dimension'] == 'Opportunities'],
+            'threats': [report for report in swot_data if report['dimension'] == 'Threats']
+        }
+
         # Calculate the median success rate
         cursor.execute("""
             WITH ordered_analysts AS (
@@ -300,31 +316,15 @@ def stock_detail(ticker):
         cursor.close()
         conn.close()
 
-    # Prepare data for rendering
-    for analyst in analysts_data:
-        # Convert price_target to float for arithmetic operations
-        analyst['price_target'] = float(analyst['price_target']) if analyst['price_target'] else None
-
-        if analyst['price_target'] is not None and analysis_data['last_closing_price'] is not None:
-            # Calculate expected return
-            analyst['expected_return'] = ((analyst['price_target'] - analysis_data['last_closing_price']) / analysis_data['last_closing_price']) * 100
-        else:
-            analyst['expected_return'] = None  # Handle zero or missing stock price
-
-        # Highlight if updated in the last 30 days or if the analyst is a top performer
-        analyst['updated_last_30_days'] = 'Yes' if analyst['updated_last_30_days'] else 'No'
-        analyst['is_top_performer'] = 'Yes' if analyst['is_top_performer'] else 'No'
-        analyst['grey_out'] = analyst['last_update'] < (datetime.today().date() - timedelta(days=30)) or analyst['overall_success_rate'] < median_success_rate
-
     return render_template('stock_detail.html', 
                            ticker=ticker, 
                            stock_name=stock_name,  # Pass stock name to the template
                            logo_url=logo_url,      # Pass the logo URL to the template
                            analysis_data=analysis_data, 
                            stock_in_portfolio=stock_in_portfolio,  # Check if stock is in the portfolio
-                           analysts_data=analysts_data)
-
-
+                           analysts_data=analysts_data,
+                           swot_reports=swot_reports  # Pass SWOT reports to the template
+    )
 
 
 
