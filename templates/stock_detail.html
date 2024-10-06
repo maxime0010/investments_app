@@ -57,7 +57,7 @@
                     <div class="box-body">
                         <h5 class="box-title">{{ analyst.analyst_name }}</h5>
                         <h6 class="box-subtitle mb-2 text-muted">{{ analyst.bank }}</h6>
-                        <p class="box-text">Price Target: ${{ analyst.price_target | round(2) }}</p>
+<p class="box-text">Price Target: ${{ analyst.price_target | default('N/A') if analyst.price_target is none else analyst.price_target | round(2) }}</p>
                         <p class="box-text">Expected Return: {{ analyst.expected_return | round(2) }}%</p>
                         <p class="box-text">Success Rate: {{ analyst.overall_success_rate | round(2) }}%</p>
                     </div>
