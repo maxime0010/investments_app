@@ -235,6 +235,11 @@ def stock_detail(ticker):
                 'expected_return_combined_criteria': "N/A"
             }
 
+        # Convert decimal.Decimal values to float
+        analysis_data['last_closing_price'] = float(analysis_data['last_closing_price']) if analysis_data['last_closing_price'] else None
+        analysis_data['avg_combined_criteria'] = float(analysis_data['avg_combined_criteria']) if analysis_data['avg_combined_criteria'] else None
+        analysis_data['expected_return_combined_criteria'] = float(analysis_data['expected_return_combined_criteria']) if analysis_data['expected_return_combined_criteria'] else None
+
         # Check if the stock is in the latest version of the portfolio
         latest_date = get_latest_portfolio_date()
         cursor.execute("""
@@ -297,7 +302,11 @@ def stock_detail(ticker):
 
     # Prepare data for rendering
     for analyst in analysts_data:
+        # Convert price_target to float for arithmetic operations
+        analyst['price_target'] = float(analyst['price_target']) if analyst['price_target'] else None
+
         if analyst['price_target'] is not None and analysis_data['last_closing_price'] is not None:
+            # Calculate expected return
             analyst['expected_return'] = ((analyst['price_target'] - analysis_data['last_closing_price']) / analysis_data['last_closing_price']) * 100
         else:
             analyst['expected_return'] = None  # Handle zero or missing stock price
