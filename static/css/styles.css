@@ -1032,3 +1032,21 @@ h4 a:hover {
     font-size: 0.9rem;
     color: #666;
 }
+
+
+/* Styling for compact SWOT links */
+.swot-link {
+    background-color: #f8f9fa;
+    display: block;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    color: #007bff;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.swot-link:hover {
+    background-color: #e2e6ea;
+}
