@@ -1123,45 +1123,60 @@ from flask import make_response
 def sitemap():
     """Generate sitemap.xml."""
     pages = []
-
-    # Add static routes
     ten_days_ago = (datetime.now() - timedelta(days=10)).date().isoformat()
 
-    # List of static URLs
+    # Static URLs
     static_urls = [
-        {'url': url_for('index', _external=True), 'lastmod': ten_days_ago},
-        {'url': url_for('membership_pro', _external=True), 'lastmod': ten_days_ago},
-        {'url': url_for('portfolio', _external=True), 'lastmod': ten_days_ago},
-        # Add more static pages here
+        {'url': url_for('index', _external=True), 'lastmod': ten_days_ago, 'changefreq': 'daily', 'priority': '1.0'},
+        {'url': url_for('portfolio', _external=True), 'lastmod': ten_days_ago, 'changefreq': 'weekly', 'priority': '0.8'},
+        {'url': url_for('performance', _external=True), 'lastmod': ten_days_ago, 'changefreq': 'weekly', 'priority': '0.8'},
+        {'url': url_for('weekly_updates', _external=True), 'lastmod': ten_days_ago, 'changefreq': 'weekly', 'priority': '0.8'},
+        {'url': url_for('coverage', _external=True), 'lastmod': ten_days_ago, 'changefreq': 'weekly', 'priority': '0.8'},
+        # Add more static pages as necessary
     ]
 
     # Add static URLs to pages
     for url in static_urls:
         pages.append(url)
 
-    # Add dynamic routes (like stock pages)
+    # Connect to database
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch all stock tickers from the 'stock' table
+    # Fetch dynamic stock ticker pages
     cursor.execute("SELECT ticker FROM stock")
     tickers = cursor.fetchall()
 
     for ticker in tickers:
         pages.append({
             'url': url_for('stock_detail', ticker=ticker['ticker'], _external=True),
-            'lastmod': ten_days_ago  # Or use dynamic last modified date if available
+            'lastmod': ten_days_ago,  # Add last modified date dynamically if available
+            'changefreq': 'monthly',
+            'priority': '0.6'
+        })
+
+    # Fetch dynamic question/answer pages for each ticker
+    cursor.execute("SELECT id FROM InvestmentReports")
+    questions = cursor.fetchall()
+
+    for question in questions:
+        pages.append({
+            'url': url_for('view_answer', question_id=question['id'], _external=True),
+            'lastmod': ten_days_ago,
+            'changefreq': 'monthly',
+            'priority': '0.5'
         })
 
     cursor.close()
     conn.close()
 
-    # Generate XML sitemap
+    # Generate the XML sitemap
     sitemap_xml = render_template('sitemap_template.xml', pages=pages)
     response = make_response(sitemap_xml)
     response.headers["Content-Type"] = "application/xml"
 
     return response
+
 
 
 
