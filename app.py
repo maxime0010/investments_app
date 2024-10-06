@@ -294,6 +294,14 @@ def stock_detail(ticker):
         """, (median_success_rate, ticker))
         analysts_data = cursor.fetchall()
 
+        # Calculate expected return for each analyst
+        for analyst in analysts_data:
+            analyst['price_target'] = float(analyst['price_target']) if analyst['price_target'] else None
+            if analyst['price_target'] is not None and analysis_data['last_closing_price'] is not None:
+                analyst['expected_return'] = ((analyst['price_target'] - analysis_data['last_closing_price']) / analysis_data['last_closing_price']) * 100
+            else:
+                analyst['expected_return'] = None  # Handle missing or invalid data
+
         # Fetch short and long recommendations from the chatgpt table
         cursor.execute("""
             SELECT short_recommendation, long_recommendation
