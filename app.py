@@ -218,9 +218,9 @@ def stock_detail(ticker):
         # Fetch the logo URL for the company
         logo_url = get_logo_url(ticker)
 
-        # Fetch the most recent expected return, number of analysts with success rate above median, and recent updates
+        # Fetch the most recent analysis data for the stock
         cursor.execute("""
-            SELECT expected_return_combined_criteria, num_recent_analysts, num_high_success_analysts
+            SELECT last_closing_price, avg_combined_criteria, expected_return_combined_criteria
             FROM analysis_simulation
             WHERE ticker = %s
             ORDER BY date DESC
@@ -228,30 +228,23 @@ def stock_detail(ticker):
         """, (ticker,))
         analysis_data = cursor.fetchone()
 
-        # Fetch the latest non-zero stock price
-        cursor.execute("""
-            SELECT close
-            FROM prices
-            WHERE ticker = %s AND close > 0
-            ORDER BY date DESC
-            LIMIT 1
-        """, (ticker,))
-        latest_stock_price_result = cursor.fetchone()
-        latest_stock_price = latest_stock_price_result['close'] if latest_stock_price_result else None
+        if not analysis_data:
+            analysis_data = {
+                'last_closing_price': "N/A",
+                'avg_combined_criteria': "N/A",
+                'expected_return_combined_criteria': "N/A"
+            }
 
-        # Fetch and calculate the median success rate directly in SQL
+        # Check if the stock is in the latest version of the portfolio
+        latest_date = get_latest_portfolio_date()
         cursor.execute("""
-            WITH ordered_analysts AS (
-                SELECT overall_success_rate, ROW_NUMBER() OVER (ORDER BY overall_success_rate) AS rn, COUNT(*) OVER() AS cnt
-                FROM analysts
-            )
-            SELECT ROUND(AVG(overall_success_rate), 2) AS median_success_rate
-            FROM ordered_analysts
-            WHERE rn IN (FLOOR((cnt + 1) / 2), CEIL((cnt + 1) / 2));
-        """)
-        median_success_rate = cursor.fetchone()['median_success_rate']
+            SELECT ticker
+            FROM portfolio_simulation
+            WHERE ticker = %s AND date = %s
+        """, (ticker, latest_date))
+        stock_in_portfolio = cursor.fetchone() is not None
 
-        # Fetch only the latest rating for each analyst
+        # Fetch ratings and recommendations (this part was already correct)
         cursor.execute("""
             SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, 
                    r.date AS last_update, a.overall_success_rate,
@@ -292,8 +285,8 @@ def stock_detail(ticker):
 
     # Prepare data for rendering
     for analyst in analysts_data:
-        if analyst['price_target'] is not None and latest_stock_price is not None:
-            analyst['expected_return'] = ((analyst['price_target'] - latest_stock_price) / latest_stock_price) * 100
+        if analyst['price_target'] is not None and analysis_data['last_closing_price'] is not None:
+            analyst['expected_return'] = ((analyst['price_target'] - analysis_data['last_closing_price']) / analysis_data['last_closing_price']) * 100
         else:
             analyst['expected_return'] = None  # Handle zero or missing stock price
 
@@ -307,8 +300,8 @@ def stock_detail(ticker):
                            stock_name=stock_name,  # Pass stock name to the template
                            logo_url=logo_url,      # Pass the logo URL to the template
                            analysis_data=analysis_data, 
-                           analysts_data=analysts_data, 
-                           median_success_rate=median_success_rate)
+                           stock_in_portfolio=stock_in_portfolio,  # Check if stock is in the portfolio
+                           analysts_data=analysts_data)
 
 
 
