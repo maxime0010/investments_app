@@ -919,3 +919,57 @@
     border: none;
 }
 
+/* Styling for badges representing indices */
+.badge-tag {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 12px;
+    margin-right: 5px;
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Styling for the containers */
+.container {
+    margin-top: 20px;
+}
+
+.bg-light {
+    background-color: #f8f9fa;
+}
+
+/* General padding and border-radius */
+.p-3 {
+    padding: 1rem;
+}
+
+.border {
+    border: 1px solid #ddd;
+}
+
+.rounded {
+    border-radius: 8px;
+}
+
+/* Additional styling for stock links */
+h4 a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+h4 a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+/* Responsive layout adjustments */
+@media (max-width: 768px) {
+    .badge-tag {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.5rem;
+    }
+
+    .rounded {
+        margin-bottom: 15px;
+    }
+}
