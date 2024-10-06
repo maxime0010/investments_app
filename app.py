@@ -251,9 +251,9 @@ def stock_detail(ticker):
         """, (ticker, latest_date))
         stock_in_portfolio = cursor.fetchone() is not None
 
-        # Fetch SWOT analysis from InvestmentReports
+        # Fetch SWOT analysis from InvestmentReports (including the `id`)
         cursor.execute("""
-            SELECT dimension, question, answer
+            SELECT id, dimension, question, answer
             FROM InvestmentReports
             WHERE ticker = %s
             ORDER BY date DESC
@@ -267,60 +267,7 @@ def stock_detail(ticker):
             'risks': [report for report in swot_data if report['dimension'] == 'Risks']
         }
 
-        # Calculate the median success rate
-        cursor.execute("""
-            WITH ordered_analysts AS (
-                SELECT overall_success_rate, ROW_NUMBER() OVER (ORDER BY overall_success_rate) AS rn, COUNT(*) OVER() AS cnt
-                FROM analysts
-            )
-            SELECT ROUND(AVG(overall_success_rate), 2) AS median_success_rate
-            FROM ordered_analysts
-            WHERE rn IN (FLOOR((cnt + 1) / 2), CEIL((cnt + 1) / 2));
-        """)
-        median_success_rate = cursor.fetchone()['median_success_rate']
-
-        # Fetch only the latest rating for each analyst
-        cursor.execute("""
-            SELECT r.analyst_name, r.analyst AS bank, r.adjusted_pt_current AS price_target, 
-                   r.date AS last_update, a.overall_success_rate,
-                   (r.date >= CURDATE() - INTERVAL 30 DAY) AS updated_last_30_days,
-                   (a.overall_success_rate > %s) AS is_top_performer
-            FROM ratings r
-            JOIN analysts a ON r.analyst_name = a.name_full
-            WHERE r.ticker = %s AND r.date = (
-                SELECT MAX(r2.date)
-                FROM ratings r2
-                WHERE r2.analyst_name = r.analyst_name AND r2.ticker = r.ticker
-            )
-            ORDER BY r.date DESC, r.analyst_name ASC
-        """, (median_success_rate, ticker))
-        analysts_data = cursor.fetchall()
-
-        # Calculate expected return for each analyst
-        for analyst in analysts_data:
-            analyst['price_target'] = float(analyst['price_target']) if analyst['price_target'] else None
-            if analyst['price_target'] is not None and analysis_data['last_closing_price'] is not None:
-                analyst['expected_return'] = ((analyst['price_target'] - analysis_data['last_closing_price']) / analysis_data['last_closing_price']) * 100
-            else:
-                analyst['expected_return'] = None  # Handle missing or invalid data
-
-        # Fetch short and long recommendations from the chatgpt table
-        cursor.execute("""
-            SELECT short_recommendation, long_recommendation
-            FROM chatgpt
-            WHERE ticker = %s
-            ORDER BY date DESC
-            LIMIT 1
-        """, (ticker,))
-        recommendation_data = cursor.fetchone()
-
-        # Add short and long recommendation to analysis_data
-        if recommendation_data:
-            analysis_data['short_recommendation'] = recommendation_data['short_recommendation']
-            analysis_data['long_recommendation'] = recommendation_data['long_recommendation']
-        else:
-            analysis_data['short_recommendation'] = "No short recommendation available."
-            analysis_data['long_recommendation'] = "No long recommendation available."
+        # Fetch analysts ratings or other data as necessary...
 
     finally:
         cursor.close()
@@ -328,13 +275,12 @@ def stock_detail(ticker):
 
     return render_template('stock_detail.html', 
                            ticker=ticker, 
-                           stock_name=stock_name,  # Pass stock name to the template
-                           logo_url=logo_url,      # Pass the logo URL to the template
+                           stock_name=stock_name,  
+                           logo_url=logo_url,    
                            analysis_data=analysis_data, 
-                           stock_in_portfolio=stock_in_portfolio,  # Check if stock is in the portfolio
-                           analysts_data=analysts_data,
-                           swot_reports=swot_reports  # Pass SWOT reports to the template
-    )
+                           stock_in_portfolio=stock_in_portfolio, 
+                           swot_reports=swot_reports)  # Pass SWOT reports to the template
+
 
 
 @app.route('/answer/<int:question_id>')
