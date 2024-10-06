@@ -919,10 +919,12 @@
     border: none;
 }
 
+
+
 /* Styling for badges representing indices */
 .badge-tag {
-    padding: 0.4rem 0.7rem;
-    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
     border-radius: 12px;
     margin-right: 5px;
     background-color: #007bff;
@@ -951,6 +953,12 @@
     border-radius: 8px;
 }
 
+/* Image Styling */
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
 /* Additional styling for stock links */
 h4 a {
     text-decoration: none;
@@ -965,7 +973,7 @@ h4 a:hover {
 /* Responsive layout adjustments */
 @media (max-width: 768px) {
     .badge-tag {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
         padding: 0.3rem 0.5rem;
     }
 
