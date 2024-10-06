@@ -4,33 +4,30 @@
 <div class="container my-5">
     <!-- Stock Title, Ticker, and Logo -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <!-- Stock Name and Ticker -->
         <h1 class="display-4">{{ stock_name }} <small class="text-muted">({{ ticker }})</small></h1>
-
-        <!-- Company Logo -->
         <img src="{{ logo_url }}" alt="{{ stock_name }} Logo" class="img-fluid" style="max-height: 80px;">
     </div>
 
     <!-- Section 1: Investment Recommendation -->
-    <div class="box mb-5 p-4 shadow-lg">
-        <h2 class="box-title mb-4">Investment Recommendation</h2>
+    <div class="p-4 mb-5 shadow-lg" style="background-color: #f8f9fa; border-radius: 8px;">
+        <h2 class="mb-4">Investment Recommendation</h2>
         <div class="row">
             <div class="col-md-4 text-center">
-                <div class="number-section">
-                    <span class="number-description">Current Price</span>
-                    <span class="highlighted-number">${{ analysis_data.last_closing_price | int }}</span>
+                <div>
+                    <p class="small-text">Current Price</p>
+                    <p class="highlighted-number">${{ analysis_data.last_closing_price | int }}</p>
                 </div>
             </div>
             <div class="col-md-4 text-center">
-                <div class="number-section">
-                    <span class="number-description">Price Target</span>
-                    <span class="highlighted-number">${{ analysis_data.avg_combined_criteria | int }}</span>
+                <div>
+                    <p class="small-text">Price Target</p>
+                    <p class="highlighted-number">${{ analysis_data.avg_combined_criteria | int }}</p>
                 </div>
             </div>
             <div class="col-md-4 text-center">
-                <div class="number-section">
-                    <span class="number-description">Expected Return</span>
-                    <span class="highlighted-number">{{ analysis_data.expected_return_combined_criteria | int }}%</span>
+                <div>
+                    <p class="small-text">Expected Return</p>
+                    <p class="highlighted-number">{{ analysis_data.expected_return_combined_criteria | int }}%</p>
                 </div>
             </div>
         </div>
@@ -43,87 +40,88 @@
         </div>
     </div>
 
-    <!-- Section 2: Strategic Rationale -->
-    <div class="box mb-5 p-4 shadow-lg">
-        <h2 class="box-title mb-4">Strategic Rationale</h2>
-        <p>{{ analysis_data.long_recommendation }}</p>
-    </div>
-
-    <!-- Section 3: Company Analysis (SWOT) -->
-    <div class="box mb-5 p-4 shadow-lg">
-        <h2 class="box-title mb-4">Company Analysis</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <h4>Strengths</h4>
-                <ul>
-                    {% for report in swot_reports.strengths %}
-                        <li><strong>{{ report.question }}:</strong> {{ report.answer }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="col-md-6">
-                <h4>Weaknesses</h4>
-                <ul>
-                    {% for report in swot_reports.weaknesses %}
-                        <li><strong>{{ report.question }}:</strong> {{ report.answer }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <h4>Opportunities</h4>
-                <ul>
-                    {% for report in swot_reports.opportunities %}
-                        <li><strong>{{ report.question }}:</strong> {{ report.answer }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="col-md-6">
-                <h4>Threats</h4>
-                <ul>
-                    {% for report in swot_reports.threats %}
-                        <li><strong>{{ report.question }}:</strong> {{ report.answer }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section 4: Analysts Ratings -->
+    <!-- Section 2: Company Analysis (SWOT with collapsible answers) -->
     <div class="mb-5">
-        <h2 class="mb-4">Analysts Ratings</h2>
-        <div class="row">
-            {% for analyst in analysts_data %}
-            <div class="col-md-4 mb-4">
-                <div class="box h-100 shadow">
-                    <div class="box-body">
-                        <h5 class="box-title">{{ analyst.analyst_name }}</h5>
-                        <h6 class="box-subtitle mb-2 text-muted">{{ analyst.bank }}</h6>
-                        <p class="box-text">Price Target: ${{ analyst.price_target | int }}</p>
-                        <p class="box-text">Expected Return: 
-                            {% if analyst.expected_return is not none %}
-                                {{ analyst.expected_return | int }}%
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </p>
-                        <p class="box-text">Success Rate: {{ analyst.overall_success_rate | round(2) }}%</p>
-                    </div>
-                    <div class="box-footer text-center {% if analyst.updated_last_30_days == 'Yes' %}bg-success text-white{% else %}bg-light{% endif %}">
-                        <small>
-                            {% if analyst.updated_last_30_days == 'Yes' %}
-                                Updated Recently
-                            {% else %}
-                                Last Update: {{ analyst.last_update.strftime('%Y-%m-%d') }}
-                            {% endif %}
-                        </small>
+        <h2 class="mb-4">Company Analysis</h2>
+
+        <!-- Strengths -->
+        <div class="mb-4">
+            <h4>Strengths</h4>
+            <div>
+                {% for report in swot_reports.strengths %}
+                <div class="swot-card mb-3">
+                    <button class="swot-question" onclick="toggleAnswer('strengths{{ loop.index }}')">
+                        {{ report.question }}
+                    </button>
+                    <div id="strengths{{ loop.index }}" class="swot-answer">
+                        <p>{{ report.answer }}</p>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+
+        <!-- Weaknesses -->
+        <div class="mb-4">
+            <h4>Weaknesses</h4>
+            <div>
+                {% for report in swot_reports.weaknesses %}
+                <div class="swot-card mb-3">
+                    <button class="swot-question" onclick="toggleAnswer('weaknesses{{ loop.index }}')">
+                        {{ report.question }}
+                    </button>
+                    <div id="weaknesses{{ loop.index }}" class="swot-answer">
+                        <p>{{ report.answer }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Opportunities -->
+        <div class="mb-4">
+            <h4>Opportunities</h4>
+            <div>
+                {% for report in swot_reports.opportunities %}
+                <div class="swot-card mb-3">
+                    <button class="swot-question" onclick="toggleAnswer('opportunities{{ loop.index }}')">
+                        {{ report.question }}
+                    </button>
+                    <div id="opportunities{{ loop.index }}" class="swot-answer">
+                        <p>{{ report.answer }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Risks -->
+        <div class="mb-4">
+            <h4>Risks</h4>
+            <div>
+                {% for report in swot_reports.threats %}
+                <div class="swot-card mb-3">
+                    <button class="swot-question" onclick="toggleAnswer('threats{{ loop.index }}')">
+                        {{ report.question }}
+                    </button>
+                    <div id="threats{{ loop.index }}" class="swot-answer">
+                        <p>{{ report.answer }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
-
 </div>
+
+<script>
+function toggleAnswer(id) {
+    var element = document.getElementById(id);
+    if (element.style.display === "none") {
+        element.style.display = "block";
+    } else {
+        element.style.display = "none";
+    }
+}
+</script>
 {% endblock %}
