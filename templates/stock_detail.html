@@ -40,44 +40,57 @@
         </div>
     </div>
 
-    <!-- Section 2: Company Analysis (SWOT with compact questions layout) -->
+    <!-- Section 2: Strategic Rationale -->
+    <div class="p-4 mb-5 shadow-lg" style="background-color: #f8f9fa; border-radius: 8px;">
+        <h2 class="mb-4">Strategic Rationale</h2>
+        <p>{{ analysis_data.long_recommendation }}</p>
+    </div>
+
+    <!-- Section 3: Company Analysis (SWOT) -->
     <div class="mb-5">
         <h2 class="mb-4">Company Analysis</h2>
-
-        <!-- Strengths -->
-        <div class="mb-4">
-            <h4>Strengths</h4>
-            <div class="row">
+        <div class="row">
+            <!-- Strengths Column -->
+            <div class="col-md-3">
+                <h4>Strengths</h4>
                 {% for report in swot_reports.strengths %}
-                <div class="col-md-4 mb-3">
+                <div class="swot-card mb-3">
                     <a href="{{ url_for('view_answer', question_id=report.id) }}" class="swot-link">
                         {{ report.question }}
                     </a>
                 </div>
                 {% endfor %}
             </div>
-        </div>
 
-        <!-- Weaknesses -->
-        <div class="mb-4">
-            <h4>Weaknesses</h4>
-            <div class="row">
+            <!-- Weaknesses Column -->
+            <div class="col-md-3">
+                <h4>Weaknesses</h4>
                 {% for report in swot_reports.weaknesses %}
-                <div class="col-md-4 mb-3">
+                <div class="swot-card mb-3">
                     <a href="{{ url_for('view_answer', question_id=report.id) }}" class="swot-link">
                         {{ report.question }}
                     </a>
                 </div>
                 {% endfor %}
             </div>
-        </div>
 
-        <!-- Opportunities -->
-        <div class="mb-4">
-            <h4>Opportunities</h4>
-            <div class="row">
+            <!-- Opportunities Column -->
+            <div class="col-md-3">
+                <h4>Opportunities</h4>
                 {% for report in swot_reports.opportunities %}
-                <div class="col-md-4 mb-3">
+                <div class="swot-card mb-3">
+                    <a href="{{ url_for('view_answer', question_id=report.id) }}" class="swot-link">
+                        {{ report.question }}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Risks Column -->
+            <div class="col-md-3">
+                <h4>Risks</h4>
+                {% for report in swot_reports.risks %}
+                <div class="swot-card mb-3">
                     <a href="{{ url_for('view_answer', question_id=report.id) }}" class="swot-link">
                         {{ report.question }}
                     </a>
@@ -85,19 +98,38 @@
                 {% endfor %}
             </div>
         </div>
+    </div>
 
-        <!-- Risks -->
-        <div class="mb-4">
-            <h4>Risks</h4>
-            <div class="row">
-                {% for report in swot_reports.risks %}
-                <div class="col-md-4 mb-3">
-                    <a href="{{ url_for('view_answer', question_id=report.id) }}" class="swot-link">
-                        {{ report.question }}
-                    </a>
+    <!-- Section 4: Analysts Ratings -->
+    <div class="mb-5">
+        <h2 class="mb-4">Analysts Ratings</h2>
+        <div class="row">
+            {% for analyst in analysts_data %}
+            <div class="col-md-4 mb-4">
+                <div class="p-3 shadow-sm bg-light">
+                    <h5>{{ analyst.analyst_name }}</h5>
+                    <h6 class="text-muted">{{ analyst.bank }}</h6>
+                    <p><strong>Price Target:</strong> ${{ analyst.price_target | int }}</p>
+                    <p><strong>Expected Return:</strong> 
+                        {% if analyst.expected_return is not none %}
+                            {{ analyst.expected_return | int }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                    <p><strong>Success Rate:</strong> {{ analyst.overall_success_rate | round(2) }}%</p>
+                    <p>
+                        <small class="{% if analyst.updated_last_30_days == 'Yes' %}text-success{% else %}text-muted{% endif %}">
+                            {% if analyst.updated_last_30_days == 'Yes' %}
+                                Updated Recently
+                            {% else %}
+                                Last Update: {{ analyst.last_update.strftime('%Y-%m-%d') }}
+                            {% endif %}
+                        </small>
+                    </p>
                 </div>
-                {% endfor %}
             </div>
+            {% endfor %}
         </div>
     </div>
 </div>
