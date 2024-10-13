@@ -687,18 +687,12 @@ def index():
     cursor.close()
     conn.close()
 
-    # Extract data for chart display
-    if simulated_portfolio_data:
-        dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in simulated_portfolio_data]
-        simulation_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
-        sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data]
-    else:
-        # Fallback in case of empty data
-        dates_simulation = []
-        simulation_values = []
-        sp500_values_simulation = []
+    # Ensure dates_simulation and other variables have default values
+    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in simulated_portfolio_data] if simulated_portfolio_data else []
+    simulation_values = [row['total_portfolio_value'] for row in simulated_portfolio_data] if simulated_portfolio_data else []
+    sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data] if simulated_portfolio_data else []
 
-    # Get statistics
+    # Get statistics (fallbacks should also be handled here)
     num_reports, num_analysts, num_banks = get_ratings_statistics()
 
     return render_template(
@@ -710,6 +704,7 @@ def index():
         simulation_values=simulation_values,
         sp500_values_simulation=sp500_values_simulation
     )
+
     
 
 @app.route('/login', methods=['GET', 'POST'])
