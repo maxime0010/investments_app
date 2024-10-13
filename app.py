@@ -1117,37 +1117,45 @@ from flask import make_response
 @app.route('/join_club', methods=['POST'])
 def join_club():
     email = request.form['email']
+    print(f"Processing email: {email}")
+
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-    
+
     # Check if the email is already in the database
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     existing_user = cursor.fetchone()
-    
+
     if existing_user:
-        # Email is already in the database
         cursor.close()
         conn.close()
-        return render_template('index.html', 
-                               email_status="existing_member",  # Set status to existing_member
+        print("User already exists.")
+        return render_template('index.html',
+                               message="You are already a member",
+                               show_sign_in=True,
                                email=email)
+
     else:
         try:
-            # Insert the email into the database
             cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
             conn.commit()
+            print("New user added.")
         except mysql.connector.Error as err:
+            print(f"Database error: {err}")
             conn.rollback()
             cursor.close()
             conn.close()
-            return render_template('index.html', 
-                                   email_status="error",  # Set status to error if insertion fails
+            return render_template('index.html',
+                                   message="An error occurred. Please try again later.",
+                                   show_sign_in=False,
                                    email=email)
 
         cursor.close()
         conn.close()
-        return render_template('index.html', 
-                               email_status="new_member",  # Set status to new_member
+        print(f"Returning: email={email}")
+        return render_template('index.html',
+                               message="Thank you, you will now receive our newsletter.",
+                               show_finalize_account=True,
                                email=email)
 
 
