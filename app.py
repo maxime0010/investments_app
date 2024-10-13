@@ -1153,10 +1153,14 @@ def join_club():
         cursor.close()
         conn.close()
         print(f"Returning: email={email}")
-        return render_template('index.html',
-                               message="Thank you, you will now receive our newsletter.",
-                               show_finalize_account=True,
-                               email=email)
+return render_template('index.html',
+                       message="Thank you, you will now receive our newsletter.",
+                       show_finalize_account=True,
+                       email=email,
+                       dates_simulation=[],  # Ensuring these are always passed
+                       simulation_values=[],
+                       sp500_values_simulation=[])
+
 
 
 
