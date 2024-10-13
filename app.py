@@ -1134,15 +1134,32 @@ def join_club():
         # Email is already in the database
         cursor.close()
         conn.close()
-        return render_template('index.html', message="You are already a member", show_sign_in=True)
+        return render_template('index.html', 
+                               message="You are already a member", 
+                               show_sign_in=True, 
+                               email=email or '')
     else:
         # Insert the email into the database and redirect to finalize account creation
-        cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
-        conn.commit()
+        try:
+            cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
+            conn.commit()
+        except mysql.connector.Error as err:
+            # Handle the case where the insert fails
+            conn.rollback()
+            cursor.close()
+            conn.close()
+            return render_template('index.html', 
+                                   message="An error occurred. Please try again later.", 
+                                   show_sign_in=False, 
+                                   email=email or '')
+
         cursor.close()
         conn.close()
-        return render_template('index.html', message="Thank you, you will now receive our newsletter.", 
-                               show_finalize_account=True, email=email)
+        return render_template('index.html', 
+                               message="Thank you, you will now receive our newsletter.", 
+                               show_finalize_account=True, 
+                               email=email or '')
+
 
 
 @app.route('/sitemap.xml', methods=['GET'])
