@@ -7,31 +7,7 @@
     <div class="overlay"></div>
     <div class="overlay-text">
         <h1 class="display-4">Top 10 Performing Stocks, Handpicked by Our AI. Delivered to Your Inbox Every Week.</h1>
-<div class="email-join-section text-center mt-5">
-    {% if email_status == "existing_member" %}
-        <!-- Show message if the email is already in the database -->
-        <h3>You are already a member</h3>
-        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg mt-4">Sign in</a>
-
-    {% elif email_status == "new_member" %}
-        <!-- Show message after email submission for new members -->
-        <h3>Thank you, you will now receive our newsletter.</h3>
-        <a href="{{ url_for('membership_step1') }}?email={{ email }}" class="btn btn-primary btn-lg mt-4">Finalize the creation of my account</a>
-
-    {% else %}
-        <!-- Default state: show email input form -->
-        <form method="POST" action="{{ url_for('join_club') }}" class="form-inline justify-content-center">
-            <div class="form-group">
-                <input type="email" name="email" class="form-control form-control-lg" placeholder="Enter your email" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-lg ml-3">Join the Club</button>
-        </form>
-    {% endif %}
-</div>
-
-
-
-
+        <a href="{{ url_for('membership_pro') }}" class="btn btn-primary btn-lg mt-4 hero-cta">Join the Club</a>
     </div>
 </div>
 
@@ -212,10 +188,9 @@
     let portfolioAnnualizedReturns = {};
     let sp500AnnualizedReturns = {};
 
-    const fullDates = {{ dates_simulation | default([]) | tojson | safe }} || [];
-    const fullPortfolioValues = {{ simulation_values | default([]) | tojson | safe }} || [];
-    const fullSp500Values = {{ sp500_values_simulation | default([]) | tojson | safe }} || [];
-
+    const fullDates = {{ dates_simulation | tojson | safe }} || [];
+    const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
+    const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
 
     function calculateAllAnnualizedReturns() {
         const periods = {
