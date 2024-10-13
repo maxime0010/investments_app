@@ -13,7 +13,7 @@
         {% if show_sign_in %}
             <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg mt-4">Sign in</a>
         {% elif show_finalize_account %}
-            <a href="{{ url_for('membership_step1') }}?email={{ email }}" class="btn btn-primary btn-lg mt-4">Finalize the creation of my account</a>
+            <a href="{{ url_for('membership_step1') }}?email={{ email | default('') }}" class="btn btn-primary btn-lg mt-4">Finalize the creation of my account</a>
         {% endif %}
     {% else %}
         <form method="POST" action="{{ url_for('join_club') }}" class="form-inline justify-content-center">
@@ -24,6 +24,7 @@
         </form>
     {% endif %}
 </div>
+
 
     </div>
 </div>
