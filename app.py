@@ -1122,7 +1122,6 @@ from flask import make_response
 @app.route('/join_club', methods=['POST'])
 def join_club():
     email = request.form['email']
-    
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
     
@@ -1135,30 +1134,26 @@ def join_club():
         cursor.close()
         conn.close()
         return render_template('index.html', 
-                               message="You are already a member", 
-                               show_sign_in=True, 
-                               email=email or '')
+                               email_status="existing_member",  # Set status to existing_member
+                               email=email)
     else:
-        # Insert the email into the database and redirect to finalize account creation
         try:
+            # Insert the email into the database
             cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
             conn.commit()
         except mysql.connector.Error as err:
-            # Handle the case where the insert fails
             conn.rollback()
             cursor.close()
             conn.close()
             return render_template('index.html', 
-                                   message="An error occurred. Please try again later.", 
-                                   show_sign_in=False, 
-                                   email=email or '')
+                                   email_status="error",  # Set status to error if insertion fails
+                                   email=email)
 
         cursor.close()
         conn.close()
         return render_template('index.html', 
-                               message="Thank you, you will now receive our newsletter.", 
-                               show_finalize_account=True, 
-                               email=email or '')
+                               email_status="new_member",  # Set status to new_member
+                               email=email)
 
 
 
