@@ -442,7 +442,7 @@ def membership_step1():
             return redirect(url_for('login'))
 
         # Insert new user into the database
-        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, password_hash))
+        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, NULL)", (email,))
         conn.commit()
 
         # Fetch the newly created user to log them in
