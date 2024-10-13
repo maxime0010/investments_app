@@ -442,7 +442,7 @@ def membership_step1():
             return redirect(url_for('login'))
 
         # Insert new user into the database
-        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, NULL)", (email,))
+        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, password_hash))
         conn.commit()
 
         # Fetch the newly created user to log them in
@@ -687,12 +687,18 @@ def index():
     cursor.close()
     conn.close()
 
-    # Ensure dates_simulation and other variables have default values
-    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in simulated_portfolio_data] if simulated_portfolio_data else []
-    simulation_values = [row['total_portfolio_value'] for row in simulated_portfolio_data] if simulated_portfolio_data else []
-    sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data] if simulated_portfolio_data else []
+    # Extract data for chart display
+    if simulated_portfolio_data:
+        dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in simulated_portfolio_data]
+        simulation_values = [row['total_portfolio_value'] for row in simulated_portfolio_data]
+        sp500_values_simulation = [row['sp500_value'] for row in simulated_portfolio_data]
+    else:
+        # Fallback in case of empty data
+        dates_simulation = []
+        simulation_values = []
+        sp500_values_simulation = []
 
-    # Get statistics (fallbacks should also be handled here)
+    # Get statistics
     num_reports, num_analysts, num_banks = get_ratings_statistics()
 
     return render_template(
@@ -704,7 +710,6 @@ def index():
         simulation_values=simulation_values,
         sp500_values_simulation=sp500_values_simulation
     )
-
     
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -1114,56 +1119,6 @@ def format_number(value):
 
 from flask import make_response
 
-@app.route('/join_club', methods=['POST'])
-def join_club():
-    email = request.form['email']
-    print(f"Processing email: {email}")
-
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
-
-    # Check if the email is already in the database
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-    existing_user = cursor.fetchone()
-
-    if existing_user:
-        cursor.close()
-        conn.close()
-        print("User already exists.")
-        return render_template('index.html',
-                               message="You are already a member",
-                               show_sign_in=True,
-                               email=email)
-
-    else:
-        try:
-            cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
-            conn.commit()
-            print("New user added.")
-        except mysql.connector.Error as err:
-            print(f"Database error: {err}")
-            conn.rollback()
-            cursor.close()
-            conn.close()
-            return render_template('index.html',
-                                   message="An error occurred. Please try again later.",
-                                   show_sign_in=False,
-                                   email=email)
-
-        cursor.close()
-        conn.close()
-        print(f"Returning: email={email}")
-return render_template('index.html',
-                       message="Thank you, you will now receive our newsletter.",
-                       show_finalize_account=True,
-                       email=email,
-                       dates_simulation=[],  # Ensuring these are always passed
-                       simulation_values=[],
-                       sp500_values_simulation=[])
-
-
-
-
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
     """Generate sitemap.xml."""
@@ -1228,5 +1183,3 @@ def sitemap():
 if __name__ == '__main__':
     app.debug = True
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
-
-
