@@ -1119,6 +1119,32 @@ def format_number(value):
 
 from flask import make_response
 
+@app.route('/join_club', methods=['POST'])
+def join_club():
+    email = request.form['email']
+    
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    
+    # Check if the email is already in the database
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    existing_user = cursor.fetchone()
+    
+    if existing_user:
+        # Email is already in the database
+        cursor.close()
+        conn.close()
+        return render_template('index.html', message="You are already a member", show_sign_in=True)
+    else:
+        # Insert the email into the database and redirect to finalize account creation
+        cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return render_template('index.html', message="Thank you, you will now receive our newsletter.", 
+                               show_finalize_account=True, email=email)
+
+
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
     """Generate sitemap.xml."""
