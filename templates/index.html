@@ -212,9 +212,10 @@
     let portfolioAnnualizedReturns = {};
     let sp500AnnualizedReturns = {};
 
-    const fullDates = {{ dates_simulation | tojson | safe }} || [];
-    const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
-    const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
+    const fullDates = {{ dates_simulation | default([]) | tojson | safe }} || [];
+    const fullPortfolioValues = {{ simulation_values | default([]) | tojson | safe }} || [];
+    const fullSp500Values = {{ sp500_values_simulation | default([]) | tojson | safe }} || [];
+
 
     function calculateAllAnnualizedReturns() {
         const periods = {
