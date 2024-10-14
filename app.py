@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, json, request, current_app
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, json, request, current_app, make_response
 import mysql.connector
 import os
 import stripe
@@ -1117,7 +1117,27 @@ def format_number(value):
 
 
 
-from flask import make_response
+@app.route('/join_club', methods=['POST'])
+def join_club():
+    email = request.form['email']
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    # Check if the email is already in the database
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    existing_user = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if existing_user:
+        # If the email is already registered, redirect to the login page with the email prefilled
+        return redirect(url_for('login', email=email))
+    else:
+        # If the email is not registered, redirect to the signup page with the email prefilled
+        return redirect(url_for('membership_step1', email=email))
+
+
 
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
