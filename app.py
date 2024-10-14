@@ -1132,15 +1132,15 @@ def join_club():
         existing_user = cursor.fetchone()
 
         if existing_user:
-            # Email is already registered, show sign-in option
-            return render_template('membership_pro.html', message="You are already a member", show_sign_in=True, email=email)
+            # Email is already registered, redirect to login page
+            return redirect(url_for('login', message="You are already a member", email=email))
 
         # Insert new email into the database
         cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
         conn.commit()
 
-        # Successful registration, finalize the account creation
-        return render_template('membership_pro.html', message="Thank you, you will now receive our newsletter.", show_finalize_account=True, email=email)
+        # Successful registration, redirect to the sign-up page
+        return redirect(url_for('membership_step1', email=email))
 
     except mysql.connector.Error as err:
         # Rollback in case of an error
@@ -1150,7 +1150,6 @@ def join_club():
     finally:
         cursor.close()
         conn.close()
-
 
 
 @app.route('/sitemap.xml', methods=['GET'])
