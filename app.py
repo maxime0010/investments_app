@@ -173,7 +173,16 @@ def get_top_stocks(latest_date):
 
 @app.route('/pro')
 def membership_pro():
-    return render_template('membership_pro.html')
+    # If necessary, define default values for variables like dates_simulation or others expected in the template
+    dates_simulation = []  # Ensure this is passed even if empty
+    simulation_values = []
+    sp500_values_simulation = []
+
+    return render_template('membership_pro.html',
+                           dates_simulation=dates_simulation,
+                           simulation_values=simulation_values,
+                           sp500_values_simulation=sp500_values_simulation)
+
 
 @app.route('/portfolio')
 def portfolio():
