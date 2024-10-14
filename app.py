@@ -441,24 +441,44 @@ def membership_step1():
         existing_user = cursor.fetchone()
 
         if existing_user:
-            flash('Email is already registered. Please sign in.', 'danger')
-            return redirect(url_for('login'))
+            # Check if the user has already set a password
+            if existing_user['password_hash']:
+                # Password is already set, redirect to login
+                flash('Email is already registered. Please sign in.', 'danger')
+                return redirect(url_for('login', email=email))
+            else:
+                # Password is not set, so update the user with the new password
+                cursor.execute("UPDATE users SET password_hash = %s WHERE email = %s", (password_hash, email))
+                conn.commit()
 
-        # Insert new user into the database
-        cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, password_hash))
-        conn.commit()
+                # Fetch the updated user and log them in
+                cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+                user = cursor.fetchone()
 
-        # Fetch the newly created user to log them in
-        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-        user = cursor.fetchone()
+                cursor.close()
+                conn.close()
 
-        cursor.close()
-        conn.close()
+                if user:
+                    user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
+                    login_user(user_obj)
+                    return redirect(url_for('membership_step2'))
 
-        if user:
-            user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
-            login_user(user_obj)
-            return redirect(url_for('membership_step2'))
+        else:
+            # Insert new user into the database if the email doesn't exist
+            cursor.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, password_hash))
+            conn.commit()
+
+            # Fetch the newly created user and log them in
+            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+            user = cursor.fetchone()
+
+            cursor.close()
+            conn.close()
+
+            if user:
+                user_obj = User(user['id'], email=user['email'], is_member=user['is_member'])
+                login_user(user_obj)
+                return redirect(url_for('membership_step2'))
 
     return render_template('membership_step1.html')
 
