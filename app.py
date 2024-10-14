@@ -1127,15 +1127,23 @@ def join_club():
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     existing_user = cursor.fetchone()
 
-    cursor.close()
-    conn.close()
-
     if existing_user:
-        # If the email is already registered, redirect to the login page with the email prefilled
-        return redirect(url_for('login', email=email))
+        cursor.close()
+        conn.close()
+        return render_template('index.html', message="You are already a member", show_sign_in=True, email=email)
     else:
-        # If the email is not registered, redirect to the signup page with the email prefilled
-        return redirect(url_for('membership_step1', email=email))
+        try:
+            cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
+            conn.commit()
+        except mysql.connector.Error as err:
+            conn.rollback()
+            cursor.close()
+            conn.close()
+            return render_template('index.html', message="An error occurred. Please try again later.", email=email)
+
+        cursor.close()
+        conn.close()
+        return render_template('index.html', message="Thank you, you will now receive our newsletter.", show_finalize_account=True, email=email)
 
 
 
