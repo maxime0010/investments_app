@@ -40,10 +40,17 @@
     </div>
 </div>
 
-<!-- Call to Action Section with Large Button -->
+<!-- Call to Action Section with Email Field -->
 <div class="container-fluid call-to-action-section text-center py-5">
     <h2 class="font-weight-bold">Ready to Maximize Your Portfolio?</h2>
     <p class="lead mb-4">Join the Good Life club today and unlock exclusive tools, analysis, and insights to boost your investment performance.</p>
-    <a href="{{ url_for('membership_step1') }}" class="btn btn-primary btn-lg call-to-action-btn">Join the Club</a>
+    
+    <!-- Email form -->
+    <form method="POST" action="{{ url_for('join_club') }}" class="form-inline justify-content-center">
+        <div class="form-group">
+            <input type="email" name="email" class="form-control form-control-lg mr-2" placeholder="Enter your email" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">Join the Club</button>
+    </form>
 </div>
 {% endblock %}
