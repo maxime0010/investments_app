@@ -173,15 +173,9 @@ def get_top_stocks(latest_date):
 
 @app.route('/pro')
 def membership_pro():
-    # If necessary, define default values for variables like dates_simulation or others expected in the template
-    dates_simulation = []  # Ensure this is passed even if empty
-    simulation_values = []
-    sp500_values_simulation = []
+    # Render the membership_pro.html template without any extra unused variables
+    return render_template('membership_pro.html')
 
-    return render_template('membership_pro.html',
-                           dates_simulation=dates_simulation,
-                           simulation_values=simulation_values,
-                           sp500_values_simulation=sp500_values_simulation)
 
 
 @app.route('/portfolio')
@@ -1132,27 +1126,30 @@ def join_club():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Check if the email is already in the database
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-    existing_user = cursor.fetchone()
+    try:
+        # Check if the email is already in the database
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        existing_user = cursor.fetchone()
 
-    if existing_user:
+        if existing_user:
+            # Email is already registered, show sign-in option
+            return render_template('membership_pro.html', message="You are already a member", show_sign_in=True, email=email)
+
+        # Insert new email into the database
+        cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
+        conn.commit()
+
+        # Successful registration, finalize the account creation
+        return render_template('membership_pro.html', message="Thank you, you will now receive our newsletter.", show_finalize_account=True, email=email)
+
+    except mysql.connector.Error as err:
+        # Rollback in case of an error
+        conn.rollback()
+        return render_template('membership_pro.html', message="An error occurred. Please try again later.", email=email)
+
+    finally:
         cursor.close()
         conn.close()
-        return render_template('index.html', message="You are already a member", show_sign_in=True, email=email)
-    else:
-        try:
-            cursor.execute("INSERT INTO users (email) VALUES (%s)", (email,))
-            conn.commit()
-        except mysql.connector.Error as err:
-            conn.rollback()
-            cursor.close()
-            conn.close()
-            return render_template('index.html', message="An error occurred. Please try again later.", email=email)
-
-        cursor.close()
-        conn.close()
-        return render_template('index.html', message="Thank you, you will now receive our newsletter.", show_finalize_account=True, email=email)
 
 
 
