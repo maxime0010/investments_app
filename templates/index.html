@@ -7,9 +7,21 @@
     <div class="overlay"></div>
     <div class="overlay-text">
         <h1 class="display-4">Top 10 Performing Stocks, Handpicked by Our AI. Delivered to Your Inbox Every Week.</h1>
-        <a href="{{ url_for('membership_pro') }}" class="btn btn-primary btn-lg mt-4 hero-cta">Join the Club</a>
+        
+        {% if not current_user.is_authenticated %}
+        <!-- Email Join Form -->
+        <form method="POST" action="{{ url_for('join_club') }}" class="form-inline justify-content-center mt-4">
+            <div class="input-group">
+                <input type="email" name="email" class="form-control form-control-lg" placeholder="Enter your email" required>
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary btn-lg">Join the Club</button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
     </div>
 </div>
+
 
 
 <div class="text-section">
