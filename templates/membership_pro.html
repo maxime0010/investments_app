@@ -46,11 +46,14 @@
     <p class="lead mb-4">Join the Good Life club today and unlock exclusive tools, analysis, and insights to boost your investment performance.</p>
     
     <!-- Email form -->
-    <form method="POST" action="{{ url_for('join_club') }}" class="form-inline justify-content-center">
-        <div class="form-group">
-            <input type="email" name="email" class="form-control form-control-lg mr-2" placeholder="Enter your email" required>
+    <form method="POST" action="{{ url_for('join_club') }}" class="email-form">
+        <div class="input-group input-group-lg">
+            <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Join the Club</button>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg">Join the Club</button>
     </form>
 </div>
+
 {% endblock %}
