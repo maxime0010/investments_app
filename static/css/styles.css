@@ -1,39 +1,38 @@
-        /* Global styles, layout, and additional formatting */
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #333;
-            background-color: #fff;
-        }
+/* Global styles, layout, and additional formatting */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #333;
+    background-color: #fff;
+}
 
 /* Enhanced Number Styling */
 .highlighted-number {
-    font-size: 3rem;  /* Large font for visual impact */
+    font-size: 3rem;
     background: linear-gradient(90deg, rgba(29,78,216,1) 0%, rgba(37,99,235,1) 50%, rgba(79,70,229,1) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);  /* Subtle shadow for depth */
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
     font-weight: bold;
     display: inline-block;
-    width: 150px;  /* Fixed width to ensure separation */
+    width: 150px;
     text-align: right;
     margin-right: 20px;
 }
 
-/* Layout for the number and its description */
 .number-section {
     display: flex;
-    align-items: center;  /* Align items in the center vertically */
-    margin-bottom: 10px;  /* Add spacing between each item */
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .number-description {
     text-align: left;
-    flex: 1;  /* Make the description take up the remaining space */
+    flex: 1;
 }
 
-/* Join the Club Button with White Background */
+/* Join the Club Button */
 .join-club-btn {
     background-color: white;
     color: #000;
@@ -48,73 +47,72 @@
     background-color: #000;
     color: white;
 }
-        
-        /* Navigation Bar */
-        .navbar {
-            background-color: #fff;
-            padding: 0.5rem 1rem;
-            border-bottom: 1px solid #eaeaea;
-        }
 
-        .navbar-brand {
-            font-size: 1.25rem;
-            color: #000;
-            font-weight: bold;
-            margin-right: 1.5rem;
-        }
+/* Navigation Bar */
+.navbar {
+    background-color: #fff;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #eaeaea;
+}
 
-        .navbar-nav {
-            margin-left: 0;
-        }
+.navbar-brand {
+    font-size: 1.25rem;
+    color: #000;
+    font-weight: bold;
+    margin-right: 1.5rem;
+}
 
-        .nav-link {
-            color: #000 !important;
-            font-size: 1rem;
-            margin-right: 1rem;
-            padding: 0.5rem 0;
-        }
+.navbar-nav {
+    margin-left: 0;
+}
 
-        .nav-link:hover {
-            color: #555 !important;
-        }
+.nav-link {
+    color: #000 !important;
+    font-size: 1rem;
+    margin-right: 1rem;
+    padding: 0.5rem 0;
+}
 
-        .right-links {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-        }
+.nav-link:hover {
+    color: #555 !important;
+}
 
-        .container {
-            max-width: 1200px;
-            padding-top: 20px;
-            flex: 1;
-        }
+.right-links {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
 
-        .footer {
-            background-color: #f8f9fa;
-            color: #333;
-            padding: 1rem 0;
-            text-align: center;
-        }
+.container {
+    max-width: 1200px;
+    padding-top: 20px;
+    flex: 1;
+}
 
-        .footer p {
-            color: #333;
-            margin: 0;
-        }
+.footer {
+    background-color: #f8f9fa;
+    color: #333;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+.footer p {
+    color: #333;
+    margin: 0;
+}
 
 /* Ensure the parent section is positioned correctly */
 .image-section {
-    position: relative;  /* Ensures the child elements can be positioned relative to this */
-    display: flex;       /* Enable Flexbox */
-    justify-content: center;  /* Horizontal centering */
-    align-items: center;      /* Vertical centering */
-    height: 300px;       /* Ensure there's enough height to center the text */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
     background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg');
     background-size: cover;
     background-position: center;
 }
 
-/* Responsive font size and padding for overlay-text */
 .overlay-text {
     text-align: center;
     color: white;
@@ -122,496 +120,220 @@
     z-index: 2;
 }
 
-
 .overlay-text h2 {
-    font-size: 1.5rem; /* Smaller font size for mobile */
-    line-height: 1.4; /* Improved line height for better readability */
-    word-wrap: break-word; /* Force text to wrap if it's too long */
-    padding: 1px; /* Ensure some padding around the text */
+    font-size: 1.5rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    padding: 1px;
 }
 
-        
-        .text-section-image {
-            margin-top: 20px;
-        }
-
-        .nav-link {
-            color: #000 !important;
-            font-size: 1rem;
-            margin-right: 1rem;
-            padding: 0.5rem 0;
-        }
-        .nav-link:hover {
-            color: #555 !important;
-        }
-        .right-links {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-        }
-        .container {
-            max-width: 1200px;
-            padding-top: 20px;
-            flex: 1;
-        }
-        .footer {
-            background-color: #f8f9fa;
-            color: #333;
-            padding: 1rem 0;
-            text-align: center;
-        }
-        .footer p {
-            color: #333;
-            margin: 0;
-        }
-
-        /* Text Section */
-        .text-section {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-            text-align: center;
-        }
-
-        .text-section h1 {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
-        }
-
-        .text-section .btn {
-            font-size: 1rem;
-            padding: 0.8rem 2rem;
-            background-color: #000;
-            color: #fff;
-            font-weight: bold;
-            border: none;
-            text-transform: uppercase;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            text-decoration: none;
-        }
-
-        .text-section .btn:hover {
-            background-color: #444;
-            color: #fff;
-        }
-
-        /* Value Proposition and Other Sections */
-        .value-proposition-section, .why-investment-club-section {
-            background-color: #f8f9fa;
-            padding: 3rem 1rem;
-            width: 100%;
-            margin: 0;
-        }
-
-        .value-proposition-section h2, .why-investment-club-section h2 {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .value-item {
-            margin-bottom: 2rem;
-            max-width: 800px;
-            margin: 0 auto 2rem auto;
-            text-align: left;
-        }
-
-        .value-item h4 {
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .value-item p {
-            font-size: 1rem;
-            margin: 0;
-        }
-
-        .why-investment-club-section p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            text-align: justify;
-        }
-
-        /* Different background colors for indices labels */
-        .badge-tag {
-            padding: 0.3rem 0.6rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            margin-left: 0.5rem;
-            display: inline-block;
-        }
-
-        .badge-tag:nth-child(1) {
-            background-color: #007bff; /* Blue */
-            color: #fff;
-        }
-
-        .badge-tag:nth-child(2) {
-            background-color: #28a745; /* Green */
-            color: #fff;
-        }
-
-        .badge-tag:nth-child(3) {
-            background-color: #ffc107; /* Yellow */
-            color: #fff;
-        }
-
-        .badge-tag:nth-child(4) {
-            background-color: #dc3545; /* Red */
-            color: #fff;
-        }
-
-        .badge-tag:nth-child(5) {
-            background-color: #6f42c1; /* Purple */
-            color: #fff;
-        }
-
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml;charset=UTF8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' linecap='round' linejoin='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-        }
-
-        /* Fix for the ranking number */
-        .ranking-number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background-color: #000;
-            color: #fff;
-            padding: 0.5rem;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Grey overlay instead of blur */
-        .overlay-card {
-            position: relative;
-        }
-
-        /* Grey overlay for non-member cards */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Grey with 80% opacity */
-            z-index: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .overlay-content {
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-            z-index: 2;
-        }
-
-        /* Card layout and spacing */
-        .card {
-            margin-bottom: 1.5rem;
-            min-height: 300px;
-            position: relative;
-        }
-
-        .card-body {
-            position: relative;
-            z-index: 2; /* Ensure content is above the overlay */
-        }
-
-        .card-footer {
-            z-index: 2;
-        }
-
-        .card-img-top {
-            object-fit: contain;
-            max-height: 50px;
-            width: auto;
-            position: absolute;
-            top: 15px;
-            right: 15px;
-        }
-
-        /* Ensure the first card does not have the grey overlay */
-        .overlay-card:first-child .overlay {
-            display: none;
-        }
-
-
-
-    .matrix-section {
-        margin-top: 10px;
-        text-align: center;
-    }
-
-    .matrix-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-    }
-
-    .matrix-y-axis {
-        position: absolute;
-        top: 50%;
-        left: calc(50% - 305px); /* Centered relative to matrix, adjusted for spacing */
-        transform: translateY(-50%) rotate(-90deg);
-        font-size: 16px;
-        font-weight: bold;
-        color: #555;
-    }
-
-    .matrix-x-axis {
-        margin-top: 10px;
-        font-size: 16px;
-        font-weight: bold;
-        color: #555;
-    }
-
-    .matrix-grid {
-        display: flex;
-        flex-direction: column;
-        border: 2px solid #ddd;
-        padding: 10px;
-    }
-
-    .matrix-row {
-        display: flex;
-    }
-
-    .matrix-cell {
-        width: 200px;
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .image-section {
         height: 200px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        border: 2px solid #ddd;
-        margin: 5px;
-        background-color: #f8f8f8;
-        text-align: center;
-        font-size: 14px;
-        color: #777;
     }
 
-    .matrix-cell p {
-        margin: 0;
-        font-size: 14px;
+    .overlay-text h2 {
+        font-size: 1.2rem;
     }
 
-    .icon {
-        width: 50px;
-        height: 50px;
-        margin-bottom: 5px; /* Reduced space between icon and text */
+    .overlay-text {
+        padding: 5px;
     }
+}
 
-    /* Highlighted quadrant (top-right) */
-    .highlighted {
-        font-weight: bold;
-        color: white;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-    }
+/* Text Section */
+.text-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    text-align: center;
+}
 
-    /* Background color adjustments */
-    .low-return.high-consensus { background-color: #e0e0e0; }  /* Grey */
-    .low-return.low-consensus { background-color: #e0e0e0; }   /* Grey */
-    .high-return.low-consensus { background-color: #e0e0e0; }  /* Grey */
-    .high-return.high-consensus { background-color: #28a745; } /* Highlighted Green */
+.text-section h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
 
-    .matrix-container {
-        position: relative;
-    }
-
-
-
-
-
-/* Style the Join the Club button */
-.btn-black {
+.text-section .btn {
+    font-size: 1rem;
+    padding: 0.8rem 2rem;
     background-color: #000;
     color: #fff;
-    border: 2px solid #000;
-    padding: 10px 20px;
-    font-size: 1rem;
     font-weight: bold;
-    transition: all 0.3s ease;
+    border: none;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-decoration: none;
 }
 
-.btn-black:hover {
-    background-color: #fff;
-    color: #000;
+.text-section .btn:hover {
+    background-color: #444;
+    color: #fff;
 }
 
-.join-club-btn {
-    font-size: 1rem;
-    font-weight: bold;
+/* Value Proposition Section */
+.value-item {
+    margin-bottom: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
 }
 
-/* Always show Join the Club next to the hamburger menu on mobile */
-.navbar-toggler + .btn-black {
-    display: inline-block;
+/* Mobile Specific Adjustments */
+@media (max-width: 576px) {
+    .text-section h1 {
+        font-size: 1.8rem;
+    }
+
+    .text-section .btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.5rem;
+    }
+
+    .value-item {
+        max-width: 100%;
+    }
 }
 
+/* Matrix Section */
+.matrix-section {
+    margin-top: 10px;
+    text-align: center;
+}
 
-
-/* Hero Section Styles */
-.hero-section {
-    background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg'); /* Replace with a higher-quality image */
-    background-size: cover;
-    background-position: center;
-    height: 600px;  /* Increased height for more impact */
-    position: relative;
+.matrix-container {
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.hero-section .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);  /* Dark overlay for contrast */
-    z-index: 1;
-}
-
-.hero-section .overlay-text {
     position: relative;
-    z-index: 2;
-    text-align: center;
-    color: #fff;
 }
 
-.hero-section h1 {
-    font-size: 3.5rem;
+.matrix-y-axis {
+    position: absolute;
+    top: 50%;
+    left: calc(50% - 305px);
+    transform: translateY(-50%) rotate(-90deg);
+    font-size: 16px;
     font-weight: bold;
-    color: #fff;
-}
-
-.hero-section .lead {
-    font-size: 1.75rem;  /* Large font for better readability */
-    color: #fff;
-    margin-bottom: 30px;
-}
-
-.hero-cta {
-    font-size: 1.5rem;
-    padding: 15px 40px;
-    font-weight: bold;
-    text-transform: uppercase;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.hero-cta:hover {
-    background-color: #fff;
-    color: #007bff;
-    transform: scale(1.05);  /* Slight hover effect for button */
-}
-
-
-
-
-/* Key Membership Benefits Section (Namespaced to avoid conflicts) */
-.membership-benefit-card {
-    border: none;
-    background-color: #fff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.membership-benefit-card-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-top: 20px;
-    color: #333;
-}
-
-.membership-benefit-card-text {
-    font-size: 1rem;
     color: #555;
 }
 
-.membership-benefit-card i {
-    color: #007bff; /* Icon color for each card */
-    margin-bottom: 20px;
+.matrix-x-axis {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
 }
 
-.membership-benefit-card-body {
-    padding: 30px;
+.matrix-grid {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #ddd;
+    padding: 10px;
 }
 
-.membership-benefit-card:hover {
-    transform: scale(1.05);
-    transition: all 0.3s ease;
+.matrix-row {
+    display: flex;
+}
+
+.matrix-cell {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #ddd;
+    margin: 5px;
+    background-color: #f8f8f8;
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+}
+
+.matrix-cell p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 5px;
+}
+
+/* Responsive Adjustments for Matrix Section */
+@media (max-width: 768px) {
+    .matrix-cell {
+        width: 150px;
+        height: 150px;
+    }
+
+    .icon {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 576px) {
+    .matrix-cell {
+        width: 100px;
+        height: 100px;
+        font-size: 12px;
+    }
+
+    .icon {
+        width: 30px;
+        height: 30px;
+    }
 }
 
 /* Call to Action Section */
 .call-to-action-section {
     background-color: #f8f9fa;
     padding: 60px 0;
-}
-
-.call-to-action-btn {
-    font-size: 1.5rem;
-    padding: 15px 40px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    font-weight: bold;
-    text-transform: uppercase;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.call-to-action-btn:hover {
-    background-color: #0056b3;
-    color: #fff;
-}
-
-
-
-/* Call to Action Styles */
-.call-to-action {
-    background-color: #f8f9fa; /* Light background for contrast */
-    padding: 60px 20px;        /* Large padding for breathing space */
+    text-align: center;
 }
 
 .call-to-action h2 {
     font-size: 2rem;
-    color: #333;              /* Darker color for readability */
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
 }
 
 .call-to-action .join-club-btn {
     font-size: 1.5rem;
-    padding: 15px 40px;
+    padding: 15px 30px;
     background-color: #007bff;
-    color: #fff;
+    color: white;
     border: none;
-    border-radius: 50px;      /* Rounded corners for a modern look */
     font-weight: bold;
-    text-transform: uppercase;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
+    border-radius: 50px;
+    transition: all 0.3s ease;
 }
 
 .call-to-action .join-club-btn:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    transform: scale(1.05);    /* Slight zoom effect on hover */
+    background-color: white;
+    color: #007bff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Adjustments for Call to Action Section */
+@media (max-width: 768px) {
+    .call-to-action h2 {
+        font-size: 1.5rem;
+    }
+
+    .call-to-action .join-club-btn {
+        font-size: 1.2rem;
+        padding: 10px 20px;
+    }
 }
 
 /* Our Team Section */
 .our-team-section {
-    background-color: #fff; /* White background for a clean look */
+    background-color: #fff;
     padding: 50px 0;
 }
 
@@ -623,214 +345,25 @@
 }
 
 .member-photo img {
-    width: 100px; /* Smaller circular image */
+    width: 100px;
     height: 100px;
-    border-radius: 50%; /* Circular image */
-    object-fit: cover;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    border-radius: 50%;
 }
 
 .member-info {
-    margin-left: 20px; /* Space between image and text */
+    margin-left: 20px;
 }
 
-.member-info h4 {
-    font-size: 1.3rem; /* Adjusted font size */
-    margin-bottom: 0;
+@media (max-width: 768px) {
+    .team-member {
+        flex-direction: column;
+    }
+
+    .member-info {
+        margin-left: 0;
+        text-align: center;
+    }
 }
-
-.member-info p {
-    font-size: 1rem;
-    color: #555;
-    margin-top: 10px;
-}
-
-.linkedin-link {
-    color: #0077b5; /* LinkedIn brand color */
-    text-decoration: none;
-}
-
-.linkedin-link:hover {
-    color: #005582;
-}
-
-.linkedin-link i {
-    transition: color 0.3s ease;
-}
-
-
-
-
-
-/* General Styling for Report Sections */
-.report-page {
-    padding: 20px;
-}
-
-.hero-section {
-    height: 400px;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-}
-
-.overlay {
-    background-color: rgba(0, 0, 0, 0.6);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.overlay-text {
-    position: relative;
-    z-index: 2;
-    color: #fff;
-    text-align: center;
-}
-
-.section-title {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-}
-
-.section-content {
-    font-size: 1.1rem;
-    line-height: 1.6;
-}
-
-/* Financial Table Styling */
-.table {
-    margin-top: 20px;
-}
-
-
-/* Box Styling */
-.box {
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    background-color: #fff;
-}
-
-.box-body {
-    padding: 20px;
-}
-
-.box-footer {
-    padding: 10px;
-    background-color: #f8f9fa;
-}
-
-.box h5, .box h6, .box p {
-    margin-bottom: 10px;
-}
-
-/* Custom Styling for Numbers */
-.highlighted-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #007bff;
-}
-
-.number-description {
-    font-size: 1rem;
-    color: #666;
-}
-
-/* Button Styling */
-.btn-success {
-    background-color: #28a745;
-    border: none;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    border: none;
-}
-
-
-
-/* Styling for badges representing indices */
-.badge-tag {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.8rem;
-    border-radius: 12px;
-    margin-right: 5px;
-    background-color: #007bff;
-    color: #fff;
-}
-
-/* Styling for the containers */
-.container {
-    margin-top: 20px;
-}
-
-.bg-light {
-    background-color: #f8f9fa;
-}
-
-/* General padding and border-radius */
-.p-3 {
-    padding: 1rem;
-}
-
-.border {
-    border: 1px solid #ddd;
-}
-
-.rounded {
-    border-radius: 8px;
-}
-
-/* Image Styling */
-.img-fluid {
-    max-width: 100%;
-    height: auto;
-}
-
-/* Additional styling for stock links */
-h4 a {
-    text-decoration: none;
-    color: #007bff;
-}
-
-h4 a:hover {
-    text-decoration: underline;
-    color: #0056b3;
-}
-
-
-
-
-/* Custom styling for SWOT sections presented as elegant cards */
-.swot-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f8f9fa;
-    padding: 10px;
-    transition: background-color 0.3s ease;
-}
-
-.swot-card:hover {
-    background-color: #e2e6ea;
-}
-
-.swot-link {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.swot-link:hover {
-    color: #0056b3;
-    text-decoration: underline;
-}
-
-
-
 
 /* Email Form Styling */
 .email-form {
@@ -847,11 +380,10 @@ h4 a:hover {
 .email-input {
     width: 100%;
     padding: 20px;
-    padding-right: 120px; /* Adjusted to make space for the button */
+    padding-right: 120px;
     border-radius: 50px;
     font-size: 1.2rem;
     border: 2px solid #007bff;
-    box-shadow: none;
 }
 
 .email-submit {
@@ -875,10 +407,114 @@ h4 a:hover {
     border: 2px solid #007bff;
 }
 
-/* Focus effect */
 .email-input:focus {
     box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
     border-color: #007bff;
 }
 
+/* Responsive adjustments for Email Form */
+@media (max-width: 576px) {
+    .email-input {
+        font-size: 1rem;
+        padding: 15px;
+        padding-right: 100px;
+    }
+
+    .email-submit {
+        font-size: 1rem;
+        padding: 0 20px;
+    }
+}
+
+/* Hero Section Styles */
+.hero-section {
+    background-image: url('https://raw.githubusercontent.com/maxime0010/investments_app/main/templates/images/One-World-superJumbo.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 600px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-section .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.hero-section .overlay-text {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.hero-section .lead {
+    font-size: 1.75rem;
+    color: #fff;
+    margin-bottom: 30px;
+}
+
+.hero-cta {
+    font-size: 1.5rem;
+    padding: 15px 40px;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.hero-cta:hover {
+    background-color: white;
+    color: #007bff;
+    transform: scale(1.05);
+}
+
+/* Responsive Adjustments for Hero Section */
+@media (max-width: 768px) {
+    .hero-section {
+        height: 400px;
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero-section .lead {
+        font-size: 1.25rem;
+    }
+
+    .hero-cta {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        height: 300px;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+
+    .hero-section .lead {
+        font-size: 1rem;
+    }
+
+    .hero-cta {
+        font-size: 1rem;
+    }
 }
