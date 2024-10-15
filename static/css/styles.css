@@ -1007,56 +1007,67 @@ h4 a:hover {
     text-decoration: underline;
 }
 
+
+
+
 /* Email Form Styling */
 .email-form {
     max-width: 600px;
     margin: 0 auto;
 }
 
-.input-group {
+.email-input-wrapper {
+    position: relative;
     display: flex;
-    align-items: stretch;
+    width: 100%;
 }
 
-.input-group .form-control {
-    border-radius: 50px 0 0 50px;
+.email-input {
+    width: 100%;
     padding: 20px;
+    padding-right: 120px; /* Adjusted to make space for the button */
+    border-radius: 50px;
     font-size: 1.2rem;
     border: 2px solid #007bff;
     box-shadow: none;
 }
 
-.input-group-append .btn {
+.email-submit {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
     border-radius: 0 50px 50px 0;
-    padding: 0 30px;
-    font-size: 1.2rem;
-    font-weight: bold;
     background-color: #007bff;
     color: white;
-    border: 2px solid #007bff;
+    font-size: 1.2rem;
+    padding: 0 30px;
+    border: none;
+    font-weight: bold;
     transition: all 0.3s ease;
 }
 
-.input-group-append .btn:hover {
+.email-submit:hover {
     background-color: white;
     color: #007bff;
-    border-color: #007bff;
+    border: 2px solid #007bff;
 }
 
-/* Focus effects */
-.input-group .form-control:focus {
+/* Focus effect */
+.email-input:focus {
     box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
     border-color: #007bff;
 }
 
-/* Responsive styling for mobile */
+/* Responsive Styling */
 @media (max-width: 576px) {
-    .input-group .form-control {
+    .email-input {
         font-size: 1rem;
         padding: 15px;
+        padding-right: 100px;
     }
 
-    .input-group-append .btn {
+    .email-submit {
         font-size: 1rem;
         padding: 0 20px;
     }
