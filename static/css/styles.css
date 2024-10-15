@@ -882,3 +882,46 @@ h4 a:hover {
 }
 
 }
+
+
+
+@media (max-width: 576px) {
+    .matrix-y-axis {
+        left: calc(50% - 200px); /* Further adjust axis for small screens */
+    }
+
+    .matrix-cell {
+        width: 100px;
+        height: 100px; /* Smaller cells for mobile */
+        font-size: 10px; /* Smaller font size */
+    }
+
+    .icon {
+        width: 30px;
+        height: 30px; /* Smaller icons for mobile */
+        margin-bottom: 2px; /* Minimal spacing between icon and text */
+    }
+}
+
+@media (max-width: 768px) {
+    .matrix-y-axis {
+        left: calc(50% - 270px); /* Adjust the axis closer to the center */
+        font-size: 14px; /* Smaller font size for the axis */
+    }
+
+    .matrix-x-axis {
+        font-size: 14px; /* Smaller font size for the axis */
+    }
+
+    .matrix-cell {
+        width: 150px;
+        height: 150px; /* Smaller cells */
+        font-size: 12px; /* Smaller font size for text */
+    }
+
+    .icon {
+        width: 40px;
+        height: 40px; /* Smaller icons */
+        margin-bottom: 3px; /* Reduce spacing between icon and text */
+    }
+}
