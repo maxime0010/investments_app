@@ -41,6 +41,7 @@ YOUR_DOMAIN = os.getenv('YOUR_DOMAIN', 'http://localhost:5000')
 configuration = sib_api_v3_sdk.Configuration()
 configuration.api_key['api-key'] = os.getenv('BREVO_API_KEY')
 
+
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp-relay.sendinblue.com'
 app.config['MAIL_PORT'] = 587
@@ -600,11 +601,12 @@ def profile():
     return render_template('profile.html', email=email, subscription_status=subscription_status, customer_id=customer_id)
 
 
-# Function to send a password reset email using Brevo API
 def send_reset_password_email(user_email, reset_url):
+    print(f"Preparing to send email to {user_email} with reset link {reset_url}")
+    
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     subject = "Reset your Good Life Password"
-    sender = {"name":"Good Life Support","email":"support@goodlife.money"}
+    sender = {"name":"Good Life Support","email":"hello@goodlife.money"}
     receivers = [{"email":user_email}]
     content = f"""
     <h3>Password Reset Request</h3>
@@ -619,36 +621,45 @@ def send_reset_password_email(user_email, reset_url):
         html_content=content
     )
     try:
-        api_instance.send_transac_email(email)
-        print(f"Reset email sent to {user_email}")
+        # Attempt to send the email
+        print(f"Sending email to: {user_email}")
+        response = api_instance.send_transac_email(email)
+        print(f"Email sent successfully: {response}")
     except ApiException as e:
         print(f"Failed to send email: {e}")
+        raise
 
-# Forgot password route
+
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form['email']
+        print(f"Processing forgot password for email: {email}")  # Debugging print
+
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
-
-        if user:
-            # Generate the token
-            token = serializer.dumps(user['id'], salt='password-reset-salt')
-            # Build the reset URL
-            reset_url = url_for('reset_password', token=token, _external=True)
-            # Send reset email
-            send_reset_password_email(email, reset_url)
-            flash('A password reset link has been sent to your email.', 'success')
-        else:
-            flash('No account found with that email.', 'danger')
-
         cursor.close()
         conn.close()
 
+        if user:
+            print(f"User found: {user}")  # Debugging print
+
+            # Generate the token
+            token = serializer.dumps(user['id'], salt='password-reset-salt')
+            reset_url = url_for('reset_password', token=token, _external=True)
+            print(f"Reset URL: {reset_url}")  # Debugging print
+            
+            # Send the reset email
+            send_reset_password_email(email, reset_url)
+            flash('A password reset link has been sent to your email.', 'success')
+        else:
+            print(f"No user found with email: {email}")  # Debugging print
+            flash('No account found with that email.', 'danger')
+
     return render_template('forgot_password.html')
+
 
 # Reset password route
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
