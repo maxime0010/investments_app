@@ -10,6 +10,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
 from functools import wraps
 from mysql.connector import Error
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
+from itsdangerous import URLSafeTimedSerializer
 
 
 # Helper function to calculate annualized return
@@ -31,6 +34,10 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 # Stripe configuration
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 YOUR_DOMAIN = os.getenv('YOUR_DOMAIN', 'http://localhost:5000')
+
+# Brevo (Sendinblue) Configuration
+configuration = sib_api_v3_sdk.Configuration()
+configuration.api_key['api-key'] = os.getenv('BREVO_API_KEY')
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp-relay.sendinblue.com'
@@ -591,20 +598,47 @@ def profile():
     return render_template('profile.html', email=email, subscription_status=subscription_status, customer_id=customer_id)
 
 
+# Function to send a password reset email using Brevo API
+def send_reset_password_email(user_email, reset_url):
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+    subject = "Reset your Good Life Password"
+    sender = {"name":"Good Life Support","email":"support@goodlife.money"}
+    receivers = [{"email":user_email}]
+    content = f"""
+    <h3>Password Reset Request</h3>
+    <p>Please click the link below to reset your password:</p>
+    <a href="{reset_url}">{reset_url}</a>
+    <p>This link will expire in 1 hour.</p>
+    """
+    email = sib_api_v3_sdk.SendSmtpEmail(
+        to=receivers,
+        sender=sender,
+        subject=subject,
+        html_content=content
+    )
+    try:
+        api_instance.send_transac_email(email)
+        print(f"Reset email sent to {user_email}")
+    except ApiException as e:
+        print(f"Failed to send email: {e}")
 
-
+# Forgot password route
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form['email']
-
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
         if user:
-            send_reset_password_email(user['email'], user['id'])
+            # Generate the token
+            token = serializer.dumps(user['id'], salt='password-reset-salt')
+            # Build the reset URL
+            reset_url = url_for('reset_password', token=token, _external=True)
+            # Send reset email
+            send_reset_password_email(email, reset_url)
             flash('A password reset link has been sent to your email.', 'success')
         else:
             flash('No account found with that email.', 'danger')
@@ -614,31 +648,31 @@ def forgot_password():
 
     return render_template('forgot_password.html')
 
-def send_reset_password_email(email, user_id):
-    reset_url = url_for('reset_password', user_id=user_id, _external=True)
-    subject = "Reset your password"
-    html = render_template('email/reset_password.html', reset_url=reset_url)
-    msg = Message(subject, recipients=[email], html=html)
-    mail.send(msg)
+# Reset password route
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        user_id = serializer.loads(token, salt='password-reset-salt', max_age=3600)
+    except Exception as e:
+        flash('The reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('forgot_password'))
 
-@app.route('/reset-password/<int:user_id>', methods=['GET', 'POST'])
-def reset_password(user_id):
     if request.method == 'POST':
-        password = request.form['password']
-        password_hash = generate_password_hash(password)
+        new_password = request.form['password']
+        password_hash = generate_password_hash(new_password)
 
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
         cursor.execute("UPDATE users SET password_hash = %s WHERE id = %s", (password_hash, user_id))
         conn.commit()
-
         cursor.close()
         conn.close()
 
-        flash('Your password has been reset. Please log in.', 'success')
+        flash('Your password has been updated. Please log in.', 'success')
         return redirect(url_for('login'))
 
-    return render_template('reset_password.html', user_id=user_id)
+    return render_template('reset_password.html')
+
 
 @app.route('/weekly_updates')
 def weekly_updates():
