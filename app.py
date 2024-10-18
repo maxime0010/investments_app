@@ -169,6 +169,8 @@ def get_top_stocks(latest_date):
     conn.close()
     return top_stocks
 
+    if not top_stocks:
+        flash('No stocks found for the selected date. Please try again later.', 'warning')
 
 
 @app.route('/pro')
