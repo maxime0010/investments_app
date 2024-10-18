@@ -14,9 +14,6 @@ import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from itsdangerous import URLSafeTimedSerializer
 
-# Initialize the serializer for generating and verifying tokens
-serializer = URLSafeTimedSerializer(app.secret_key)
-
 # Helper function to calculate annualized return
 def calculate_annualized_return(start_value, end_value, start_date, end_date):
     # Calculate the time difference in years
@@ -32,6 +29,9 @@ def calculate_annualized_return(start_value, end_value, start_date, end_date):
     
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
+
+# Initialize the serializer for generating and verifying tokens
+serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Stripe configuration
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
