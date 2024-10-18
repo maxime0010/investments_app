@@ -14,6 +14,8 @@ import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from itsdangerous import URLSafeTimedSerializer
 
+# Initialize the serializer for generating and verifying tokens
+serializer = URLSafeTimedSerializer(app.secret_key)
 
 # Helper function to calculate annualized return
 def calculate_annualized_return(start_value, end_value, start_date, end_date):
