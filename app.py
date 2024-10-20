@@ -619,6 +619,8 @@ def send_reset_password_email(user_email, reset_url):
         sender=sender,
         subject=subject,
         html_content=content
+        track_clicks=False  # Disable link tracking
+
     )
     try:
         # Attempt to send the email
