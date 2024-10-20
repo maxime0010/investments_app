@@ -48,7 +48,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('BREVO_EMAIL')
 app.config['MAIL_PASSWORD'] = os.getenv('BREVO_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'hello@goodlife.money')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'maxime@maximegfeller.me')
 
 mail = Mail(app)
 
@@ -606,7 +606,7 @@ def send_reset_password_email(user_email, reset_url):
     
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     subject = "Reset your Good Life Password"
-    sender = {"name":"Good Life Support","email":"hello@goodlife.money"}
+    sender = {"name":"Good Life Support","email":"hello@maximegfeller.me"}
     receivers = [{"email":user_email}]
     content = f"""
     <h3>Password Reset Request</h3>
