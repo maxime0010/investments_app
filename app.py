@@ -618,7 +618,7 @@ def send_reset_password_email(user_email, reset_url):
         to=receivers,
         sender=sender,
         subject=subject,
-        html_content=content
+        html_content=content,
         track_clicks=False  # Disable link tracking
 
     )
