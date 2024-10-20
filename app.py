@@ -606,22 +606,26 @@ def send_reset_password_email(user_email, reset_url):
     
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     subject = "Reset your Good Life Password"
-    sender = {"name":"Good Life 💵 Support","email":"hello@maximegfeller.me"}
-    receivers = [{"email":user_email}]
+    sender = {"name": "Good Life 💵 Support", "email": "hello@maximegfeller.me"}
+    receivers = [{"email": user_email}]
     content = f"""
     <h3>Password Reset Request</h3>
     <p>Please click the link below to reset your password:</p>
     <a href="{reset_url}">{reset_url}</a>
     <p>This link will expire in 1 hour.</p>
     """
+    
+    # Define the email
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=receivers,
         sender=sender,
         subject=subject,
         html_content=content,
-        track_clicks=False  # Disable link tracking
-
+        params={
+            'track_clicks': False  # Disable link tracking here
+        }
     )
+    
     try:
         # Attempt to send the email
         print(f"Sending email to: {user_email}")
@@ -630,6 +634,7 @@ def send_reset_password_email(user_email, reset_url):
     except ApiException as e:
         print(f"Failed to send email: {e}")
         raise
+
 
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
