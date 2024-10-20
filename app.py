@@ -37,11 +37,6 @@ serializer = URLSafeTimedSerializer(app.secret_key)
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 YOUR_DOMAIN = os.getenv('YOUR_DOMAIN', 'http://localhost:5000')
 
-# Brevo (Sendinblue) Configuration
-configuration = sib_api_v3_sdk.Configuration()
-configuration.api_key['api-key'] = os.getenv('BREVO_API_KEY')
-
-
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp-relay.brevo.com'
 app.config['MAIL_PORT'] = 587
@@ -601,29 +596,35 @@ def profile():
     return render_template('profile.html', email=email, subscription_status=subscription_status, customer_id=customer_id)
 
 
+# Initialize Brevo (Sendinblue) configuration
+def setup_brevo_api():
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = os.getenv('BREVO_API_KEY')  # Ensure you are using environment variables
+    return sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+
+
 def send_reset_password_email(user_email, reset_url):
-    print(f"Preparing to send email to {user_email} with reset link {reset_url}")
-    
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+    # Setting up Brevo API client
+    api_instance = setup_brevo_api()
     subject = "Reset your Good Life Password"
     sender = {"name": "Good Life 💵 Support", "email": "hello@maximegfeller.me"}
     receivers = [{"email": user_email}]
+    
+    # Email content
     content = f"""
     <h3>Password Reset Request</h3>
     <p>Please click the link below to reset your password:</p>
     <a href="{reset_url}">{reset_url}</a>
     <p>This link will expire in 1 hour.</p>
     """
-    
-    # Define the email
+
+    # Build the email object
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=receivers,
         sender=sender,
         subject=subject,
         html_content=content,
-        params={
-            'track_clicks': False  # Disable link tracking here
-        }
+        
     )
     
     try:
