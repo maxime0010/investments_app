@@ -43,7 +43,7 @@ configuration.api_key['api-key'] = os.getenv('BREVO_API_KEY')
 
 
 # Flask-Mail configuration
-app.config['MAIL_SERVER'] = 'smtp-relay.sendinblue.com'
+app.config['MAIL_SERVER'] = 'smtp-relay.brevo.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('BREVO_EMAIL')
