@@ -661,11 +661,11 @@ def forgot_password():
     return render_template('forgot_password.html')
 
 
-# Reset password route
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     try:
         user_id = serializer.loads(token, salt='password-reset-salt', max_age=3600)
+        print(f"Token valid for user ID: {user_id}")  # Debugging print
     except Exception as e:
         flash('The reset link is invalid or has expired.', 'danger')
         return redirect(url_for('forgot_password'))
@@ -673,6 +673,7 @@ def reset_password(token):
     if request.method == 'POST':
         new_password = request.form['password']
         password_hash = generate_password_hash(new_password)
+        print(f"New password set for user ID: {user_id}")  # Debugging print
 
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
@@ -684,7 +685,9 @@ def reset_password(token):
         flash('Your password has been updated. Please log in.', 'success')
         return redirect(url_for('login'))
 
-    return render_template('reset_password.html')
+    # Pass the token to the template
+    return render_template('reset_password.html', token=token)
+
 
 
 @app.route('/weekly_updates')
