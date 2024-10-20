@@ -606,7 +606,7 @@ def send_reset_password_email(user_email, reset_url):
     
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     subject = "Reset your Good Life Password"
-    sender = {"name":"Good Life Support","email":"hello@maximegfeller.me"}
+    sender = {"name":"Good Life 💵 Support","email":"hello@maximegfeller.me"}
     receivers = [{"email":user_email}]
     content = f"""
     <h3>Password Reset Request</h3>
