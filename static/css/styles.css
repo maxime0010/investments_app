@@ -149,11 +149,6 @@
             display: flex;
             align-items: center;
         }
-        .container {
-            max-width: 1200px;
-            padding-top: 20px;
-            flex: 1;
-        }
         .footer {
             background-color: #f8f9fa;
             color: #333;
@@ -932,9 +927,7 @@
 }
 
 /* Styling for the containers */
-.container {
-    margin-top: 20px;
-}
+
 
 .bg-light {
     background-color: #f8f9fa;
