@@ -1081,9 +1081,17 @@ def data_overview():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch the number of analyst ratings for each year from 2021 to 2024
+    # Fetch the number of analyst ratings for each year from 2013 to 2024
     query_ratings = """
         SELECT r.ticker,
+               SUM(CASE WHEN YEAR(r.date) = 2013 THEN 1 ELSE 0 END) AS ratings_2013,
+               SUM(CASE WHEN YEAR(r.date) = 2014 THEN 1 ELSE 0 END) AS ratings_2014,
+               SUM(CASE WHEN YEAR(r.date) = 2015 THEN 1 ELSE 0 END) AS ratings_2015,
+               SUM(CASE WHEN YEAR(r.date) = 2016 THEN 1 ELSE 0 END) AS ratings_2016,
+               SUM(CASE WHEN YEAR(r.date) = 2017 THEN 1 ELSE 0 END) AS ratings_2017,
+               SUM(CASE WHEN YEAR(r.date) = 2018 THEN 1 ELSE 0 END) AS ratings_2018,
+               SUM(CASE WHEN YEAR(r.date) = 2019 THEN 1 ELSE 0 END) AS ratings_2019,
+               SUM(CASE WHEN YEAR(r.date) = 2020 THEN 1 ELSE 0 END) AS ratings_2020,
                SUM(CASE WHEN YEAR(r.date) = 2021 THEN 1 ELSE 0 END) AS ratings_2021,
                SUM(CASE WHEN YEAR(r.date) = 2022 THEN 1 ELSE 0 END) AS ratings_2022,
                SUM(CASE WHEN YEAR(r.date) = 2023 THEN 1 ELSE 0 END) AS ratings_2023,
@@ -1094,9 +1102,17 @@ def data_overview():
     cursor.execute(query_ratings)
     ratings_data = cursor.fetchall()
 
-    # Fetch the number of stock prices for each year from 2021 to 2024
+    # Fetch the number of stock prices for each year from 2013 to 2024
     query_prices = """
         SELECT p.ticker,
+               SUM(CASE WHEN YEAR(p.date) = 2013 THEN 1 ELSE 0 END) AS prices_2013,
+               SUM(CASE WHEN YEAR(p.date) = 2014 THEN 1 ELSE 0 END) AS prices_2014,
+               SUM(CASE WHEN YEAR(p.date) = 2015 THEN 1 ELSE 0 END) AS prices_2015,
+               SUM(CASE WHEN YEAR(p.date) = 2016 THEN 1 ELSE 0 END) AS prices_2016,
+               SUM(CASE WHEN YEAR(p.date) = 2017 THEN 1 ELSE 0 END) AS prices_2017,
+               SUM(CASE WHEN YEAR(p.date) = 2018 THEN 1 ELSE 0 END) AS prices_2018,
+               SUM(CASE WHEN YEAR(p.date) = 2019 THEN 1 ELSE 0 END) AS prices_2019,
+               SUM(CASE WHEN YEAR(p.date) = 2020 THEN 1 ELSE 0 END) AS prices_2020,
                SUM(CASE WHEN YEAR(p.date) = 2021 THEN 1 ELSE 0 END) AS prices_2021,
                SUM(CASE WHEN YEAR(p.date) = 2022 THEN 1 ELSE 0 END) AS prices_2022,
                SUM(CASE WHEN YEAR(p.date) = 2023 THEN 1 ELSE 0 END) AS prices_2023,
@@ -1118,10 +1134,26 @@ def data_overview():
 
         data_overview.append({
             'ticker': ticker,
+            'ratings_2013': ratings.get('ratings_2013', 0),
+            'ratings_2014': ratings.get('ratings_2014', 0),
+            'ratings_2015': ratings.get('ratings_2015', 0),
+            'ratings_2016': ratings.get('ratings_2016', 0),
+            'ratings_2017': ratings.get('ratings_2017', 0),
+            'ratings_2018': ratings.get('ratings_2018', 0),
+            'ratings_2019': ratings.get('ratings_2019', 0),
+            'ratings_2020': ratings.get('ratings_2020', 0),
             'ratings_2021': ratings.get('ratings_2021', 0),
             'ratings_2022': ratings.get('ratings_2022', 0),
             'ratings_2023': ratings.get('ratings_2023', 0),
             'ratings_2024': ratings.get('ratings_2024', 0),
+            'prices_2013': prices.get('prices_2013', 0),
+            'prices_2014': prices.get('prices_2014', 0),
+            'prices_2015': prices.get('prices_2015', 0),
+            'prices_2016': prices.get('prices_2016', 0),
+            'prices_2017': prices.get('prices_2017', 0),
+            'prices_2018': prices.get('prices_2018', 0),
+            'prices_2019': prices.get('prices_2019', 0),
+            'prices_2020': prices.get('prices_2020', 0),
             'prices_2021': prices.get('prices_2021', 0),
             'prices_2022': prices.get('prices_2022', 0),
             'prices_2023': prices.get('prices_2023', 0),
@@ -1132,6 +1164,7 @@ def data_overview():
     conn.close()
 
     return render_template('data.html', data_overview=data_overview)
+
 
 @app.errorhandler(404)
 def page_not_found(e):
