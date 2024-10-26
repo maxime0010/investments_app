@@ -341,26 +341,7 @@
             display: none;
         }
 
-/* Media queries for responsive design */
-@media (max-width: 768px) {
-    .image-section {
-        height: 200px; /* Adjust height for small screens */
-    }
 
-    .overlay-text h2 {
-        font-size: 1.2rem; /* Adjust font size for small screens */
-    }
-
-    .overlay-text {
-        padding: 5px; /* Adjust padding for small screens */
-    }
-}
-
-@media (max-width: 576px) {
-    .overlay-text h2 {
-        font-size: 1rem; /* Even smaller font size for extra-small screens */
-    }
-}
       
 
 @media (max-width: 768px) {
@@ -527,16 +508,7 @@
     display: inline-block;
 }
 
-/* Hide the Join the Club button for mobile when the menu is open */
-@media (min-width: 992px) {
-    .d-lg-none {
-        display: none !important;
-    }
 
-    .d-lg-block {
-        display: inline-block !important;
-    }
-}
 
 
 /* Hero Section Styles */
@@ -595,42 +567,7 @@
     transform: scale(1.05);  /* Slight hover effect for button */
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .hero-section {
-        height: 400px;  /* Smaller height for tablet */
-    }
 
-    .hero-section h1 {
-        font-size: 2.5rem;  /* Adjusted font size for smaller screens */
-    }
-
-    .hero-section .lead {
-        font-size: 1.25rem;  /* Adjusted font size for smaller screens */
-    }
-
-    .hero-cta {
-        font-size: 1.2rem;  /* Adjusted button size for smaller screens */
-    }
-}
-
-@media (max-width: 576px) {
-    .hero-section {
-        height: 300px;  /* Smaller height for mobile */
-    }
-
-    .hero-section h1 {
-        font-size: 2rem;
-    }
-
-    .hero-section .lead {
-        font-size: 1rem;
-    }
-
-    .hero-cta {
-        font-size: 1rem;
-    }
-}
 
 
 /* Key Membership Benefits Section (Namespaced to avoid conflicts) */
@@ -688,42 +625,7 @@
     color: #fff;
 }
 
-/* Additional responsive adjustments if necessary */
-@media (max-width: 768px) {
-    .hero-section {
-        height: 300px;
-    }
 
-    .hero-section h1 {
-        font-size: 2rem;
-    }
-
-    .hero-section p {
-        font-size: 1.2rem;
-    }
-
-    .hero-cta {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .hero-section {
-        height: 250px;
-    }
-
-    .hero-section h1 {
-        font-size: 1.8rem;
-    }
-
-    .hero-section p {
-        font-size: 1rem;
-    }
-
-    .hero-cta {
-        font-size: 0.9rem;
-    }
-}
 
 
 
@@ -806,23 +708,7 @@
     transition: color 0.3s ease;
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
-    .team-member {
-        flex-direction: column;
-        text-align: center;
-    }
 
-    .member-info {
-        margin-left: 0;
-        margin-top: 15px;
-    }
-
-    .member-photo img {
-        width: 80px;
-        height: 80px;
-    }
-}
 
 
 /* General Styling for Report Sections */
@@ -963,17 +849,7 @@ h4 a:hover {
     color: #0056b3;
 }
 
-/* Responsive layout adjustments */
-@media (max-width: 768px) {
-    .badge-tag {
-        font-size: 0.7rem;
-        padding: 0.3rem 0.5rem;
-    }
 
-    .rounded {
-        margin-bottom: 15px;
-    }
-}
 
 
 /* Custom styling for SWOT sections presented as elegant cards */
@@ -1049,19 +925,6 @@ h4 a:hover {
     border-color: #007bff;
 }
 
-/* Responsive Styling */
-@media (max-width: 576px) {
-    .email-input {
-        font-size: 1rem;
-        padding: 15px;
-        padding-right: 100px;
-    }
-
-    .email-submit {
-        font-size: 1rem;
-        padding: 0 20px;
-    }
-}
 
 
 /* General mobile adjustments */
