@@ -1361,6 +1361,38 @@ def monthly_variations():
     return render_template('monthly_variations.html', data=data)
 
 
+@app.route('/performance10')
+def performance10():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch actual portfolio values and S&P 500 data from portfolio10 table
+    cursor.execute("""
+        SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+               (SELECT close 
+                FROM prices sp 
+                WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+        FROM portfolio10 p
+        GROUP BY p.date
+        ORDER BY p.date
+    """)
+    portfolio_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # Extract data for chart display
+    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
+    simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
+    sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
+
+    return render_template('performance10.html', 
+                           dates_simulation=dates_simulation, 
+                           simulation_values=simulation_values, 
+                           sp500_values_simulation=sp500_values_simulation)
+
+
 
 if __name__ == '__main__':
     app.debug = True
