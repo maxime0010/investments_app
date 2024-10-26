@@ -1062,3 +1062,162 @@ h4 a:hover {
         padding: 0 20px;
     }
 }
+
+
+/* General mobile adjustments */
+@media (max-width: 768px) {
+    /* Navbar adjustments for smaller screens */
+    .navbar {
+        padding: 0.5rem;
+    }
+
+    .navbar-brand {
+        font-size: 1rem;
+    }
+
+    .navbar-toggler {
+        padding: 0.25rem 0.75rem;
+    }
+
+    .nav-link {
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+    }
+
+    .join-club-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Table adjustments for smaller screens */
+    .table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table th, .table td {
+        white-space: nowrap;
+    }
+
+    /* Text and button size adjustments */
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .text-section h1 {
+        font-size: 1.5rem;
+    }
+
+    .text-section .btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.5rem;
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+
+    /* Reduce height of hero section */
+    .hero-section {
+        height: 300px;
+    }
+
+    .hero-cta {
+        font-size: 1rem;
+        padding: 0.5rem 1.5rem;
+    }
+
+    /* General padding and margin adjustments */
+    .container {
+        padding: 0 10px;
+    }
+
+    .text-section {
+        padding: 1rem 0.5rem;
+    }
+
+    .value-item {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Further adjustments for extra-small screens */
+@media (max-width: 576px) {
+    /* Navbar and button adjustments */
+    .join-club-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    /* Hero section adjustments */
+    .hero-section {
+        height: 250px;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+
+    .hero-cta {
+        font-size: 0.9rem;
+        padding: 0.4rem 1.2rem;
+    }
+
+    /* Footer layout for smaller screens */
+    .footer {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .footer p {
+        margin-bottom: 0.5rem;
+    }
+
+    /* Card layout for small screens */
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Adjustments for very small screens (e.g., mobile phones) */
+@media (max-width: 576px) {
+    /* Table adjustments */
+    .table th, .table td {
+        font-size: 0.8rem;
+    }
+
+    /* Reduce padding for buttons */
+    .btn {
+        padding: 0.5rem;
+    }
+
+    /* Further adjustments for hero section */
+    .hero-section {
+        height: 250px;
+    }
+
+    .hero-section h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero-section p {
+        font-size: 1rem;
+    }
+
+    /* Further footer adjustments */
+    .footer {
+        padding: 0.5rem;
+    }
+
+    /* Adjust card padding */
+    .card-body {
+        padding: 0.75rem;
+    }
+}
