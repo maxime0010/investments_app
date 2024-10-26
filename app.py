@@ -1323,6 +1323,42 @@ def sitemap():
 
     return response
 
+@app.route('/monthly-variations')
+def monthly_variations():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch S&P 500 and portfolio values at the last day of each month since Oct 1st, 2014
+    query = """
+    SELECT DATE_FORMAT(date, '%Y-%m') AS month,
+           MAX(CASE WHEN ticker = 'SPX' THEN close END) AS sp500_close,
+           MAX(CASE WHEN ticker = 'PORTFOLIO' THEN close END) AS portfolio_close
+    FROM portfolio10
+    WHERE date >= '2014-10-01'
+    GROUP BY DATE_FORMAT(date, '%Y-%m')
+    ORDER BY DATE_FORMAT(date, '%Y-%m')
+    """
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    # Calculate variations
+    for i in range(1, len(data)):
+        sp500_prev = data[i-1]['sp500_close']
+        portfolio_prev = data[i-1]['portfolio_close']
+        
+        sp500_curr = data[i]['sp500_close']
+        portfolio_curr = data[i]['portfolio_close']
+        
+        # Calculate monthly variations
+        data[i]['sp500_variation'] = ((sp500_curr - sp500_prev) / sp500_prev) * 100 if sp500_prev else None
+        data[i]['portfolio_variation'] = ((portfolio_curr - portfolio_prev) / portfolio_prev) * 100 if portfolio_prev else None
+        
+        # Calculate delta
+        data[i]['delta'] = data[i]['portfolio_variation'] - data[i]['sp500_variation'] if data[i]['portfolio_variation'] is not None and data[i]['sp500_variation'] is not None else None
+
+    return render_template('monthly_variations.html', data=data)
 
 
 
