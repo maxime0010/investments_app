@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Monthly Variations{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Monthly Variations - S&P 500 vs Portfolio</h1>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Month</th>
+                <th scope="col">S&P 500 Variation (%)</th>
+                <th scope="col">Portfolio Variation (%)</th>
+                <th scope="col">Delta (Portfolio - S&P 500)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in data %}
+            <tr>
+                <td>{{ entry.month }}</td>
+                <td class="{{ 'positive' if entry.sp500_variation > 0 else 'negative' }}">{{ entry.sp500_variation | default('-', true) }}</td>
+                <td class="{{ 'positive' if entry.portfolio_variation > 0 else 'negative' }}">{{ entry.portfolio_variation | default('-', true) }}</td>
+                <td class="{{ 'positive' if entry.delta > 0 else 'negative' }}">{{ entry.delta | default('-', true) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
