@@ -135,7 +135,7 @@ def fetch_stock_prices(ticker):
 def get_latest_portfolio_date():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    cursor.execute("SELECT MAX(date) FROM portfolio_simulation")
+    cursor.execute("SELECT MAX(date) FROM portfolio10")
     latest_date = cursor.fetchone()[0]
     cursor.close()
     conn.close()
@@ -154,7 +154,7 @@ def get_top_stocks(latest_date):
         SELECT p.ticker, MAX(r.name) as name, a.last_closing_price AS last_price, 
                a.expected_return_combined_criteria, a.num_combined_criteria, MAX(p.ranking) as ranking, 
                MAX(a.avg_combined_criteria) as target_price, s.indices
-        FROM portfolio_simulation p
+        FROM portfolio10 p
         JOIN analysis_simulation a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         JOIN stock s ON s.ticker = p.ticker
@@ -256,7 +256,7 @@ def stock_detail(ticker):
         latest_date = get_latest_portfolio_date()
         cursor.execute("""
             SELECT ticker
-            FROM portfolio_simulation
+            FROM portfolio10
             WHERE ticker = %s AND date = %s
         """, (ticker, latest_date))
         stock_in_portfolio = cursor.fetchone() is not None
