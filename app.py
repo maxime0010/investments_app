@@ -1310,7 +1310,7 @@ def monthly_variations():
 
 
 @app.route('/performance')
-def performance10():
+def performance():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -1335,7 +1335,7 @@ def performance10():
     simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
     sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
 
-    return render_template('performance10.html', 
+    return render_template('performance.html', 
                            dates_simulation=dates_simulation, 
                            simulation_values=simulation_values, 
                            sp500_values_simulation=sp500_values_simulation)
