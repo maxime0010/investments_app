@@ -4,22 +4,23 @@
 
 {% block content %}
     <h1>Portfolio Performance compared to S&P 500 (Base Index 100)</h1>
-<br>
+    <br>
     <!-- Display Annualized Return -->
     <div>
         <h4>Annualized Return</h4>
         <h5>Portfolio: <span id="annualizedReturn">-</span>%</h5>
         <h5>S&P 500: <span id="sp500AnnualizedReturn">-</span>%</h5>
     </div>
-<br>
+    <br>
     <!-- Time Filter Buttons -->
     <div>
+        <button class="btn btn-primary" onclick="filterData('10years')">Last 10 Years</button>
         <button class="btn btn-primary" onclick="filterData('3years')">Last 3 Years</button>
         <button class="btn btn-primary" onclick="filterData('12months')">Last 12 Months</button>
         <button class="btn btn-primary" onclick="filterData('3months')">Last 3 Months</button>
         <button class="btn btn-primary" onclick="filterData('1month')">Last Month</button>
     </div>
-<br>
+    <br>
     <!-- Chart.js Canvas -->
     <canvas id="simulationPerformanceChart"></canvas>
 {% endblock %}
@@ -28,8 +29,9 @@
 <script>
     let chart = null;
 
-    // Define periods consistently for all calculations
+    // Define periods consistently for all calculations (added 10 years period)
     const periods = {
+        '10years': 10 * 365,
         '3years': 3 * 365,
         '12months': 365,
         '3months': 90,
@@ -49,7 +51,7 @@
 
         const endDate = new Date(fullDates[fullDates.length - 1]);
         let startDate = new Date(endDate);
-        startDate.setDate(endDate.getDate() - periods[period]);  // Use the period calculation based on days
+        startDate.setDate(endDate.getDate() - periods[period]);
 
         const filteredDates = [];
         const filteredPortfolioValues = [];
@@ -106,8 +108,8 @@
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: gradientPortfolio,
                         borderWidth: 2,
-                        fill: true,  // Enable gradient fill
-                        tension: 0.4  // Smooth curve
+                        fill: true,
+                        tension: 0.4
                     },
                     {
                         label: 'S&P 500 (Base Index 100)',
@@ -115,8 +117,8 @@
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: gradientSP500,
                         borderWidth: 2,
-                        fill: true,  // Enable gradient fill
-                        tension: 0.4  // Smooth curve
+                        fill: true,
+                        tension: 0.4
                     }
                 ]
             },
@@ -126,20 +128,20 @@
                         type: 'time',
                         time: {
                             unit: 'month',
-                            tooltipFormat: 'MMM d, yyyy'  // Corrected date format (Use 'yyyy' instead of 'YYYY')
+                            tooltipFormat: 'MMM d, yyyy'
                         },
                         grid: {
-                            display: false  // Minimalistic design: hide grid lines
+                            display: false
                         }
                     },
                     y: {
                         beginAtZero: false,
                         grid: {
-                            display: false  // Minimalistic design: hide grid lines
+                            display: false
                         },
                         ticks: {
                             callback: function(value) {
-                                return value.toFixed(0);  // Show whole numbers only
+                                return value.toFixed(0);
                             }
                         }
                     }
@@ -152,10 +154,9 @@
                     tooltip: {
                         callbacks: {
                             title: function(tooltipItems) {
-                                return 'Date: ' + tooltipItems[0].label;  // Display the date as the title of the tooltip
+                                return 'Date: ' + tooltipItems[0].label;
                             },
                             label: function(tooltipItem) {
-                                // Show only one line of information per hover
                                 if (tooltipItem.datasetIndex === 0) {
                                     return `Portfolio: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
                                 } else if (tooltipItem.datasetIndex === 1) {
@@ -163,9 +164,7 @@
                                 }
                             }
                         },
-                        // Filter to show only the first dataset item
                         filter: function(tooltipItem, data) {
-                            // Show only the first tooltip item (either Portfolio or S&P 500, but not both)
                             return tooltipItem.dataIndex === 0;
                         }
                     }
@@ -174,7 +173,7 @@
         });
     }
 
-    // Function to calculate and update the annualized return, and print the formula details
+    // Function to calculate and update the annualized return
     function updateAnnualizedReturn(portfolioValues, sp500Values, dates) {
         const startDate = new Date(dates[0]);
         const endDate = new Date(dates[dates.length - 1]);
@@ -193,9 +192,9 @@
         return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
     }
 
-    // Initialize the chart with default data (last 3 years)
+    // Initialize the chart with default data (last 10 years)
     document.addEventListener('DOMContentLoaded', function () {
-        filterData('3years');
+        filterData('10years');
     });
 </script>
 {% endblock %}
