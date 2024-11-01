@@ -161,7 +161,7 @@ def get_top_stocks(latest_date):
         WHERE p.date = %s AND a.date = %s
         GROUP BY p.ticker, a.last_closing_price, a.expected_return_combined_criteria, a.num_combined_criteria, s.indices
         ORDER BY ranking
-        LIMIT 10
+        LIMIT 20
     """
     cursor.execute(query, (latest_date, latest_date))
     top_stocks = cursor.fetchall()
