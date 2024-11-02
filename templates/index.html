@@ -175,6 +175,7 @@
 
     function calculateAllAnnualizedReturns() {
         const periods = {
+            '10years': 10 * 365,
             '3years': 3 * 365,
             '12months': 365,
             '3months': 90,
@@ -230,14 +231,16 @@
     function updateChart() {
         const ctx = document.getElementById('annualizedReturnsChart').getContext('2d');
 
-        const labels = ['Last 3 Years', 'Last 12 Months', 'Last 3 Months', 'Last Month'];
+        const labels = ['Last 10 Years', 'Last 3 Years', 'Last 12 Months', 'Last 3 Months', 'Last Month'];
         const portfolioData = [
+            portfolioAnnualizedReturns['10years'] || 0,
             portfolioAnnualizedReturns['3years'] || 0,
             portfolioAnnualizedReturns['12months'] || 0,
             portfolioAnnualizedReturns['3months'] || 0,
             portfolioAnnualizedReturns['1month'] || 0
         ];
         const sp500Data = [
+            sp500AnnualizedReturns['10years'] || 0,
             sp500AnnualizedReturns['3years'] || 0,
             sp500AnnualizedReturns['12months'] || 0,
             sp500AnnualizedReturns['3months'] || 0,
@@ -311,4 +314,5 @@
         calculateAllAnnualizedReturns();
     });
 </script>
+
 {% endblock %}
