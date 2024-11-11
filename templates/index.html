@@ -12,13 +12,10 @@
     </div>
 </div>
 
-
 <div class="text-section">
-    <h1>Our AI consistently outperforms the S&P 500
-</h1>
+    <h1>Our AI consistently outperforms the S&P 500</h1>
     
-
-<!-- Bar Chart for Annualized Returns -->
+    <!-- Bar Chart for Annualized Returns -->
     <h4>Portfolio vs S&P 500 Annualized Returns</h4>
     <canvas id="annualizedReturnsChart" style="width: 100%; height: 300px; margin: 0 auto;"></canvas>
 
@@ -58,10 +55,8 @@
 </div>
 
 <div class="text-section">
-
-<h1>Our AI identifies the top-performing stocks of the market</h1>
-        <h4>We focus on stocks with the highest expected return, where we see the strongest consensus among analysts</h4>
-
+    <h1>Our AI identifies the top-performing stocks of the market</h1>
+    <h4>We focus on stocks with the highest expected return, where we see the strongest consensus among analysts</h4>
 </div>
 
 <!-- Add the matrix at the end of the page -->
@@ -105,8 +100,6 @@
     </div>
 </div>
 
-
-
 <p><br></p>
 <!-- Call to Action Section -->
 <div class="call-to-action text-center py-5">
@@ -116,10 +109,6 @@
 
 <p><br></p>
 
-
-
-
-
 {% endblock %}
 
 {% block scripts %}
@@ -127,48 +116,12 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
-<!-- Count-Up Effect Script -->
-<script>
-    function countUp(element) {
-        const endValue = parseInt(element.getAttribute('data-count'), 10);
-        const duration = 2000;  // Animation duration in milliseconds
-        let startTime = null;
-
-        function step(timestamp) {
-            if (!startTime) startTime = timestamp;
-            const progress = timestamp - startTime;
-            const currentValue = Math.min(Math.floor((progress / duration) * endValue), endValue);
-            element.textContent = currentValue;
-            if (progress < duration) {
-                window.requestAnimationFrame(step);
-            }
-        }
-
-        window.requestAnimationFrame(step);
-    }
-
-    function handleScroll() {
-        const elements = document.querySelectorAll('.highlighted-number');
-        elements.forEach(el => {
-            const rect = el.getBoundingClientRect();
-            if (rect.top < window.innerHeight && rect.bottom >= 0 && !el.classList.contains('counted')) {
-                countUp(el);
-                el.classList.add('counted');  // Ensure the animation happens only once
-            }
-        });
-    }
-
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('DOMContentLoaded', handleScroll);
-</script>
-
 <script>
     function calculateAllAnnualizedReturns() {
         const periods = {
             '10years': 10 * 365,
             '3years': 3 * 365,
-            '12months': 365,
-            '1month': 30
+            '12months': 365
         };
 
         for (const [period, days] of Object.entries(periods)) {
@@ -214,18 +167,16 @@
     function updateChart() {
         const ctx = document.getElementById('annualizedReturnsChart').getContext('2d');
 
-        const labels = ['Last 10 Years', 'Last 3 Years', 'Last 12 Months', 'Last Month'];
+        const labels = ['Last 10 Years', 'Last 3 Years', 'Last 12 Months'];
         const portfolioData = [
             portfolioAnnualizedReturns['10years'] || 0,
             portfolioAnnualizedReturns['3years'] || 0,
-            portfolioAnnualizedReturns['12months'] || 0,
-            portfolioAnnualizedReturns['1month'] || 0
+            portfolioAnnualizedReturns['12months'] || 0
         ];
         const sp500Data = [
             sp500AnnualizedReturns['10years'] || 0,
             sp500AnnualizedReturns['3years'] || 0,
-            sp500AnnualizedReturns['12months'] || 0,
-            sp500AnnualizedReturns['1month'] || 0
+            sp500AnnualizedReturns['12months'] || 0
         ];
 
         if (chart) {
@@ -295,6 +246,4 @@
         calculateAllAnnualizedReturns();
     });
 </script>
-
-
 {% endblock %}
