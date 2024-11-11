@@ -18,7 +18,6 @@
     <!-- Bar Chart for Annualized Returns -->
     <h4>Portfolio vs S&P 500 Annualized Returns</h4>
     <canvas id="annualizedReturnsChart" style="width: 100%; height: 300px; margin: 0 auto;"></canvas>
-
     <a href="{{ url_for('performance') }}" class="btn mt-3">Performance of the portfolio</a>
 </div>
 
@@ -86,7 +85,7 @@
                     <i class="fas fa-dog fa-3x"></i><br>
                     <p>Under performing</p>
                 </div>
-                <!-- Fourth quadrant (bottom-right) - Low risk strategy with dragon icon -->
+                <!-- Fourth quadrant (bottom-right) - Low risk strategy with hippo icon -->
                 <div class="matrix-cell high-return low-consensus" style="background-color: #e0e0e0;">
                     <i class="fas fa-hippo fa-3x"></i><br>
                     <p>Low risk</p>
@@ -108,7 +107,6 @@
 </div>
 
 <p><br></p>
-
 {% endblock %}
 
 {% block scripts %}
@@ -116,7 +114,52 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
+<!-- Count-Up Effect Script -->
 <script>
+    function countUp(element) {
+        const endValue = parseInt(element.getAttribute('data-count'), 10);
+        const duration = 2000;  // Animation duration in milliseconds
+        let startTime = null;
+
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = timestamp - startTime;
+            const currentValue = Math.min(Math.floor((progress / duration) * endValue), endValue);
+            element.textContent = currentValue;
+            if (progress < duration) {
+                window.requestAnimationFrame(step);
+            }
+        }
+
+        window.requestAnimationFrame(step);
+    }
+
+    function handleScroll() {
+        const elements = document.querySelectorAll('.highlighted-number');
+        elements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom >= 0 && !el.classList.contains('counted')) {
+                countUp(el);
+                el.classList.add('counted');  // Ensure the animation happens only once
+            }
+        });
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('DOMContentLoaded', handleScroll);
+</script>
+
+<script>
+    let chart = null;
+
+    // Store dynamically calculated annualized returns for portfolio and S&P 500
+    let portfolioAnnualizedReturns = {};
+    let sp500AnnualizedReturns = {};
+
+    const fullDates = {{ dates_simulation | tojson | safe }} || [];
+    const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
+    const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
+
     function calculateAllAnnualizedReturns() {
         const periods = {
             '10years': 10 * 365,
@@ -162,6 +205,12 @@
         }
 
         updateChart();
+    }
+
+    function calculateAnnualizedReturn(startValue, endValue, startDate, endDate) {
+        const timeDiffInYears = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+        if (timeDiffInYears === 0) return 0;
+        return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
     }
 
     function updateChart() {
@@ -246,4 +295,5 @@
         calculateAllAnnualizedReturns();
     });
 </script>
+
 {% endblock %}
