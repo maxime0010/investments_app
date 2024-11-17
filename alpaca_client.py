@@ -4,14 +4,12 @@ import os
 # Replace with your API key and secret
 API_KEY = os.getenv("ALPACA_API")
 API_SECRET = os.getenv("ALPACA_SECRET")
-BASE_URL = "https://broker-api.alpaca.markets/v1"
 
 # Initialize the broker client
-broker_client = BrokerClient(api_key=API_KEY, secret_key=API_SECRET, base_url=BASE_URL)
+broker_client = BrokerClient(api_key=API_KEY, secret_key=API_SECRET)
 
-# Example function to create a new account
 def create_account():
-    # Create account payload as a dictionary
+    # Account data
     account_data = {
         "contact": {
             "email_address": "example@example.com",
@@ -31,7 +29,7 @@ def create_account():
     }
 
     try:
-        # Send account creation request using the broker client
+        # Send POST request to create an account
         response = broker_client.post("/accounts", json=account_data)
         print(f"Account created: {response}")
         return response
@@ -39,6 +37,5 @@ def create_account():
         print(f"Error creating account: {e}")
         return None
 
-# Test the function
 if __name__ == "__main__":
     create_account()
