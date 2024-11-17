@@ -13,6 +13,7 @@ from mysql.connector import Error
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from itsdangerous import URLSafeTimedSerializer
+from alpaca_client import create_account  # Import the backend function
 
 # Helper function to calculate annualized return
 def calculate_annualized_return(start_value, end_value, start_date, end_date):
@@ -1339,6 +1340,15 @@ def performance():
                            dates_simulation=dates_simulation, 
                            simulation_values=simulation_values, 
                            sp500_values_simulation=sp500_values_simulation)
+
+@app.route("/create_account", methods=["POST"])
+def api_create_account():
+    data = request.json  # Expect JSON data from the frontend
+    try:
+        response = create_account(data)
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 
