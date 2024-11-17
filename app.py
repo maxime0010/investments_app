@@ -1350,6 +1350,11 @@ def api_create_account():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+@app.route('/alpaca', methods=['GET'])
+@login_required
+def alpaca_account():
+    return render_template('alpaca.html')
+
 
 
 if __name__ == '__main__':
