@@ -1345,10 +1345,11 @@ def performance():
 def api_create_account():
     data = request.json  # Expect JSON data from the frontend
     try:
-        response = create_account(data)
+        response = create_account(data)  # Pass data to the function
         return jsonify(response), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @app.route('/alpaca', methods=['GET'])
 @login_required
