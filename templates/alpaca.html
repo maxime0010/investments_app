@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Alpaca Account Creation{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Alpaca Account Creation</h1>
+    <p>
+        Welcome to the Alpaca account creation page. This feature is currently in <strong>test mode/beta version</strong>. 
+        By clicking the button below, you can create a simulated Alpaca brokerage account for testing purposes.
+    </p>
+    <p class="text-muted">
+        <strong>Note:</strong> This is for <strong>testing purposes only</strong>. No real accounts or transactions will be created.
+    </p>
+
+    <form action="/create_account" method="POST" class="mt-3">
+        <button type="submit" class="btn btn-warning btn-lg">Create Alpaca Test Account</button>
+    </form>
+</div>
+{% endblock %}
