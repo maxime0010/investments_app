@@ -20,7 +20,7 @@
                             {% if not is_member and not loop.first %}
                                 [Members only]
                             {% else %}
-                                <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="text-dark">{{ stock.name }}</a>
+                                {{ stock.name }}
                             {% endif %}
                         </h5>
                     </div>
@@ -66,8 +66,6 @@
                         {% endif %}
                         <br>
 
-                        <!-- More Details Button -->
-                        <a href="{{ url_for('stock_detail', ticker=stock.ticker) }}" class="btn btn-primary mt-3">More Details</a>
                     </p>
                 </div>
 
