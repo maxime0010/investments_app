@@ -36,8 +36,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="dob" class="form-label">Date of Birth</label>
-            <input type="date" id="dob" name="dob" class="form-control" required>
+            <label for="date_of_birth" class="form-label">Date of Birth</label>
+            <input type="date" id="date_of_birth" name="date_of_birth" class="form-control" required>
         </div>
 
         <div class="mb-3">
@@ -99,7 +99,7 @@
                     identity: {
                         given_name: jsonData.given_name,
                         family_name: jsonData.family_name,
-                        dob: jsonData.dob,
+                        date_of_birth: jsonData.date_of_birth, // Corrected key
                         tax_id: jsonData.tax_id,
                         tax_id_type: 'SSN',
                     },
@@ -113,7 +113,7 @@
                 messageElement.textContent = `Account created successfully: ${JSON.stringify(result)}`;
                 messageElement.className = 'text-success';
             } else {
-                messageElement.textContent = `Error: ${JSON.stringify(result.error)}`;
+                messageElement.textContent = `Error: ${result.error || 'Unknown error'}`;
                 messageElement.className = 'text-danger';
             }
         } catch (error) {
