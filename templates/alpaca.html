@@ -75,39 +75,6 @@
             <input type="text" id="country_of_tax_residence" name="country_of_tax_residence" class="form-control" placeholder="US" required>
         </div>
 
-        <!-- Disclosures Section -->
-        <div class="mb-3">
-            <label for="is_control_person" class="form-label">Are you a control person (e.g., director or officer) at a public company?</label>
-            <select id="is_control_person" name="is_control_person" class="form-control" required>
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="is_affiliated_exchange_or_finra" class="form-label">Are you affiliated with or employed by a stock exchange, FINRA, or a broker-dealer?</label>
-            <select id="is_affiliated_exchange_or_finra" name="is_affiliated_exchange_or_finra" class="form-control" required>
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="is_politically_exposed" class="form-label">Are you a politically exposed person?</label>
-            <select id="is_politically_exposed" name="is_politically_exposed" class="form-control" required>
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="immediate_family_exposed" class="form-label">Is any of your immediate family a politically exposed person?</label>
-            <select id="immediate_family_exposed" name="immediate_family_exposed" class="form-control" required>
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-            </select>
-        </div>
-
         <!-- Agreements Section -->
         <div class="mb-3">
             <label class="form-label">Agreements</label>
@@ -147,38 +114,42 @@
             jsonData[key] = value;
         });
 
+        const payload = {
+            contact: {
+                email_address: jsonData.email_address,
+                phone_number: jsonData.phone_number,
+                street_address: jsonData.street_address,
+                city: jsonData.city,
+                state: jsonData.state,
+                postal_code: jsonData.postal_code,
+                country: jsonData.country,
+            },
+            identity: {
+                given_name: jsonData.given_name,
+                family_name: jsonData.family_name,
+                date_of_birth: jsonData.date_of_birth,
+                tax_id: jsonData.tax_id,
+                tax_id_type: 'SSN',
+                country_of_tax_residence: jsonData.country_of_tax_residence,
+            },
+            disclosures: {
+                is_control_person: jsonData.is_control_person === 'true',
+                is_affiliated_exchange_or_finra: jsonData.is_affiliated_exchange_or_finra === 'true',
+                is_politically_exposed: jsonData.is_politically_exposed === 'true',
+                immediate_family_exposed: jsonData.immediate_family_exposed === 'true',
+            },
+            agreements, // Agreements as an array
+        };
+
+        console.log('Payload:', JSON.stringify(payload, null, 2)); // Debugging payload
+
         try {
             const response = await fetch('/create_account', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    contact: {
-                        email_address: jsonData.email_address,
-                        phone_number: jsonData.phone_number,
-                        street_address: jsonData.street_address,
-                        city: jsonData.city,
-                        state: jsonData.state,
-                        postal_code: jsonData.postal_code,
-                        country: jsonData.country,
-                    },
-                    identity: {
-                        given_name: jsonData.given_name,
-                        family_name: jsonData.family_name,
-                        date_of_birth: jsonData.date_of_birth,
-                        tax_id: jsonData.tax_id,
-                        tax_id_type: 'SSN',
-                        country_of_tax_residence: jsonData.country_of_tax_residence,
-                    },
-                    disclosures: {
-                        is_control_person: jsonData.is_control_person === 'true',
-                        is_affiliated_exchange_or_finra: jsonData.is_affiliated_exchange_or_finra === 'true',
-                        is_politically_exposed: jsonData.is_politically_exposed === 'true',
-                        immediate_family_exposed: jsonData.immediate_family_exposed === 'true',
-                    },
-                    agreements, // Pass agreements as an array of strings
-                }),
+                body: JSON.stringify(payload),
             });
 
             const result = await response.json();
@@ -186,15 +157,4 @@
 
             if (response.ok) {
                 messageElement.textContent = `Account created successfully: ${JSON.stringify(result)}`;
-                messageElement.className = 'text-success';
-            } else {
-                messageElement.textContent = `Error: ${result.error || 'Unknown error'}`;
-                messageElement.className = 'text-danger';
-            }
-        } catch (error) {
-            console.error('Error creating account:', error);
-            document.getElementById('responseMessage').textContent = `Error: ${error.message}`;
-        }
-    });
-</script>
-{% endblock %}
+                messageElement.className = 'text
