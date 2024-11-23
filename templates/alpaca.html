@@ -70,6 +70,39 @@
             <input type="text" id="country" name="country" class="form-control" placeholder="US" required>
         </div>
 
+        <!-- Disclosures Section -->
+        <div class="mb-3">
+            <label for="is_control_person" class="form-label">Are you a control person (e.g., director or officer) at a public company?</label>
+            <select id="is_control_person" name="is_control_person" class="form-control" required>
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="is_affiliated_exchange_or_finra" class="form-label">Are you affiliated with or employed by a stock exchange, FINRA, or a broker-dealer?</label>
+            <select id="is_affiliated_exchange_or_finra" name="is_affiliated_exchange_or_finra" class="form-control" required>
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="is_politically_exposed" class="form-label">Are you a politically exposed person?</label>
+            <select id="is_politically_exposed" name="is_politically_exposed" class="form-control" required>
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="immediate_family_exposed" class="form-label">Is any of your immediate family a politically exposed person?</label>
+            <select id="immediate_family_exposed" name="immediate_family_exposed" class="form-control" required>
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+            </select>
+        </div>
+
         <button type="button" id="submitButton" class="btn btn-warning btn-lg">Create Alpaca Test Account</button>
     </form>
 
@@ -104,10 +137,16 @@
                     identity: {
                         given_name: jsonData.given_name,
                         family_name: jsonData.family_name,
-                        date_of_birth: jsonData.date_of_birth, // Corrected field
+                        date_of_birth: jsonData.date_of_birth,
                         tax_id: jsonData.tax_id,
                         tax_id_type: 'SSN',
-                        country_of_tax_residence: jsonData.country_of_tax_residence, // Added field
+                        country_of_tax_residence: jsonData.country_of_tax_residence,
+                    },
+                    disclosures: {
+                        is_control_person: jsonData.is_control_person === 'true',
+                        is_affiliated_exchange_or_finra: jsonData.is_affiliated_exchange_or_finra === 'true',
+                        is_politically_exposed: jsonData.is_politically_exposed === 'true',
+                        immediate_family_exposed: jsonData.immediate_family_exposed === 'true',
                     },
                 }),
             });
