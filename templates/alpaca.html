@@ -112,15 +112,15 @@
         <div class="mb-3">
             <label class="form-label">Agreements</label>
             <div>
-                <input type="checkbox" id="account_agreement" name="account_agreement" required>
+                <input type="checkbox" id="account_agreement" name="agreements" value="account_agreement" required>
                 <label for="account_agreement">I accept the Account Agreement.</label>
             </div>
             <div>
-                <input type="checkbox" id="customer_agreement" name="customer_agreement" required>
+                <input type="checkbox" id="customer_agreement" name="agreements" value="customer_agreement" required>
                 <label for="customer_agreement">I accept the Customer Agreement.</label>
             </div>
             <div>
-                <input type="checkbox" id="margin_agreement" name="margin_agreement" required>
+                <input type="checkbox" id="margin_agreement" name="agreements" value="margin_agreement" required>
                 <label for="margin_agreement">I accept the Margin Agreement.</label>
             </div>
         </div>
@@ -135,8 +135,14 @@
     document.getElementById('submitButton').addEventListener('click', async () => {
         const form = document.getElementById('alpacaForm');
         const formData = new FormData(form);
-        const jsonData = {};
+        const agreements = [];
 
+        // Collect checked agreements
+        form.querySelectorAll('input[name="agreements"]:checked').forEach((checkbox) => {
+            agreements.push(checkbox.value);
+        });
+
+        const jsonData = {};
         formData.forEach((value, key) => {
             jsonData[key] = value;
         });
@@ -171,11 +177,7 @@
                         is_politically_exposed: jsonData.is_politically_exposed === 'true',
                         immediate_family_exposed: jsonData.immediate_family_exposed === 'true',
                     },
-                    agreements: {
-                        account_agreement: document.getElementById('account_agreement').checked,
-                        customer_agreement: document.getElementById('customer_agreement').checked,
-                        margin_agreement: document.getElementById('margin_agreement').checked,
-                    },
+                    agreements, // Pass agreements as an array of strings
                 }),
             });
 
