@@ -108,6 +108,23 @@
             </select>
         </div>
 
+        <!-- Agreements Section -->
+        <div class="mb-3">
+            <label class="form-label">Agreements</label>
+            <div>
+                <input type="checkbox" id="account_agreement" name="account_agreement" required>
+                <label for="account_agreement">I accept the Account Agreement.</label>
+            </div>
+            <div>
+                <input type="checkbox" id="customer_agreement" name="customer_agreement" required>
+                <label for="customer_agreement">I accept the Customer Agreement.</label>
+            </div>
+            <div>
+                <input type="checkbox" id="margin_agreement" name="margin_agreement" required>
+                <label for="margin_agreement">I accept the Margin Agreement.</label>
+            </div>
+        </div>
+
         <button type="button" id="submitButton" class="btn btn-warning btn-lg">Create Alpaca Test Account</button>
     </form>
 
@@ -134,7 +151,7 @@
                     contact: {
                         email_address: jsonData.email_address,
                         phone_number: jsonData.phone_number,
-                        street_address: jsonData.street_address, // Added field
+                        street_address: jsonData.street_address,
                         city: jsonData.city,
                         state: jsonData.state,
                         postal_code: jsonData.postal_code,
@@ -153,6 +170,11 @@
                         is_affiliated_exchange_or_finra: jsonData.is_affiliated_exchange_or_finra === 'true',
                         is_politically_exposed: jsonData.is_politically_exposed === 'true',
                         immediate_family_exposed: jsonData.immediate_family_exposed === 'true',
+                    },
+                    agreements: {
+                        account_agreement: document.getElementById('account_agreement').checked,
+                        customer_agreement: document.getElementById('customer_agreement').checked,
+                        margin_agreement: document.getElementById('margin_agreement').checked,
                     },
                 }),
             });
