@@ -46,6 +46,11 @@
         </div>
 
         <div class="mb-3">
+            <label for="country_of_tax_residence" class="form-label">Country of Tax Residence</label>
+            <input type="text" id="country_of_tax_residence" name="country_of_tax_residence" class="form-control" placeholder="US" required>
+        </div>
+
+        <div class="mb-3">
             <label for="city" class="form-label">City</label>
             <input type="text" id="city" name="city" class="form-control" placeholder="New York" required>
         </div>
@@ -99,9 +104,10 @@
                     identity: {
                         given_name: jsonData.given_name,
                         family_name: jsonData.family_name,
-                        date_of_birth: jsonData.date_of_birth, // Corrected key
+                        date_of_birth: jsonData.date_of_birth, // Corrected field
                         tax_id: jsonData.tax_id,
                         tax_id_type: 'SSN',
+                        country_of_tax_residence: jsonData.country_of_tax_residence, // Added field
                     },
                 }),
             });
