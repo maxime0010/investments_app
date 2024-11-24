@@ -21,6 +21,7 @@
     <a href="{{ url_for('performance') }}" class="btn mt-3">Performance of the portfolio</a>
 </div>
 
+
 <div class="text-section">
     <h1>Our AI screens the stock market to build a top-investor grade portfolio</h1>
 
@@ -144,57 +145,86 @@
 </script>
 
 <script>
-// Use precomputed annualized returns for rendering
-document.addEventListener('DOMContentLoaded', function () {
+    let chart = null;
+
+    // Load precomputed annualized returns from the backend
     const annualizedData = JSON.parse(document.getElementById('annualizedReturnsData').textContent);
 
-    document.getElementById('return-10years-portfolio').textContent = `${annualizedData['10years'][0]}%`;
-    document.getElementById('return-10years-sp500').textContent = `${annualizedData['10years'][1]}%`;
-    document.getElementById('return-3years-portfolio').textContent = `${annualizedData['3years'][0]}%`;
-    document.getElementById('return-3years-sp500').textContent = `${annualizedData['3years'][1]}%`;
-    document.getElementById('return-12months-portfolio').textContent = `${annualizedData['12months'][0]}%`;
-    document.getElementById('return-12months-sp500').textContent = `${annualizedData['12months'][1]}%`;
-});
+    function updateChart() {
+        const ctx = document.getElementById('annualizedReturnsChart').getContext('2d');
 
-// Update charts using normalized values
-function updatePerformanceChart(dates, portfolioValues, sp500Values) {
-    const ctx = document.getElementById('performanceChart').getContext('2d');
-    const normalizedPortfolio = normalizeToIndex100(portfolioValues);
-    const normalizedSp500 = normalizeToIndex100(sp500Values);
+        const labels = ['Last 10 Years', 'Last 3 Years', 'Last 12 Months'];
+        const portfolioData = [
+            annualizedData['10years'][0] || 0, // Portfolio return for 10 years
+            annualizedData['3years'][0] || 0,  // Portfolio return for 3 years
+            annualizedData['12months'][0] || 0 // Portfolio return for 12 months
+        ];
+        const sp500Data = [
+            annualizedData['10years'][1] || 0, // S&P 500 return for 10 years
+            annualizedData['3years'][1] || 0,  // S&P 500 return for 3 years
+            annualizedData['12months'][1] || 0 // S&P 500 return for 12 months
+        ];
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: [
-                {
-                    label: 'Portfolio (Base Index 100)',
-                    data: normalizedPortfolio,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.4)',
-                    fill: true,
-                    tension: 0.4
-                },
-                {
-                    label: 'S&P 500 (Base Index 100)',
-                    data: normalizedSp500,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.4)',
-                    fill: true,
-                    tension: 0.4
-                }
-            ]
-        },
-        options: {
-            scales: {
-                x: { type: 'time', time: { unit: 'month' }, grid: { display: false } },
-                y: { grid: { display: false } }
-            },
-            plugins: { legend: { position: 'bottom' } }
+        if (chart) {
+            chart.destroy(); // Destroy the previous chart if it exists
         }
-    });
-}
 
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Portfolio',
+                        data: portfolioData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'S&P 500',
+                        data: sp500Data,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        border: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { display: false },
+                        ticks: {
+                            callback: function(value) {
+                                return `${value}%`; // Add % symbol to y-axis labels
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateChart();
+    });
 </script>
+
 
 {% endblock %}
