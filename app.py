@@ -332,10 +332,10 @@ def stock_detail(ticker):
 
 @app.route('/')
 def index():
-    conn = mysql.connector.connect(**db_config)
+    conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch portfolio and S&P 500 data from `portfolio365` for simulation
+    # Fetch portfolio and S&P 500 data
     cursor.execute("""
         SELECT p.date, p.total_value AS total_portfolio_value, 
                (SELECT close 
@@ -346,24 +346,21 @@ def index():
         ORDER BY p.date
     """)
     portfolio_data = cursor.fetchall()
-
     cursor.close()
     conn.close()
 
-    # Extract data for charts
+    # Process the data
     dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
     simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
     sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
 
-    # Calculate annualized returns for 10y, 3y, 12m using the helper function
     def fetch_annualized_data(period_days):
         end_date = datetime.strptime(dates_simulation[-1], '%Y-%m-%d')
         start_date = end_date - timedelta(days=period_days)
-        filtered_dates, filtered_portfolio, filtered_sp500 = [], [], []
+        filtered_portfolio, filtered_sp500 = [], []
         for date, portfolio, sp500 in zip(dates_simulation, simulation_values, sp500_values_simulation):
             date_obj = datetime.strptime(date, '%Y-%m-%d')
             if date_obj >= start_date:
-                filtered_dates.append(date)
                 filtered_portfolio.append(portfolio)
                 filtered_sp500.append(sp500)
         if len(filtered_portfolio) > 1:
@@ -386,10 +383,13 @@ def index():
         annualized_returns=annualized_returns
     )
 
-                           stock_in_portfolio=stock_in_portfolio, 
-                           swot_reports=swot_reports,  # Pass SWOT reports to the template
-                           analysts_data=analysts_data)  # Pass analysts' data to the template
-
+# Helper function to calculate annualized return
+def calculate_annualized_return(start_value, end_value, start_date, end_date):
+    days_difference = (end_date - start_date).days
+    years_difference = days_difference / 365.25  # Leap years considered
+    if years_difference == 0:
+        return 0
+    return ((end_value / start_value) ** (1 / years_difference)) - 1
 
 
 @app.route('/answer/<int:question_id>')
@@ -744,63 +744,7 @@ def view_newsletter(date):
         return render_template('404.html'), 404  # Render a 404 page if the newsletter doesn't exist
 
 
-@app.route('/')
-def index():
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
 
-    # Fetch portfolio and S&P 500 data from `portfolio365` for simulation
-    cursor.execute("""
-        SELECT p.date, p.total_value AS total_portfolio_value, 
-               (SELECT close 
-                FROM prices sp 
-                WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
-                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-        FROM portfolio365 p
-        ORDER BY p.date
-    """)
-    portfolio_data = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    # Extract data for charts
-    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
-    simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
-    sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
-
-    # Calculate annualized returns for 10y, 3y, 12m using the helper function
-    def fetch_annualized_data(period_days):
-        end_date = datetime.strptime(dates_simulation[-1], '%Y-%m-%d')
-        start_date = end_date - timedelta(days=period_days)
-        filtered_dates, filtered_portfolio, filtered_sp500 = [], [], []
-        for date, portfolio, sp500 in zip(dates_simulation, simulation_values, sp500_values_simulation):
-            date_obj = datetime.strptime(date, '%Y-%m-%d')
-            if date_obj >= start_date:
-                filtered_dates.append(date)
-                filtered_portfolio.append(portfolio)
-                filtered_sp500.append(sp500)
-        if len(filtered_portfolio) > 1:
-            portfolio_return = calculate_annualized_return(filtered_portfolio[0], filtered_portfolio[-1], start_date, end_date)
-            sp500_return = calculate_annualized_return(filtered_sp500[0], filtered_sp500[-1], start_date, end_date)
-            return round(portfolio_return * 100, 1), round(sp500_return * 100, 1)
-        return 0, 0
-
-    annualized_returns = {
-        "10years": fetch_annualized_data(365 * 10),
-        "3years": fetch_annualized_data(365 * 3),
-        "12months": fetch_annualized_data(365),
-    }
-
-    return render_template(
-        'index.html',
-        dates_simulation=dates_simulation,
-        simulation_values=simulation_values,
-        sp500_values_simulation=sp500_values_simulation,
-        annualized_returns=annualized_returns
-    )
-
-    
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
