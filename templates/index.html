@@ -144,150 +144,57 @@
 </script>
 
 <script>
-    let chart = null;
+// Use precomputed annualized returns for rendering
+document.addEventListener('DOMContentLoaded', function () {
+    const annualizedData = JSON.parse(document.getElementById('annualizedReturnsData').textContent);
 
-    // Store dynamically calculated annualized returns for portfolio and S&P 500
-    let portfolioAnnualizedReturns = {};
-    let sp500AnnualizedReturns = {};
+    document.getElementById('return-10years-portfolio').textContent = `${annualizedData['10years'][0]}%`;
+    document.getElementById('return-10years-sp500').textContent = `${annualizedData['10years'][1]}%`;
+    document.getElementById('return-3years-portfolio').textContent = `${annualizedData['3years'][0]}%`;
+    document.getElementById('return-3years-sp500').textContent = `${annualizedData['3years'][1]}%`;
+    document.getElementById('return-12months-portfolio').textContent = `${annualizedData['12months'][0]}%`;
+    document.getElementById('return-12months-sp500').textContent = `${annualizedData['12months'][1]}%`;
+});
 
-    const fullDates = {{ dates_simulation | tojson | safe }} || [];
-    const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
-    const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
+// Update charts using normalized values
+function updatePerformanceChart(dates, portfolioValues, sp500Values) {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const normalizedPortfolio = normalizeToIndex100(portfolioValues);
+    const normalizedSp500 = normalizeToIndex100(sp500Values);
 
-    function calculateAllAnnualizedReturns() {
-        const periods = {
-            '10years': 10 * 365,
-            '3years': 3 * 365,
-            '12months': 365
-        };
-
-        for (const [period, days] of Object.entries(periods)) {
-            const endDate = new Date(fullDates[fullDates.length - 1]);
-            let startDate = new Date(endDate);
-            startDate.setDate(endDate.getDate() - days);
-
-            const filteredDates = [];
-            const filteredPortfolioValues = [];
-            const filteredSp500Values = [];
-
-            for (let i = 0; i < fullDates.length; i++) {
-                const currentDate = new Date(fullDates[i]);
-                if (currentDate >= startDate) {
-                    filteredDates.push(fullDates[i]);
-                    filteredPortfolioValues.push(fullPortfolioValues[i]);
-                    filteredSp500Values.push(fullSp500Values[i]);
-                }
-            }
-
-            if (filteredDates.length >= 2) {
-                const portfolioReturn = calculateAnnualizedReturn(
-                    filteredPortfolioValues[0],
-                    filteredPortfolioValues[filteredPortfolioValues.length - 1],
-                    new Date(filteredDates[0]),
-                    new Date(filteredDates[filteredDates.length - 1])
-                );
-                const sp500Return = calculateAnnualizedReturn(
-                    filteredSp500Values[0],
-                    filteredSp500Values[filteredSp500Values.length - 1],
-                    new Date(filteredDates[0]),
-                    new Date(filteredDates[filteredDates.length - 1])
-                );
-
-                portfolioAnnualizedReturns[period] = portfolioReturn.toFixed(1);
-                sp500AnnualizedReturns[period] = sp500Return.toFixed(1);
-            }
-        }
-
-        updateChart();
-    }
-
-    function calculateAnnualizedReturn(startValue, endValue, startDate, endDate) {
-        const timeDiffInYears = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
-        if (timeDiffInYears === 0) return 0;
-        return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
-    }
-
-    function updateChart() {
-        const ctx = document.getElementById('annualizedReturnsChart').getContext('2d');
-
-        const labels = ['Last 10 Years', 'Last 3 Years', 'Last 12 Months'];
-        const portfolioData = [
-            portfolioAnnualizedReturns['10years'] || 0,
-            portfolioAnnualizedReturns['3years'] || 0,
-            portfolioAnnualizedReturns['12months'] || 0
-        ];
-        const sp500Data = [
-            sp500AnnualizedReturns['10years'] || 0,
-            sp500AnnualizedReturns['3years'] || 0,
-            sp500AnnualizedReturns['12months'] || 0
-        ];
-
-        if (chart) {
-            chart.destroy();  // Destroy previous chart if it exists
-        }
-
-        chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Portfolio',
-                        data: portfolioData,
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',  
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'S&P 500',
-                        data: sp500Data,
-                        backgroundColor: 'rgba(255, 99, 132, 0.6)',  
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        border: { display: false }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: { display: false },
-                        display: false
-                    }
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [
+                {
+                    label: 'Portfolio (Base Index 100)',
+                    data: normalizedPortfolio,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.4)',
+                    fill: true,
+                    tension: 0.4
                 },
-                plugins: {
-                    legend: { position: 'top' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.raw}%`;
-                            }
-                        }
-                    },
-                    datalabels: {
-                        display: false,
-                        anchor: 'end',
-                        align: 'end',
-                        offset: -10,
-                        formatter: function(value) {
-                            return `${value}%`;
-                        },
-                        font: { weight: 'bold' }
-                    }
+                {
+                    label: 'S&P 500 (Base Index 100)',
+                    data: normalizedSp500,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.4)',
+                    fill: true,
+                    tension: 0.4
                 }
+            ]
+        },
+        options: {
+            scales: {
+                x: { type: 'time', time: { unit: 'month' }, grid: { display: false } },
+                y: { grid: { display: false } }
             },
-            plugins: [ChartDataLabels]
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        calculateAllAnnualizedReturns();
+            plugins: { legend: { position: 'bottom' } }
+        }
     });
+}
+
 </script>
 
 {% endblock %}
