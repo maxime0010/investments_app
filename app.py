@@ -328,7 +328,9 @@ def stock_detail(ticker):
                            ticker=ticker, 
                            stock_name=stock_name,  
                            logo_url=logo_url,    
-                           analysis_data=analysis_data, @app.route('/')
+                           analysis_data=analysis_data) 
+
+@app.route('/')
 def index():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
