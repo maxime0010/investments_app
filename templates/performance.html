@@ -3,15 +3,17 @@
 {% block title %}Performance{% endblock %}
 
 {% block content %}
-    <h1>Portfolio Performance compared to S&P 500 (Base Index 100)</h1>
+    <h1>Portfolio Performance Compared to S&P 500 (Base Index 100)</h1>
     <br>
-    <!-- Display Annualized Return -->
+
+    <!-- Display Annualized Returns -->
     <div>
         <h4>Annualized Return</h4>
         <h5>Portfolio: <span id="annualizedReturn">-</span>%</h5>
         <h5>S&P 500: <span id="sp500AnnualizedReturn">-</span>%</h5>
     </div>
     <br>
+
     <!-- Time Filter Buttons -->
     <div>
         <button class="btn btn-primary" onclick="filterData('10years')">Last 10 Years</button>
@@ -19,80 +21,72 @@
         <button class="btn btn-primary" onclick="filterData('12months')">Last 12 Months</button>
     </div>
     <br>
+
     <!-- Chart.js Canvas -->
     <canvas id="simulationPerformanceChart"></canvas>
 {% endblock %}
 
 {% block scripts %}
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Pass data from backend -->
+<script id="performanceData" type="application/json">
+    {
+        "dates": {{ dates_simulation | tojson }},
+        "portfolioValues": {{ simulation_values | tojson }},
+        "sp500Values": {{ sp500_values_simulation | tojson }},
+        "annualizedReturns": {{ annualized_returns | tojson }}
+    }
+</script>
+
 <script>
     let chart = null;
+    const performanceData = JSON.parse(document.getElementById('performanceData').textContent);
 
-    // Define periods consistently for all calculations (removed 3 months and 1 month periods)
     const periods = {
         '10years': 10 * 365,
         '3years': 3 * 365,
         '12months': 365
     };
 
-    // Function to normalize data to index 100 base
     function normalizeToIndex100(values) {
-        const baseValue = values[0]; // First value as the base (index 100)
+        const baseValue = values[0];
         return values.map(value => (value / baseValue) * 100);
     }
 
     function filterData(period) {
-        const fullDates = {{ dates_simulation | tojson | safe }};
-        const fullPortfolioValues = {{ simulation_values | tojson | safe }};
-        const fullSp500Values = {{ sp500_values_simulation | tojson | safe }};
+        const { dates, portfolioValues, sp500Values } = performanceData;
 
-        const endDate = new Date(fullDates[fullDates.length - 1]);
-        let startDate = new Date(endDate);
+        const endDate = new Date(dates[dates.length - 1]);
+        const startDate = new Date(endDate);
         startDate.setDate(endDate.getDate() - periods[period]);
 
         const filteredDates = [];
         const filteredPortfolioValues = [];
         const filteredSp500Values = [];
 
-        for (let i = 0; i < fullDates.length; i++) {
-            const currentDate = new Date(fullDates[i]);
+        for (let i = 0; i < dates.length; i++) {
+            const currentDate = new Date(dates[i]);
             if (currentDate >= startDate) {
-                filteredDates.push(fullDates[i]);
-                filteredPortfolioValues.push(fullPortfolioValues[i]);
-                filteredSp500Values.push(fullSp500Values[i]);
+                filteredDates.push(dates[i]);
+                filteredPortfolioValues.push(portfolioValues[i]);
+                filteredSp500Values.push(sp500Values[i]);
             }
         }
 
-        // Normalize values to index 100
-        const normalizedPortfolioValues = normalizeToIndex100(filteredPortfolioValues);
-        const normalizedSp500Values = normalizeToIndex100(filteredSp500Values);
+        const normalizedPortfolio = normalizeToIndex100(filteredPortfolioValues);
+        const normalizedSp500 = normalizeToIndex100(filteredSp500Values);
 
-        // Update the chart with the normalized values
-        updateChart(filteredDates, normalizedPortfolioValues, normalizedSp500Values);
-
-        // Recalculate the annualized return
+        updateChart(filteredDates, normalizedPortfolio, normalizedSp500);
         updateAnnualizedReturn(filteredPortfolioValues, filteredSp500Values, filteredDates);
     }
 
-    // Function to update the chart with new data
     function updateChart(dates, portfolioValues, sp500Values) {
         const ctx = document.getElementById('simulationPerformanceChart').getContext('2d');
 
-        // Destroy previous chart if it exists
-        if (chart) {
-            chart.destroy();
-        }
+        if (chart) chart.destroy();
 
-        // Create gradient for portfolio line
-        const gradientPortfolio = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientPortfolio.addColorStop(0, 'rgba(75, 192, 192, 0.4)');
-        gradientPortfolio.addColorStop(1, 'rgba(75, 192, 192, 0.0)');
-
-        // Create gradient for S&P 500 line
-        const gradientSP500 = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientSP500.addColorStop(0, 'rgba(255, 99, 132, 0.4)');
-        gradientSP500.addColorStop(1, 'rgba(255, 99, 132, 0.0)');
-
-        // Create a new chart with minimalistic design and smooth curves
         chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -102,19 +96,19 @@
                         label: 'Portfolio (Base Index 100)',
                         data: portfolioValues,
                         borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: gradientPortfolio,
+                        backgroundColor: 'rgba(75, 192, 192, 0.4)',
                         borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        fill: true
                     },
                     {
                         label: 'S&P 500 (Base Index 100)',
                         data: sp500Values,
                         borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: gradientSP500,
+                        backgroundColor: 'rgba(255, 99, 132, 0.4)',
                         borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        fill: true
                     }
                 ]
             },
@@ -122,46 +116,23 @@
                 scales: {
                     x: {
                         type: 'time',
-                        time: {
-                            unit: 'month',
-                            tooltipFormat: 'MMM d, yyyy'
-                        },
-                        grid: {
-                            display: false
-                        }
+                        time: { unit: 'month', tooltipFormat: 'MMM d, yyyy' },
+                        grid: { display: false }
                     },
                     y: {
-                        beginAtZero: false,
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return value.toFixed(0);
-                            }
-                        }
+                        grid: { display: false },
+                        ticks: { callback: value => value.toFixed(0) }
                     }
                 },
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'bottom'
-                    },
+                    legend: { position: 'bottom' },
                     tooltip: {
                         callbacks: {
-                            title: function(tooltipItems) {
-                                return 'Date: ' + tooltipItems[0].label;
-                            },
-                            label: function(tooltipItem) {
-                                if (tooltipItem.datasetIndex === 0) {
-                                    return `Portfolio: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
-                                } else if (tooltipItem.datasetIndex === 1) {
-                                    return `S&P 500: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
-                                }
+                            label: (tooltipItem) => {
+                                const label = tooltipItem.dataset.label;
+                                const value = tooltipItem.raw.toFixed(2);
+                                return `${label}: ${value} (Base Index 100)`;
                             }
-                        },
-                        filter: function(tooltipItem, data) {
-                            return tooltipItem.dataIndex === 0;
                         }
                     }
                 }
@@ -169,7 +140,6 @@
         });
     }
 
-    // Function to calculate and update the annualized return
     function updateAnnualizedReturn(portfolioValues, sp500Values, dates) {
         const startDate = new Date(dates[0]);
         const endDate = new Date(dates[dates.length - 1]);
@@ -181,16 +151,12 @@
         document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
     }
 
-    // Helper function to calculate annualized return
     function calculateAnnualizedReturn(startValue, endValue, startDate, endDate) {
         const timeDiffInYears = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
         if (timeDiffInYears === 0) return 0;
         return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
     }
 
-    // Initialize the chart with default data (last 10 years)
-    document.addEventListener('DOMContentLoaded', function () {
-        filterData('10years');
-    });
+    document.addEventListener('DOMContentLoaded', () => filterData('10years'));
 </script>
 {% endblock %}
