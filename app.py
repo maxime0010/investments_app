@@ -15,18 +15,7 @@ from sib_api_v3_sdk.rest import ApiException
 from itsdangerous import URLSafeTimedSerializer
 from alpaca_client import create_account  # Import the backend function
 
-# Helper function to calculate annualized return
-def calculate_annualized_return(start_value, end_value, start_date, end_date):
-    # Calculate the time difference in years
-    days_difference = (end_date - start_date).days
-    years_difference = days_difference / 365.25  # Account for leap years
 
-    # Avoid division by zero for very short periods
-    if years_difference == 0:
-        return 0
-
-    # Calculate the annualized return
-    return ((end_value / start_value) ** (1 / years_difference)) - 1
     
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
@@ -177,6 +166,94 @@ def get_top_stocks(latest_date):
 
     if not top_stocks:
         flash('No stocks found for the selected date. Please try again later.', 'warning')
+
+
+# Helper to calculate annualized return
+def calculate_annualized_return(start_value, end_value, start_date, end_date):
+    days_difference = (end_date - start_date).days
+    years_difference = days_difference / 365.25
+    if years_difference == 0:
+        return 0
+    return ((end_value / start_value) ** (1 / years_difference)) - 1
+
+# Shared function to fetch portfolio data
+def fetch_portfolio_data():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT p.date, p.total_value AS total_portfolio_value, 
+               (SELECT close 
+                FROM prices sp 
+                WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+        FROM portfolio365 p
+        ORDER BY p.date
+    """)
+    portfolio_data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    dates = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
+    portfolio_values = [row['total_portfolio_value'] for row in portfolio_data]
+    sp500_values = [row['sp500_value'] for row in portfolio_data]
+
+    return dates, portfolio_values, sp500_values
+
+# Shared function to filter and normalize data
+def filter_and_normalize(dates, portfolio_values, sp500_values, period_days):
+    end_date = datetime.strptime(dates[-1], '%Y-%m-%d')
+    start_date = end_date - timedelta(days=period_days)
+
+    filtered_dates = []
+    filtered_portfolio = []
+    filtered_sp500 = []
+
+    for date, portfolio, sp500 in zip(dates, portfolio_values, sp500_values):
+        current_date = datetime.strptime(date, '%Y-%m-%d')
+        if current_date >= start_date:
+            filtered_dates.append(date)
+            filtered_portfolio.append(portfolio)
+            filtered_sp500.append(sp500)
+
+    def normalize(values):
+        base_value = values[0] if values else 1
+        return [(v / base_value) * 100 for v in values]
+
+    normalized_portfolio = normalize(filtered_portfolio)
+    normalized_sp500 = normalize(filtered_sp500)
+
+    return filtered_dates, normalized_portfolio, normalized_sp500
+
+# Index route (aligned with performance logic)
+@app.route('/')
+def index():
+    dates, portfolio_values, sp500_values = fetch_portfolio_data()
+
+    # Calculate normalized data for default display (e.g., 10 years)
+    period_days = 10 * 365
+    filtered_dates, normalized_portfolio, normalized_sp500 = filter_and_normalize(dates, portfolio_values, sp500_values, period_days)
+
+    return render_template(
+        'index.html',
+        dates_simulation=filtered_dates,
+        simulation_values=normalized_portfolio,
+        sp500_values_simulation=normalized_sp500
+    )
+
+# Performance route
+@app.route('/performance')
+def performance():
+    dates, portfolio_values, sp500_values = fetch_portfolio_data()
+
+    return render_template(
+        'performance.html',
+        dates_simulation=dates,
+        simulation_values=portfolio_values,
+        sp500_values_simulation=sp500_values
+    )
+
+
+
 
 
 @app.route('/pro')
@@ -330,66 +407,7 @@ def stock_detail(ticker):
                            logo_url=logo_url,    
                            analysis_data=analysis_data) 
 
-@app.route('/')
-def index():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
 
-    # Fetch portfolio and S&P 500 data
-    cursor.execute("""
-        SELECT p.date, p.total_value AS total_portfolio_value, 
-               (SELECT close 
-                FROM prices sp 
-                WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
-                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-        FROM portfolio365 p
-        ORDER BY p.date
-    """)
-    portfolio_data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    # Process the data
-    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
-    simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
-    sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
-
-    def fetch_annualized_data(period_days):
-        end_date = datetime.strptime(dates_simulation[-1], '%Y-%m-%d')
-        start_date = end_date - timedelta(days=period_days)
-        filtered_portfolio, filtered_sp500 = [], []
-        for date, portfolio, sp500 in zip(dates_simulation, simulation_values, sp500_values_simulation):
-            date_obj = datetime.strptime(date, '%Y-%m-%d')
-            if date_obj >= start_date:
-                filtered_portfolio.append(portfolio)
-                filtered_sp500.append(sp500)
-        if len(filtered_portfolio) > 1:
-            portfolio_return = calculate_annualized_return(filtered_portfolio[0], filtered_portfolio[-1], start_date, end_date)
-            sp500_return = calculate_annualized_return(filtered_sp500[0], filtered_sp500[-1], start_date, end_date)
-            return round(portfolio_return * 100, 1), round(sp500_return * 100, 1)
-        return 0, 0
-
-    annualized_returns = {
-        "10years": fetch_annualized_data(365 * 10),
-        "3years": fetch_annualized_data(365 * 3),
-        "12months": fetch_annualized_data(365),
-    }
-
-    return render_template(
-        'index.html',
-        dates_simulation=dates_simulation,
-        simulation_values=simulation_values,
-        sp500_values_simulation=sp500_values_simulation,
-        annualized_returns=annualized_returns
-    )
-
-# Helper function to calculate annualized return
-def calculate_annualized_return(start_value, end_value, start_date, end_date):
-    days_difference = (end_date - start_date).days
-    years_difference = days_difference / 365.25  # Leap years considered
-    if years_difference == 0:
-        return 0
-    return ((end_value / start_value) ** (1 / years_difference)) - 1
 
 
 @app.route('/answer/<int:question_id>')
@@ -1312,61 +1330,6 @@ def monthly_variations():
     return render_template('monthly_variations.html', data=data)
 
 
-@app.route('/performance')
-def performance():
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
-
-    # Fetch portfolio and S&P 500 data from `portfolio365` for performance page
-    cursor.execute("""
-        SELECT p.date, p.total_value AS total_portfolio_value, 
-               (SELECT close 
-                FROM prices sp 
-                WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
-                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-        FROM portfolio365 p
-        ORDER BY p.date
-    """)
-    portfolio_data = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    # Extract data for charts
-    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
-    simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
-    sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
-
-    # Reuse annualized returns calculation
-    def fetch_annualized_data(period_days):
-        end_date = datetime.strptime(dates_simulation[-1], '%Y-%m-%d')
-        start_date = end_date - timedelta(days=period_days)
-        filtered_dates, filtered_portfolio, filtered_sp500 = [], [], []
-        for date, portfolio, sp500 in zip(dates_simulation, simulation_values, sp500_values_simulation):
-            date_obj = datetime.strptime(date, '%Y-%m-%d')
-            if date_obj >= start_date:
-                filtered_dates.append(date)
-                filtered_portfolio.append(portfolio)
-                filtered_sp500.append(sp500)
-        if len(filtered_portfolio) > 1:
-            portfolio_return = calculate_annualized_return(filtered_portfolio[0], filtered_portfolio[-1], start_date, end_date)
-            sp500_return = calculate_annualized_return(filtered_sp500[0], filtered_sp500[-1], start_date, end_date)
-            return round(portfolio_return * 100, 1), round(sp500_return * 100, 1)
-        return 0, 0
-
-    annualized_returns = {
-        "10years": fetch_annualized_data(365 * 10),
-        "3years": fetch_annualized_data(365 * 3),
-        "12months": fetch_annualized_data(365),
-    }
-
-    return render_template(
-        'performance.html',
-        dates_simulation=dates_simulation,
-        simulation_values=simulation_values,
-        sp500_values_simulation=sp500_values_simulation,
-        annualized_returns=annualized_returns
-    )
 
 
 @app.route("/create_account", methods=["POST"])
