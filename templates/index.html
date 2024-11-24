@@ -7,7 +7,7 @@
 <div class="image-section hero-section">
     <div class="overlay"></div>
     <div class="overlay-text">
-        <h1 class="display-4">Top Performing Stocks, Handpicked by Our AI. Delivered to Your Inbox Every Week.</h1>
+        <h1 class="display-4">Top 20 Performing Stocks, Handpicked by Our AI. Delivered to Your Inbox Every Week.</h1>
         <a href="{{ url_for('membership_pro') }}" class="btn btn-primary btn-lg mt-4 hero-cta">Join the Club</a>
     </div>
 </div>
@@ -18,17 +18,9 @@
     <!-- Bar Chart for Annualized Returns -->
     <h4>Portfolio vs S&P 500 Annualized Returns</h4>
     <canvas id="annualizedReturnsChart" style="width: 100%; height: 300px; margin: 0 auto;"></canvas>
-    
-    <!-- Display Numeric Annualized Returns -->
-    <div class="annualized-returns-summary">
-        <p><strong>Last 10 Years:</strong> Portfolio <span id="return-10years-portfolio"></span>%, S&P 500 <span id="return-10years-sp500"></span>%</p>
-        <p><strong>Last 3 Years:</strong> Portfolio <span id="return-3years-portfolio"></span>%, S&P 500 <span id="return-3years-sp500"></span>%</p>
-        <p><strong>Last 12 Months:</strong> Portfolio <span id="return-12months-portfolio"></span>%, S&P 500 <span id="return-12months-sp500"></span>%</p>
-    </div>
-
     <a href="{{ url_for('performance') }}" class="btn mt-3">Performance of the portfolio</a>
 </div>
-test
+
 <div class="text-section">
     <h1>Our AI screens the stock market to build a top-investor grade portfolio</h1>
 
@@ -52,6 +44,13 @@ test
             <div class="number-description">analyst reports processed by our AI to generate recommendations</div>
         </div>
     </div>
+
+    <div class="value-item">
+        <div class="number-section">
+            <div class="highlighted-number" data-count="20">0</div>
+            <div class="number-description">top-performing stocks identified weekly based on their risk-return profile</div>
+        </div>
+    </div>
 </div>
 
 <div class="text-section">
@@ -69,7 +68,7 @@ test
         
         <div class="matrix-grid">
             <div class="matrix-row">
-                <!-- First quadrant (top-left) - Most Volatile with dragon icon -->
+                <!-- First quadrant (top-left) - Most Volatile with hippo icon -->
                 <div class="matrix-cell low-return high-consensus" style="background-color: #e0e0e0;">
                     <i class="fas fa-dragon fa-3x"></i><br>
                     <p>Most Volatile</p>
@@ -84,7 +83,7 @@ test
                 <!-- Third quadrant (bottom-left) - Underperforming with dog icon -->
                 <div class="matrix-cell low-return low-consensus" style="background-color: #e0e0e0;">
                     <i class="fas fa-dog fa-3x"></i><br>
-                    <p>Underperforming</p>
+                    <p>Under performing</p>
                 </div>
                 <!-- Fourth quadrant (bottom-right) - Low risk strategy with hippo icon -->
                 <div class="matrix-cell high-return low-consensus" style="background-color: #e0e0e0;">
@@ -111,48 +110,126 @@ test
 {% endblock %}
 
 {% block scripts %}
-<!-- Include Chart.js -->
+<!-- Include Chart.js and Data Labels plugin -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
-<!-- Pass annualized returns data from the backend -->
-<script id="annualizedReturnsData" type="application/json">
-    {{ annualized_returns | tojson }}
+<!-- Count-Up Effect Script -->
+<script>
+    function countUp(element) {
+        const endValue = parseInt(element.getAttribute('data-count'), 10);
+        const duration = 2000;  // Animation duration in milliseconds
+        let startTime = null;
+
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = timestamp - startTime;
+            const currentValue = Math.min(Math.floor((progress / duration) * endValue), endValue);
+            element.textContent = currentValue;
+            if (progress < duration) {
+                window.requestAnimationFrame(step);
+            }
+        }
+
+        window.requestAnimationFrame(step);
+    }
+
+    function handleScroll() {
+        const elements = document.querySelectorAll('.highlighted-number');
+        elements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom >= 0 && !el.classList.contains('counted')) {
+                countUp(el);
+                el.classList.add('counted');  // Ensure the animation happens only once
+            }
+        });
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('DOMContentLoaded', handleScroll);
 </script>
 
 <script>
     let chart = null;
 
-    // Load precomputed annualized returns from the backend
-    const annualizedData = JSON.parse(document.getElementById('annualizedReturnsData').textContent);
+    // Store dynamically calculated annualized returns for portfolio and S&P 500
+    let portfolioAnnualizedReturns = {};
+    let sp500AnnualizedReturns = {};
 
-    // Update numeric summary
-    function updateNumericSummary() {
-        document.getElementById('return-10years-portfolio').textContent = annualizedData['10years'][0];
-        document.getElementById('return-10years-sp500').textContent = annualizedData['10years'][1];
-        document.getElementById('return-3years-portfolio').textContent = annualizedData['3years'][0];
-        document.getElementById('return-3years-sp500').textContent = annualizedData['3years'][1];
-        document.getElementById('return-12months-portfolio').textContent = annualizedData['12months'][0];
-        document.getElementById('return-12months-sp500').textContent = annualizedData['12months'][1];
+    const fullDates = {{ dates_simulation | tojson | safe }} || [];
+    const fullPortfolioValues = {{ simulation_values | tojson | safe }} || [];
+    const fullSp500Values = {{ sp500_values_simulation | tojson | safe }} || [];
+
+    function calculateAllAnnualizedReturns() {
+        const periods = {
+            '10years': 10 * 365,
+            '3years': 3 * 365,
+            '12months': 365
+        };
+
+        for (const [period, days] of Object.entries(periods)) {
+            const endDate = new Date(fullDates[fullDates.length - 1]);
+            let startDate = new Date(endDate);
+            startDate.setDate(endDate.getDate() - days);
+
+            const filteredDates = [];
+            const filteredPortfolioValues = [];
+            const filteredSp500Values = [];
+
+            for (let i = 0; i < fullDates.length; i++) {
+                const currentDate = new Date(fullDates[i]);
+                if (currentDate >= startDate) {
+                    filteredDates.push(fullDates[i]);
+                    filteredPortfolioValues.push(fullPortfolioValues[i]);
+                    filteredSp500Values.push(fullSp500Values[i]);
+                }
+            }
+
+            if (filteredDates.length >= 2) {
+                const portfolioReturn = calculateAnnualizedReturn(
+                    filteredPortfolioValues[0],
+                    filteredPortfolioValues[filteredPortfolioValues.length - 1],
+                    new Date(filteredDates[0]),
+                    new Date(filteredDates[filteredDates.length - 1])
+                );
+                const sp500Return = calculateAnnualizedReturn(
+                    filteredSp500Values[0],
+                    filteredSp500Values[filteredSp500Values.length - 1],
+                    new Date(filteredDates[0]),
+                    new Date(filteredDates[filteredDates.length - 1])
+                );
+
+                portfolioAnnualizedReturns[period] = portfolioReturn.toFixed(1);
+                sp500AnnualizedReturns[period] = sp500Return.toFixed(1);
+            }
+        }
+
+        updateChart();
     }
 
-    // Update chart display
+    function calculateAnnualizedReturn(startValue, endValue, startDate, endDate) {
+        const timeDiffInYears = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+        if (timeDiffInYears === 0) return 0;
+        return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
+    }
+
     function updateChart() {
         const ctx = document.getElementById('annualizedReturnsChart').getContext('2d');
 
         const labels = ['Last 10 Years', 'Last 3 Years', 'Last 12 Months'];
         const portfolioData = [
-            annualizedData['10years'][0],
-            annualizedData['3years'][0],
-            annualizedData['12months'][0]
+            portfolioAnnualizedReturns['10years'] || 0,
+            portfolioAnnualizedReturns['3years'] || 0,
+            portfolioAnnualizedReturns['12months'] || 0
         ];
         const sp500Data = [
-            annualizedData['10years'][1],
-            annualizedData['3years'][1],
-            annualizedData['12months'][1]
+            sp500AnnualizedReturns['10years'] || 0,
+            sp500AnnualizedReturns['3years'] || 0,
+            sp500AnnualizedReturns['12months'] || 0
         ];
 
         if (chart) {
-            chart.destroy(); // Destroy the previous chart if it exists
+            chart.destroy();  // Destroy previous chart if it exists
         }
 
         chart = new Chart(ctx, {
@@ -163,14 +240,14 @@ test
                     {
                         label: 'Portfolio',
                         data: portfolioData,
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',  
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1
                     },
                     {
                         label: 'S&P 500',
                         data: sp500Data,
-                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',  
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1
                     }
@@ -186,11 +263,7 @@ test
                     y: {
                         beginAtZero: true,
                         grid: { display: false },
-                        ticks: {
-                            callback: function(value) {
-                                return `${value}%`; // Add % symbol to y-axis labels
-                            }
-                        }
+                        display: false
                     }
                 },
                 plugins: {
@@ -201,16 +274,26 @@ test
                                 return `${context.dataset.label}: ${context.raw}%`;
                             }
                         }
+                    },
+                    datalabels: {
+                        display: false,
+                        anchor: 'end',
+                        align: 'end',
+                        offset: -10,
+                        formatter: function(value) {
+                            return `${value}%`;
+                        },
+                        font: { weight: 'bold' }
                     }
                 }
-            }
+            },
+            plugins: [ChartDataLabels]
         });
     }
 
-    // Initialize chart and numeric data on page load
     document.addEventListener('DOMContentLoaded', function () {
-        updateNumericSummary();
-        updateChart();
+        calculateAllAnnualizedReturns();
     });
 </script>
+
 {% endblock %}
