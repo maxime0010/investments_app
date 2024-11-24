@@ -224,21 +224,42 @@ def filter_and_normalize(dates, portfolio_values, sp500_values, period_days):
 
     return filtered_dates, normalized_portfolio, normalized_sp500
 
-# Index route (aligned with performance logic)
 @app.route('/')
 def index():
     dates, portfolio_values, sp500_values = fetch_portfolio_data()
 
-    # Calculate normalized data for default display (e.g., 10 years)
-    period_days = 10 * 365
-    filtered_dates, normalized_portfolio, normalized_sp500 = filter_and_normalize(dates, portfolio_values, sp500_values, period_days)
+    def fetch_annualized_data(period_days):
+        end_date = datetime.strptime(dates[-1], '%Y-%m-%d')
+        start_date = end_date - timedelta(days=period_days)
+        filtered_portfolio, filtered_sp500 = [], []
+        for date, portfolio, sp500 in zip(dates, portfolio_values, sp500_values):
+            current_date = datetime.strptime(date, '%Y-%m-%d')
+            if current_date >= start_date:
+                filtered_portfolio.append(portfolio)
+                filtered_sp500.append(sp500)
+        if len(filtered_portfolio) > 1:
+            portfolio_return = calculate_annualized_return(filtered_portfolio[0], filtered_portfolio[-1], start_date, end_date)
+            sp500_return = calculate_annualized_return(filtered_sp500[0], filtered_sp500[-1], start_date, end_date)
+            return round(portfolio_return * 100, 1), round(sp500_return * 100, 1)
+        return 0, 0
+
+    annualized_returns = {
+        "10years": fetch_annualized_data(365 * 10),
+        "3years": fetch_annualized_data(365 * 3),
+        "12months": fetch_annualized_data(365),
+    }
+
+    # Ensure all values are valid
+    annualized_returns = {key: value if value else (0, 0) for key, value in annualized_returns.items()}
 
     return render_template(
         'index.html',
-        dates_simulation=filtered_dates,
-        simulation_values=normalized_portfolio,
-        sp500_values_simulation=normalized_sp500
+        dates_simulation=dates,
+        simulation_values=portfolio_values,
+        sp500_values_simulation=sp500_values,
+        annualized_returns=annualized_returns
     )
+
 
 # Performance route
 @app.route('/performance')
