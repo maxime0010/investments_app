@@ -18,9 +18,16 @@
     <!-- Bar Chart for Annualized Returns -->
     <h4>Portfolio vs S&P 500 Annualized Returns</h4>
     <canvas id="annualizedReturnsChart" style="width: 100%; height: 300px; margin: 0 auto;"></canvas>
+    
+    <!-- Display Numeric Annualized Returns -->
+    <div class="annualized-returns-summary">
+        <p><strong>Last 10 Years:</strong> Portfolio <span id="return-10years-portfolio"></span>%, S&P 500 <span id="return-10years-sp500"></span>%</p>
+        <p><strong>Last 3 Years:</strong> Portfolio <span id="return-3years-portfolio"></span>%, S&P 500 <span id="return-3years-sp500"></span>%</p>
+        <p><strong>Last 12 Months:</strong> Portfolio <span id="return-12months-portfolio"></span>%, S&P 500 <span id="return-12months-sp500"></span>%</p>
+    </div>
+
     <a href="{{ url_for('performance') }}" class="btn mt-3">Performance of the portfolio</a>
 </div>
-
 
 <div class="text-section">
     <h1>Our AI screens the stock market to build a top-investor grade portfolio</h1>
@@ -45,7 +52,6 @@
             <div class="number-description">analyst reports processed by our AI to generate recommendations</div>
         </div>
     </div>
-
 </div>
 
 <div class="text-section">
@@ -63,7 +69,7 @@
         
         <div class="matrix-grid">
             <div class="matrix-row">
-                <!-- First quadrant (top-left) - Most Volatile with hippo icon -->
+                <!-- First quadrant (top-left) - Most Volatile with dragon icon -->
                 <div class="matrix-cell low-return high-consensus" style="background-color: #e0e0e0;">
                     <i class="fas fa-dragon fa-3x"></i><br>
                     <p>Most Volatile</p>
@@ -78,7 +84,7 @@
                 <!-- Third quadrant (bottom-left) - Underperforming with dog icon -->
                 <div class="matrix-cell low-return low-consensus" style="background-color: #e0e0e0;">
                     <i class="fas fa-dog fa-3x"></i><br>
-                    <p>Under performing</p>
+                    <p>Underperforming</p>
                 </div>
                 <!-- Fourth quadrant (bottom-right) - Low risk strategy with hippo icon -->
                 <div class="matrix-cell high-return low-consensus" style="background-color: #e0e0e0;">
@@ -105,43 +111,12 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Include Chart.js and Data Labels plugin -->
+<!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
-<!-- Count-Up Effect Script -->
-<script>
-    function countUp(element) {
-        const endValue = parseInt(element.getAttribute('data-count'), 10);
-        const duration = 2000;  // Animation duration in milliseconds
-        let startTime = null;
-
-        function step(timestamp) {
-            if (!startTime) startTime = timestamp;
-            const progress = timestamp - startTime;
-            const currentValue = Math.min(Math.floor((progress / duration) * endValue), endValue);
-            element.textContent = currentValue;
-            if (progress < duration) {
-                window.requestAnimationFrame(step);
-            }
-        }
-
-        window.requestAnimationFrame(step);
-    }
-
-    function handleScroll() {
-        const elements = document.querySelectorAll('.highlighted-number');
-        elements.forEach(el => {
-            const rect = el.getBoundingClientRect();
-            if (rect.top < window.innerHeight && rect.bottom >= 0 && !el.classList.contains('counted')) {
-                countUp(el);
-                el.classList.add('counted');  // Ensure the animation happens only once
-            }
-        });
-    }
-
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('DOMContentLoaded', handleScroll);
+<!-- Pass annualized returns data from the backend -->
+<script id="annualizedReturnsData" type="application/json">
+    {{ annualized_returns | tojson }}
 </script>
 
 <script>
@@ -150,19 +125,30 @@
     // Load precomputed annualized returns from the backend
     const annualizedData = JSON.parse(document.getElementById('annualizedReturnsData').textContent);
 
+    // Update numeric summary
+    function updateNumericSummary() {
+        document.getElementById('return-10years-portfolio').textContent = annualizedData['10years'][0];
+        document.getElementById('return-10years-sp500').textContent = annualizedData['10years'][1];
+        document.getElementById('return-3years-portfolio').textContent = annualizedData['3years'][0];
+        document.getElementById('return-3years-sp500').textContent = annualizedData['3years'][1];
+        document.getElementById('return-12months-portfolio').textContent = annualizedData['12months'][0];
+        document.getElementById('return-12months-sp500').textContent = annualizedData['12months'][1];
+    }
+
+    // Update chart display
     function updateChart() {
         const ctx = document.getElementById('annualizedReturnsChart').getContext('2d');
 
         const labels = ['Last 10 Years', 'Last 3 Years', 'Last 12 Months'];
         const portfolioData = [
-            annualizedData['10years'][0] || 0, // Portfolio return for 10 years
-            annualizedData['3years'][0] || 0,  // Portfolio return for 3 years
-            annualizedData['12months'][0] || 0 // Portfolio return for 12 months
+            annualizedData['10years'][0],
+            annualizedData['3years'][0],
+            annualizedData['12months'][0]
         ];
         const sp500Data = [
-            annualizedData['10years'][1] || 0, // S&P 500 return for 10 years
-            annualizedData['3years'][1] || 0,  // S&P 500 return for 3 years
-            annualizedData['12months'][1] || 0 // S&P 500 return for 12 months
+            annualizedData['10years'][1],
+            annualizedData['3years'][1],
+            annualizedData['12months'][1]
         ];
 
         if (chart) {
@@ -221,10 +207,10 @@
         });
     }
 
+    // Initialize chart and numeric data on page load
     document.addEventListener('DOMContentLoaded', function () {
+        updateNumericSummary();
         updateChart();
     });
 </script>
-
-
 {% endblock %}
