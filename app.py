@@ -136,7 +136,7 @@ def fetch_stock_prices(ticker):
 def get_latest_portfolio_date():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    cursor.execute("SELECT MAX(date) FROM portfolio10")
+    cursor.execute("SELECT MAX(date) FROM portfolio365")
     latest_date = cursor.fetchone()[0]
     cursor.close()
     conn.close()
@@ -155,7 +155,7 @@ def get_top_stocks(latest_date):
         SELECT p.ticker, MAX(r.name) as name, a.last_closing_price AS last_price, 
                a.expected_return_combined_criteria, a.num_combined_criteria, MAX(p.ranking) as ranking, 
                MAX(a.avg_combined_criteria) as target_price, s.indices
-        FROM portfolio10 p
+        FROM portfolio365 p
         JOIN analysis10 a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         JOIN stock s ON s.ticker = p.ticker
@@ -257,7 +257,7 @@ def stock_detail(ticker):
         latest_date = get_latest_portfolio_date()
         cursor.execute("""
             SELECT ticker
-            FROM portfolio10
+            FROM portfolio365
             WHERE ticker = %s AND date = %s
         """, (ticker, latest_date))
         stock_in_portfolio = cursor.fetchone() is not None
@@ -699,7 +699,7 @@ def index():
                 FROM prices sp 
                 WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-        FROM portfolio10 p
+        FROM portfolio365 p
         GROUP BY p.date
         ORDER BY p.date
     """)
@@ -711,7 +711,7 @@ def index():
                 FROM prices sp 
                 WHERE sp.ticker = 'SPX' AND sp.date <= ps.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-        FROM portfolio10 ps
+        FROM portfolio365 ps
         ORDER BY ps.date
     """)
     simulated_portfolio_data = cursor.fetchall()
@@ -1282,7 +1282,7 @@ def monthly_variations():
     SELECT DATE_FORMAT(date, '%Y-%m') AS month,
            MAX(CASE WHEN ticker = 'SPX' THEN close END) AS sp500_close,
            MAX(CASE WHEN ticker = 'PORTFOLIO' THEN close END) AS portfolio_close
-    FROM portfolio10
+    FROM portfolio365
     WHERE date >= '2014-10-01'
     GROUP BY DATE_FORMAT(date, '%Y-%m')
     ORDER BY DATE_FORMAT(date, '%Y-%m')
@@ -1315,14 +1315,14 @@ def performance():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch actual portfolio values and S&P 500 data from portfolio10 table
+    # Fetch actual portfolio values and S&P 500 data from portfolio365 table
     cursor.execute("""
         SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
                (SELECT close 
                 FROM prices sp 
                 WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-        FROM portfolio10 p
+        FROM portfolio365 p
         GROUP BY p.date
         ORDER BY p.date
     """)
