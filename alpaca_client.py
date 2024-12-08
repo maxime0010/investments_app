@@ -28,16 +28,21 @@ def create_account(data):
         dict: The response from the Alpaca API or error details.
     """
     try:
-        # Log the payload for debugging
         logger.info(f"Payload: {json.dumps(data, indent=2)}")
 
-        # Send the request
-        response = broker_client.post("/v1/accounts", data=data)  # Use `data=`
+        # Correct base URL and endpoint
+        base_url = "https://broker-api.sandbox.alpaca.markets"
+        endpoint = "/v1/accounts"
+        url = f"{base_url}{endpoint}"
+
+        # Post request to the correct endpoint
+        response = broker_client.post(url, data=data)  # Ensure `data` is passed here
         logger.info(f"Account created successfully: {response}")
         return response
     except Exception as e:
         logger.error(f"Error creating account: {e}")
         return {"error": str(e)}
+
 
 
 if __name__ == "__main__":
