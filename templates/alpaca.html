@@ -99,75 +99,76 @@
 </div>
 
 <script>
-    document.getElementById('submitButton').addEventListener('click', async () => {
-        const form = document.getElementById('alpacaForm');
-        const formData = new FormData(form);
-        const agreements = [];
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('submitButton').addEventListener('click', async () => {
+            const form = document.getElementById('alpacaForm');
+            const formData = new FormData(form);
+            const agreements = [];
 
-        // Collect checked agreements
-        form.querySelectorAll('input[name="agreements"]:checked').forEach((checkbox) => {
-            agreements.push(checkbox.value);
-        });
-
-        const jsonData = {};
-        formData.forEach((value, key) => {
-            jsonData[key] = value;
-        });
-
-        const payload = {
-            contact: {
-                email_address: jsonData.email_address,
-                phone_number: jsonData.phone_number,
-                street_address: jsonData.street_address,
-                city: jsonData.city,
-                state: jsonData.state,
-                postal_code: jsonData.postal_code,
-                country: jsonData.country,
-            },
-            identity: {
-                given_name: jsonData.given_name,
-                family_name: jsonData.family_name,
-                date_of_birth: jsonData.date_of_birth,
-                tax_id: jsonData.tax_id,
-                tax_id_type: 'SSN',
-                country_of_tax_residence: jsonData.country_of_tax_residence,
-            },
-            disclosures: {
-                is_control_person: jsonData.is_control_person === 'true',
-                is_affiliated_exchange_or_finra: jsonData.is_affiliated_exchange_or_finra === 'true',
-                is_politically_exposed: jsonData.is_politically_exposed === 'true',
-                immediate_family_exposed: jsonData.immediate_family_exposed === 'true',
-            },
-            agreements, // Agreements as an array
-        };
-
-        console.log('Payload:', JSON.stringify(payload, null, 2)); // Debugging payload
-
-        try {
-            const response = await fetch('/create_account', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
+            // Collect checked agreements
+            form.querySelectorAll('input[name="agreements"]:checked').forEach((checkbox) => {
+                agreements.push(checkbox.value);
             });
 
-            const result = await response.json();
-            const messageElement = document.getElementById('responseMessage');
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
 
-            if (response.ok) {
-                messageElement.textContent = `Account created successfully: ${JSON.stringify(result)}`;
-                messageElement.className = 'text
+            const payload = {
+                contact: {
+                    email_address: jsonData.email_address,
+                    phone_number: jsonData.phone_number,
+                    street_address: jsonData.street_address,
+                    city: jsonData.city,
+                    state: jsonData.state,
+                    postal_code: jsonData.postal_code,
+                    country: jsonData.country,
+                },
+                identity: {
+                    given_name: jsonData.given_name,
+                    family_name: jsonData.family_name,
+                    date_of_birth: jsonData.date_of_birth,
+                    tax_id: jsonData.tax_id,
+                    tax_id_type: 'SSN',
+                    country_of_tax_residence: jsonData.country_of_tax_residence,
+                },
+                disclosures: {
+                    is_control_person: jsonData.is_control_person === 'true',
+                    is_affiliated_exchange_or_finra: jsonData.is_affiliated_exchange_or_finra === 'true',
+                    is_politically_exposed: jsonData.is_politically_exposed === 'true',
+                    immediate_family_exposed: jsonData.immediate_family_exposed === 'true',
+                },
+                agreements, // Agreements as an array
+            };
 
+            console.log('Payload:', JSON.stringify(payload, null, 2)); // Debugging payload
 
-            } else {
-                messageElement.textContent = `Error: ${result.error || 'Unknown error'}`;
-                messageElement.className = 'text-danger';
+            try {
+                const response = await fetch('/create_account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const messageElement = document.getElementById('responseMessage');
+                if (response.ok) {
+                    const result = await response.json();
+                    messageElement.textContent = `Account created successfully: ${JSON.stringify(result)}`;
+                    messageElement.className = 'text-success';
+                } else {
+                    const result = await response.json(); // Attempt to parse the response
+                    messageElement.textContent = `Error: ${result.error || 'Unknown error'}`;
+                    messageElement.className = 'text-danger';
+                }
+            } catch (error) {
+                console.error('Error creating account:', error);
+                document.getElementById('responseMessage').textContent = `Error: ${error.message}`;
+                document.getElementById('responseMessage').className = 'text-danger';
             }
-        } catch (error) {
-            console.error('Error creating account:', error);
-            document.getElementById('responseMessage').textContent = `Error: ${error.message}`;
-        }
+        });
     });
 </script>
 {% endblock %}
