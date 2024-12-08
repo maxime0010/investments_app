@@ -136,8 +136,9 @@
             const form = document.getElementById('alpacaForm');
             const formData = new FormData(form);
 
-            // Convert street address to array
+            // Convert multi-line inputs or special fields as needed
             const streetAddressArray = [formData.get('street_address')];
+            const fundingSourceArray = Array.from(formData.getAll('funding_source'));
 
             const agreements = [
                 {
@@ -152,6 +153,7 @@
                 }
             ];
 
+            // Build the payload
             const payload = {
                 contact: {
                     email_address: formData.get('email_address'),
@@ -166,14 +168,22 @@
                     given_name: formData.get('given_name'),
                     family_name: formData.get('family_name'),
                     date_of_birth: formData.get('date_of_birth'),
+                    tax_id: formData.get('tax_id'), // Ensure tax_id is included
+                    tax_id_type: formData.get('tax_id_type'), // Ensure tax_id_type is included
                     country_of_citizenship: formData.get('country_of_citizenship'),
                     country_of_birth: formData.get('country_of_birth'),
-                    funding_source: [formData.get('funding_source')],
+                    funding_source: fundingSourceArray,
+                    annual_income_min: formData.get('annual_income_min'),
+                    annual_income_max: formData.get('annual_income_max'),
+                    total_net_worth_min: formData.get('total_net_worth_min'),
+                    total_net_worth_max: formData.get('total_net_worth_max'),
+                    liquid_net_worth_min: formData.get('liquid_net_worth_min'),
+                    liquid_net_worth_max: formData.get('liquid_net_worth_max'),
                 },
                 agreements,
             };
 
-            console.log('Payload:', payload);
+            console.log('Payload:', payload); // Debugging
 
             try {
                 const response = await fetch('/create_account', {
@@ -199,4 +209,5 @@
         });
     });
 </script>
+
 {% endblock %}
