@@ -1557,6 +1557,10 @@ def account_details():
         print(f"Error fetching account details: {e}")
         return render_template('account_details.html', error="An error occurred while fetching account details.")
 
+@app.route('/api/accounts', methods=['GET'])
+def get_accounts():
+    # Example response
+    return jsonify({"message": "Accounts data"}), 200
 
 
 if __name__ == '__main__':
