@@ -1356,6 +1356,36 @@ def api_create_account():
 def alpaca_account():
     return render_template('alpaca.html')
 
+@app.route('/dashboard', methods=['GET'])
+@login_required
+def dashboard():
+    # Retrieve account ID from query parameters
+    account_id = request.args.get('account_id')
+    
+    if not account_id:
+        return redirect(url_for('alpaca_account'))
+
+    try:
+        # Fetch account details from Alpaca API (or your database if stored locally)
+        alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}"
+        headers = {
+            "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
+        }
+        response = requests.get(alpaca_api_url, headers=headers)
+        
+        if response.status_code == 200:
+            account_details = response.json()
+        else:
+            account_details = {"error": "Failed to fetch account details."}
+
+        # Pass account details to the dashboard template
+        return render_template('dashboard.html', account=account_details)
+
+    except Exception as e:
+        print(f"Error fetching account details: {e}")
+        return render_template('dashboard.html', error="An error occurred while fetching account details.")
+
+
 
 
 if __name__ == '__main__':
