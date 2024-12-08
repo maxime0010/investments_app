@@ -19,6 +19,15 @@ if not API_KEY or not API_SECRET:
 BASE_URL = "https://broker-api.sandbox.alpaca.markets"
 ENDPOINT = "/v1/accounts"
 
+def _get_headers():
+    """Generate headers for Alpaca API requests."""
+    auth_header = base64.b64encode(f"{API_KEY}:{API_SECRET}".encode()).decode()
+    return {
+        "Authorization": f"Basic {auth_header}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    
 def create_account(data):
     """
     Create an Alpaca account using the Broker API.
@@ -50,6 +59,49 @@ def create_account(data):
 
     except Exception as e:
         logger.error(f"Error creating account: {e}")
+        return {"error": str(e)}
+
+def fetch_account_details(account_id):
+    """Fetch details of an Alpaca account."""
+    try:
+        url = f"{BASE_URL}/v1/accounts/{account_id}"
+        headers = _get_headers()
+        logger.info(f"Fetching account details for account_id: {account_id}")
+
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.HTTPError as e:
+        if response.status_code == 404:
+            logger.warning(f"Account not found: {account_id}")
+            return {"error": "Account not found."}
+        elif response.status_code == 401:
+            logger.error(f"Unauthorized access. Check your API credentials.")
+            return {"error": "Unauthorized access to Alpaca API."}
+        logger.error(f"HTTP error: {e}")
+        return {"error": f"HTTP error: {e}"}
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error fetching account details: {e}")
+        return {"error": str(e)}
+
+def fund_account(account_id, amount, funding_source="sandbox", direction="INCOMING"):
+    """Fund an Alpaca account."""
+    try:
+        url = f"{BASE_URL}/v1/accounts/{account_id}/transfers"
+        headers = _get_headers()
+        payload = {
+            "amount": float(amount),
+            "funding_source": funding_source,
+            "direction": direction
+        }
+        logger.info(f"Funding account {account_id} with payload: {payload}")
+
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        logger.info(f"Funding successful: {response.json()}")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error funding account: {e}")
         return {"error": str(e)}
 
 
