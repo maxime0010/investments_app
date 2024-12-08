@@ -531,59 +531,39 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
+    email = current_user.email  # Retrieve the user's email from the session
+    print(f"Debug: Fetching subscription status for email: {email}")
 
-    email=current_user.email,
-    subscription_status, customer_id, error = get_subscription_status(email)
+    # Initialize variables
+    subscription_status = None
+    customer_id = None
+    error = None
 
+    try:
+        # Fetch subscription details
+        subscription_status, customer_id, error = get_subscription_status(email)
+        print(f"Debug: subscription_status: {subscription_status}, customer_id: {customer_id}, error: {error}")
+    except Exception as e:
+        print(f"Debug: Exception while fetching subscription status: {e}")
+        error = "An error occurred while fetching your subscription information."
+
+    # Handle errors gracefully
     if error:
         return render_template('profile.html', error=error)
 
+    # Redirect to subscribe if no subscription is found
     if not subscription_status:
-        # If no subscription is found, redirect to the subscribe route
+        flash('No subscription found. Please subscribe to continue.', 'warning')
         return redirect(url_for('subscribe'))
 
-    return render_template('profile.html', email=email, subscription_status=subscription_status, customer_id=customer_id)
-
-
-# Initialize Brevo (Sendinblue) configuration
-def setup_brevo_api():
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = os.getenv('BREVO_API_KEY')  # Ensure you are using environment variables
-    return sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-
-
-def send_reset_password_email(user_email, reset_url):
-    # Setting up Brevo API client
-    api_instance = setup_brevo_api()
-    subject = "Reset your Good Life Password"
-    sender = {"name": "Good Life 💵 Support", "email": "hello@goodlife.money"}
-    receivers = [{"email": user_email}]
-    
-    # Email content
-    content = f"""
-    <h3>Password Reset Request</h3>
-    <p>Please click the link below to reset your password:</p>
-    <a href="{reset_url}">{reset_url}</a>
-    <p>This link will expire in 1 hour.</p>
-    """
-
-    # Build the email object
-    email = sib_api_v3_sdk.SendSmtpEmail(
-        to=receivers,
-        sender=sender,
-        subject=subject,
-        html_content=content,
-        
+    # Render profile page
+    return render_template(
+        'profile.html',
+        email=email,
+        subscription_status=subscription_status,
+        customer_id=customer_id,
+        error=None
     )
-    
-    try:
-        # Attempt to send the email
-        print(f"Sending email to: {user_email}")
-        response = api_instance.send_transac_email(email)
-        print(f"Email sent successfully: {response}")
-    except ApiException as e:
-        print(f"Failed to send email: {e}")
-        raise
 
 
 
