@@ -1342,13 +1342,47 @@ def performance():
                            sp500_values_simulation=sp500_values_simulation)
 
 @app.route("/create_account", methods=["POST"])
+@login_required
 def api_create_account():
-    data = request.json  # Expect JSON data from the frontend
+    # Check if the user already has an Alpaca account
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT alpaca_account_id FROM users WHERE id = %s", (current_user.id,))
+    user_data = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if user_data and user_data['alpaca_account_id']:
+        # Redirect to the dashboard if an account already exists
+        return jsonify({"redirect_url": url_for('dashboard', account_id=user_data['alpaca_account_id'])}), 200
+
+    # Proceed with account creation if no account exists
+    data = request.json
     try:
-        response = create_account(data)  # Pass data to the function
-        return jsonify(response), 200
+        response = create_account(data)
+        if 'id' in response:
+            account_id = response['id']
+
+            # Save the account_id to the database
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE users SET alpaca_account_id = %s WHERE id = %s",
+                (account_id, current_user.id)
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            # Redirect URL for dashboard
+            redirect_url = url_for('dashboard', account_id=account_id)
+            return jsonify({"redirect_url": redirect_url}), 200
+        else:
+            return jsonify(response), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
 
 
 @app.route('/alpaca', methods=['GET'])
@@ -1359,14 +1393,22 @@ def alpaca_account():
 @app.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
-    # Retrieve account ID from query parameters
-    account_id = request.args.get('account_id')
-    
+    # Retrieve account ID from the database for the logged-in user
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT alpaca_account_id FROM users WHERE id = %s", (current_user.id,))
+    user_data = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    account_id = user_data['alpaca_account_id']
+
+    # Redirect to Alpaca account creation if no account is linked
     if not account_id:
         return redirect(url_for('alpaca_account'))
 
     try:
-        # Fetch account details from Alpaca API (or your database if stored locally)
+        # Fetch account details from Alpaca API
         alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}"
         headers = {
             "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
@@ -1378,7 +1420,7 @@ def dashboard():
         else:
             account_details = {"error": "Failed to fetch account details."}
 
-        # Pass account details to the dashboard template
+        # Render dashboard with account details
         return render_template('dashboard.html', account=account_details)
 
     except Exception as e:
