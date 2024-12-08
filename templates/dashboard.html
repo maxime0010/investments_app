@@ -3,57 +3,64 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<div class="container">
+    <h1>Welcome to Your Dashboard</h1>
+    <div id="accountInfo" class="alert alert-info">Fetching account details...</div>
 
+    <h2>Actions</h2>
+    <ul id="actionLinks" style="display: none;">
+        <li><a id="fundAccountLink" href="#">Fund Your Account</a></li>
+        <li><a id="startTradingLink" href="#">Start Trading</a></li>
+        <li><a id="viewAccountDetailsLink" href="#">View Account Details</a></li>
+    </ul>
+</div>
 
-
-    <div class="container">
-        <h1>Welcome to Your Dashboard</h1>
-        <p id="accountInfo">Fetching account details...</p>
-
-        <h2>Actions</h2>
-        <ul>
-    <li><a href="{{ url_for('fund_account', account_id=account.account_number) }}">Fund Your Account</a></li>
-    <li><a href="{{ url_for('trading', account_id=account.account_number) }}">Start Trading</a></li>
-    <li><a href="{{ url_for('account_details', account_id=account.account_number) }}">View Account Details</a></li>
-
-        </ul>
-    </div>
-
-    <script>
-        // Fetch query parameters
+<script>
+    async function fetchAccountDetails() {
+        const accountInfoElement = document.getElementById('accountInfo');
+        const actionLinksElement = document.getElementById('actionLinks');
         const urlParams = new URLSearchParams(window.location.search);
         const accountId = urlParams.get('account_id');
 
-        // Fetch and display account details
-        async function fetchAccountDetails() {
-            const accountInfoElement = document.getElementById('accountInfo');
-            try {
-                const response = await fetch(`/api/accounts/${accountId}`);
-                if (response.ok) {
-                    const account = await response.json();
-                    accountInfoElement.innerHTML = `
-                        <p><strong>Account Number:</strong> ${account.account_number}</p>
-                        <p><strong>Status:</strong> ${account.status}</p>
-                        <p><strong>Currency:</strong> ${account.currency}</p>
-                        <p><strong>Created At:</strong> ${account.created_at}</p>
-                    `;
-                } else {
-                    accountInfoElement.textContent = 'Failed to fetch account details.';
-                }
-            } catch (error) {
-                console.error('Error fetching account details:', error);
-                accountInfoElement.textContent = 'An error occurred while fetching account details.';
-            }
+        if (!accountId) {
+            accountInfoElement.classList.remove('alert-info');
+            accountInfoElement.classList.add('alert-danger');
+            accountInfoElement.textContent = "No account ID provided. Unable to fetch account details.";
+            return;
         }
 
-        // Set up links for actions
-        document.getElementById('fundAccountLink').href = `/fund-account?account_id=${accountId}`;
-        document.getElementById('startTradingLink').href = `/trading?account_id=${accountId}`;
-        document.getElementById('viewAccountDetailsLink').href = `/account-details?account_id=${accountId}`;
+        try {
+            const response = await fetch(`/api/accounts/${accountId}`);
+            if (response.ok) {
+                const account = await response.json();
+                accountInfoElement.classList.remove('alert-info');
+                accountInfoElement.classList.add('alert-success');
+                accountInfoElement.innerHTML = `
+                    <p><strong>Account Number:</strong> ${account.account_number}</p>
+                    <p><strong>Status:</strong> ${account.status}</p>
+                    <p><strong>Currency:</strong> ${account.currency}</p>
+                    <p><strong>Created At:</strong> ${new Date(account.created_at).toLocaleString()}</p>
+                `;
 
-        // Fetch account details on page load
-        fetchAccountDetails();
-    </script>
+                // Enable action links
+                document.getElementById('fundAccountLink').href = `/fund-account?account_id=${account.account_number}`;
+                document.getElementById('startTradingLink').href = `/trading?account_id=${account.account_number}`;
+                document.getElementById('viewAccountDetailsLink').href = `/account-details?account_id=${account.account_number}`;
+                actionLinksElement.style.display = 'block';
+            } else {
+                accountInfoElement.classList.remove('alert-info');
+                accountInfoElement.classList.add('alert-danger');
+                accountInfoElement.textContent = 'Failed to fetch account details. Please try again later.';
+            }
+        } catch (error) {
+            console.error('Error fetching account details:', error);
+            accountInfoElement.classList.remove('alert-info');
+            accountInfoElement.classList.add('alert-danger');
+            accountInfoElement.textContent = 'An error occurred while fetching account details.';
+        }
+    }
 
-
+    // Fetch account details on page load
+    fetchAccountDetails();
+</script>
 {% endblock %}
