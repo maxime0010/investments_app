@@ -844,17 +844,28 @@ def get_ratings_statistics():
 # Helper function to get the subscription status using an email address
 def get_subscription_status(email):
     try:
+        print(f"Debug: Fetching Stripe customer for email: {email}")
         customer_list = stripe.Customer.list(email=email).data
         if not customer_list:
+            print(f"Debug: No Stripe customer found for email: {email}")
             return None, None, 'No customer found with the provided email address'
 
         customer_id = customer_list[0].id
+        print(f"Debug: Found Stripe customer ID: {customer_id}")
+
         subscriptions = stripe.Subscription.list(customer=customer_id)
-        subscription_status = subscriptions.data[0].status if subscriptions.data else None
-        return subscription_status, customer_id, None
+        if subscriptions.data:
+            subscription_status = subscriptions.data[0].status
+            print(f"Debug: Found subscription status: {subscription_status}")
+            return subscription_status, customer_id, None
+        else:
+            print("Debug: No active subscriptions found for this customer.")
+            return None, customer_id, 'No active subscription found'
 
     except stripe.error.StripeError as e:
+        print(f"Debug: Stripe API error: {e}")
         return None, None, str(e)
+
 
 
 
