@@ -13,7 +13,7 @@ from mysql.connector import Error
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from itsdangerous import URLSafeTimedSerializer
-from alpaca_client import create_account  # Import the backend function
+from alpaca_client import create_account, fetch_account_details, fund_account
 
 # Helper function to calculate annualized return
 def calculate_annualized_return(start_value, end_value, start_date, end_date):
@@ -1388,31 +1388,34 @@ def alpaca_account():
 def dashboard():
     print("Debug: Entering /dashboard route")
 
-    # Step 1: Fetch the alpaca_account_id for the current user
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-
-        print(f"Debug: Fetching account_id for user {current_user.id}")
-        cursor.execute("SELECT alpaca_account_id FROM users WHERE id = %s", (current_user.id,))
-        user_data = cursor.fetchone()
-        print(f"Debug: Query result for user_data: {user_data}")
-
-        if not user_data or not user_data.get('alpaca_account_id'):
-            print("Debug: No account_id found for the user. Redirecting to /alpaca")
-            flash("No linked Alpaca account found. Please create an account.", "warning")
-            return redirect(url_for('alpaca_account'))
-
-        account_id = user_data['alpaca_account_id']
-        print(f"Debug: Found alpaca_account_id: {account_id}")
-    except mysql.connector.Error as db_error:
-        print(f"Debug: Database error occurred: {db_error}")
-        return render_template('dashboard.html', error="A database error occurred. Please try again later.")
-    finally:
-        if 'cursor' in locals():
+    # Step 1: Fetch the alpaca_account_id from the URL or database
+    account_id = request.args.get('account_id')  # Attempt to get it from the URL
+    if not account_id:
+        try:
+            # Fallback to database if not provided in the URL
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+            print(f"Debug: Fetching account_id for user {current_user.id}")
+            cursor.execute("SELECT alpaca_account_id FROM users WHERE id = %s", (current_user.id,))
+            user_data = cursor.fetchone()
+            print(f"Debug: Query result for user_data: {user_data}")
             cursor.close()
-        if 'conn' in locals():
             conn.close()
+
+            if not user_data or not user_data.get('alpaca_account_id'):
+                print("Debug: No account_id found for the user. Redirecting to /alpaca")
+                flash("No linked Alpaca account found. Please create an account.", "warning")
+                return redirect(url_for('alpaca_account'))
+
+            account_id = user_data['alpaca_account_id']
+        except mysql.connector.Error as db_error:
+            print(f"Debug: Database error occurred: {db_error}")
+            return render_template('dashboard.html', error="A database error occurred. Please try again later.")
+        finally:
+            if 'cursor' in locals():
+                cursor.close()
+            if 'conn' in locals():
+                conn.close()
 
     # Step 2: Fetch account details from Alpaca API
     try:
@@ -1450,50 +1453,27 @@ def dashboard():
     return render_template('dashboard.html', account=account_details)
 
 
-@app.route('/fund-account', methods=['GET', 'POST'])
+
+@app.route('/fund-account', methods=['POST'])
 @login_required
-def fund_account():
+def fund_account_route():
     account_id = request.args.get('account_id')
     if not account_id:
         flash('Account ID is required to fund your account.', 'warning')
         return redirect(url_for('dashboard'))
 
-    if request.method == 'POST':
-        amount = request.form.get('amount')
-        funding_source = request.form.get('funding_source', 'sandbox')
-        direction = request.form.get('direction', 'INCOMING')  # Default to deposit
+    amount = request.form.get('amount')
+    if not amount:
+        flash('Amount is required.', 'danger')
+        return redirect(url_for('fund_account', account_id=account_id))
 
-        if not amount:
-            flash('Amount is required.', 'danger')
-            return redirect(url_for('fund_account', account_id=account_id))
+    result = fund_account(account_id, amount)
+    if "error" in result:
+        flash(f"Error: {result['error']}", 'danger')
+    else:
+        flash('Funding request submitted successfully!', 'success')
 
-        payload = {
-            "amount": float(amount),
-            "funding_source": funding_source,
-            "direction": direction,
-        }
-
-        try:
-            # Simulate funding using Transfers API
-            alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}/transfers"
-            headers = {
-                "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
-                "Content-Type": "application/json"
-            }
-            response = requests.post(alpaca_api_url, json=payload, headers=headers)
-
-            if response.status_code == 200:
-                flash('Funding request submitted successfully!', 'success')
-            else:
-                flash(f"Error: {response.json().get('message', 'Failed to process funding')}", 'danger')
-
-        except Exception as e:
-            print(f"Error during sandbox funding: {e}")
-            flash('An error occurred while processing the funding request.', 'danger')
-
-        return redirect(url_for('dashboard', account_id=account_id))
-
-    return render_template('fund_account.html', account_id=account_id)
+    return redirect(url_for('dashboard', account_id=account_id))
 
 
 
