@@ -1,6 +1,7 @@
 import os
 import json
-from alpaca.broker.client import BrokerClient
+import base64
+import requests  # Use requests library for HTTP requests
 import logging
 
 # Configure logging
@@ -14,8 +15,10 @@ API_SECRET = os.getenv("ALPACA_SECRET")
 if not API_KEY or not API_SECRET:
     raise ValueError("API keys are missing. Please set ALPACA_API and ALPACA_SECRET environment variables.")
 
-# Initialize the broker client
-broker_client = BrokerClient(api_key=API_KEY, secret_key=API_SECRET)
+# Define base URL for Alpaca Broker API (sandbox environment)
+BASE_URL = "https://broker-api.sandbox.alpaca.markets"
+ENDPOINT = "/v1/accounts"  # Account creation endpoint
+
 
 def create_account(data):
     """
@@ -28,21 +31,34 @@ def create_account(data):
         dict: The response from the Alpaca API or error details.
     """
     try:
+        # Construct full URL
+        url = f"{BASE_URL}{ENDPOINT}"
+
+        # Encode API credentials for Basic Auth
+        auth_header = base64.b64encode(f"{API_KEY}:{API_SECRET}".encode()).decode()
+
+        # Set headers for the request
+        headers = {
+            "Authorization": f"Basic {auth_header}",
+            "Content-Type": "application/json",
+        }
+
         logger.info(f"Payload: {json.dumps(data, indent=2)}")
 
-        # Correct base URL and endpoint
-        base_url = "https://broker-api.sandbox.alpaca.markets"
-        endpoint = "/v1/accounts"
-        url = f"{base_url}{endpoint}"
+        # Send the POST request
+        response = requests.post(url, headers=headers, json=data)
 
-        # Post request to the correct endpoint
-        response = broker_client.post(url, data=data)  # Ensure `data` is passed here
-        logger.info(f"Account created successfully: {response}")
-        return response
+        # Check response status
+        if response.status_code == 200:
+            logger.info(f"Account created successfully: {response.json()}")
+            return response.json()
+        else:
+            logger.error(f"Failed to create account: {response.status_code} - {response.text}")
+            return {"error": response.text}
+
     except Exception as e:
         logger.error(f"Error creating account: {e}")
         return {"error": str(e)}
-
 
 
 if __name__ == "__main__":
@@ -55,7 +71,7 @@ if __name__ == "__main__":
             "city": "New York",
             "state": "NY",
             "postal_code": "10001",
-            "country": "US"
+            "country": "US",
         },
         "identity": {
             "given_name": "John",
@@ -80,27 +96,27 @@ if __name__ == "__main__":
             "investment_objective": "growth",
             "investment_time_horizon": "3_to_5_years",
             "marital_status": "SINGLE",
-            "number_of_dependents": 0
+            "number_of_dependents": 0,
         },
         "disclosures": {
             "is_control_person": False,
             "is_affiliated_exchange_or_finra": False,
             "is_affiliated_exchange_or_iiroc": False,
             "is_politically_exposed": False,
-            "immediate_family_exposed": False
+            "immediate_family_exposed": False,
         },
         "agreements": [
             {
                 "agreement": "customer_agreement",
                 "signed_at": "2024-12-08T10:12:00Z",
-                "ip_address": "127.0.0.1"
+                "ip_address": "127.0.0.1",
             },
             {
                 "agreement": "margin_agreement",
                 "signed_at": "2024-12-08T10:12:00Z",
-                "ip_address": "127.0.0.1"
-            }
-        ]
+                "ip_address": "127.0.0.1",
+            },
+        ],
     }
 
     # Test account creation
