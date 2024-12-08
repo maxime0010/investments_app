@@ -9,8 +9,22 @@
     <div class="container">
         <h1>Fund Your Account</h1>
         <p>Account ID: {{ account_id }}</p>
-        <p>This page will allow you to add funds to your Alpaca account.</p>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="amount" class="form-label">Amount</label>
+                <input type="number" id="amount" name="amount" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="funding_source" class="form-label">Funding Source</label>
+                <select id="funding_source" name="funding_source" class="form-control" required>
+                    <option value="bank_account">Bank Account</option>
+                    <option value="credit_card">Credit Card</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
     </div>
+
 
 
 {% endblock %}
