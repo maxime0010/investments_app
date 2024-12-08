@@ -16,17 +16,31 @@
 </div>
 
 <script>
+    console.log("Debug: Entering dashboard script.");
+
     async function fetchAccountDetails() {
-        console.log("Debug: Fetching account details from the backend.");
+        console.log("Debug: Fetching account details from backend.");
+
         const accountInfoElement = document.getElementById('accountInfo');
         const actionLinksElement = document.getElementById('actionLinks');
 
         try {
-            const response = await fetch('/api/accounts');  // Replace with the correct API endpoint
+            const response = await fetch('/api/accounts'); // Ensure correct endpoint
+            console.log(`Debug: API request sent. Status Code: ${response.status}`);
+
             if (response.ok) {
                 const account = await response.json();
-                console.log("Debug: Successfully fetched account details:", account);
+                console.log("Debug: API response received:", account);
 
+                if (!account || !account.account_number) {
+                    console.error("Debug: API response is missing expected fields:", account);
+                    accountInfoElement.classList.remove('alert-info');
+                    accountInfoElement.classList.add('alert-warning');
+                    accountInfoElement.textContent = "Invalid account details received from the server.";
+                    return;
+                }
+
+                // Update UI with account details
                 accountInfoElement.classList.remove('alert-info');
                 accountInfoElement.classList.add('alert-success');
                 accountInfoElement.innerHTML = `
@@ -36,27 +50,31 @@
                     <p><strong>Created At:</strong> ${new Date(account.created_at).toLocaleString()}</p>
                 `;
 
-                // Enable action links
+                // Update action links
                 document.getElementById('fundAccountLink').href = `/fund-account?account_id=${account.account_number}`;
                 document.getElementById('startTradingLink').href = `/trading?account_id=${account.account_number}`;
                 document.getElementById('viewAccountDetailsLink').href = `/account-details?account_id=${account.account_number}`;
                 actionLinksElement.style.display = 'block';
+                console.log("Debug: Action links updated successfully.");
             } else {
-                console.error("Debug: Failed to fetch account details. Response:", response);
+                // Handle HTTP errors
+                console.error(`Debug: API request failed. Response: ${await response.text()}`);
                 accountInfoElement.classList.remove('alert-info');
                 accountInfoElement.classList.add('alert-danger');
-                accountInfoElement.textContent = 'Failed to fetch account details. Please try again later.';
+                accountInfoElement.textContent = `Failed to fetch account details. Status: ${response.status}`;
             }
         } catch (error) {
-            console.error("Debug: Error fetching account details:", error);
+            // Catch and log fetch errors
+            console.error("Debug: Error during fetch operation:", error);
             accountInfoElement.classList.remove('alert-info');
             accountInfoElement.classList.add('alert-danger');
-            accountInfoElement.textContent = 'An error occurred while fetching account details.';
+            accountInfoElement.textContent = `An error occurred while fetching account details: ${error.message}`;
         }
     }
 
     // Fetch account details on page load
     fetchAccountDetails();
 </script>
+
 
 {% endblock %}
