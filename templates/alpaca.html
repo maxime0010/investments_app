@@ -222,12 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 country_of_birth: formData.get('country_of_birth'),
                 country_of_tax_residence: formData.get('country_of_tax_residence'),
                 funding_source: fundingSourceArray,
-                annual_income_min: formData.get('annual_income_min'),
-                annual_income_max: formData.get('annual_income_max'),
-                total_net_worth_min: formData.get('total_net_worth_min'),
-                total_net_worth_max: formData.get('total_net_worth_max'),
-                liquid_net_worth_min: formData.get('liquid_net_worth_min'),
-                liquid_net_worth_max: formData.get('liquid_net_worth_max'),
+                annual_income_min: Number(formData.get('annual_income_min')), // Convert to number
+                annual_income_max: Number(formData.get('annual_income_max')), // Convert to number
+                total_net_worth_min: Number(formData.get('total_net_worth_min')), // Convert to number
+                total_net_worth_max: Number(formData.get('total_net_worth_max')), // Convert to number
+                liquid_net_worth_min: Number(formData.get('liquid_net_worth_min')), // Convert to number
+                liquid_net_worth_max: Number(formData.get('liquid_net_worth_max')), // Convert to number
                 liquidity_needs: formData.get('liquidity_needs'),
                 investment_experience_with_stocks: formData.get('investment_experience_with_stocks'),
                 investment_experience_with_options: formData.get('investment_experience_with_options'),
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 investment_objective: formData.get('investment_objective'),
                 investment_time_horizon: formData.get('investment_time_horizon'),
                 marital_status: formData.get('marital_status'),
-                number_of_dependents: formData.get('number_of_dependents'),
+                number_of_dependents: Number(formData.get('number_of_dependents')), // Convert to number
             },
             disclosures: {
                 is_control_person: formData.get('is_control_person') === 'true',
@@ -272,6 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 
 
 </script>
