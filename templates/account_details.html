@@ -4,19 +4,20 @@
 
 {% block content %}
 
-      <div class="container">
+    <div class="container">
         <h1>Account Details</h1>
         {% if account and not account.error %}
         <p><strong>Account Number:</strong> {{ account.account_number }}</p>
         <p><strong>Status:</strong> {{ account.status }}</p>
-        <p><strong>Created At:</strong> {{ account.created_at }}</p>
         <p><strong>Currency:</strong> {{ account.currency }}</p>
+        <p><strong>Created At:</strong> {{ account.created_at }}</p>
         {% elif error %}
         <p class="text-danger">{{ error }}</p>
         {% else %}
         <p>No account details available.</p>
         {% endif %}
     </div>
+
 
 
 {% endblock %}
