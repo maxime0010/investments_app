@@ -1,12 +1,12 @@
 import os
 import json
 import base64
-import requests  # Use requests library for HTTP requests
+import requests
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)  # Set logging level to INFO
-logger = logging.getLogger(__name__)  # Create a logger instance for this module
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Initialize API keys
 API_KEY = os.getenv("ALPACA_API")
@@ -15,10 +15,9 @@ API_SECRET = os.getenv("ALPACA_SECRET")
 if not API_KEY or not API_SECRET:
     raise ValueError("API keys are missing. Please set ALPACA_API and ALPACA_SECRET environment variables.")
 
-# Define base URL for Alpaca Broker API (sandbox environment)
+# Define base URL for Alpaca Broker API
 BASE_URL = "https://broker-api.sandbox.alpaca.markets"
-ENDPOINT = "/v1/accounts"  # Account creation endpoint
-
+ENDPOINT = "/v1/accounts"
 
 def create_account(data):
     """
@@ -31,24 +30,17 @@ def create_account(data):
         dict: The response from the Alpaca API or error details.
     """
     try:
-        # Construct full URL
         url = f"{BASE_URL}{ENDPOINT}"
-
-        # Encode API credentials for Basic Auth
         auth_header = base64.b64encode(f"{API_KEY}:{API_SECRET}".encode()).decode()
 
-        # Set headers for the request
         headers = {
             "Authorization": f"Basic {auth_header}",
             "Content-Type": "application/json",
         }
 
         logger.info(f"Payload: {json.dumps(data, indent=2)}")
-
-        # Send the POST request
         response = requests.post(url, headers=headers, json=data)
 
-        # Check response status
         if response.status_code == 200:
             logger.info(f"Account created successfully: {response.json()}")
             return response.json()
@@ -62,61 +54,80 @@ def create_account(data):
 
 
 if __name__ == "__main__":
-    # Test data for creating an account
     test_data = {
         "contact": {
-            "email_address": "example@example.com",
-            "phone_number": "1234567890",
-            "street_address": ["123 Main St"],
-            "city": "New York",
-            "state": "NY",
-            "postal_code": "10001",
-            "country": "US",
+            "email_address": "test1@gmail.com",
+            "phone_number": "7065912538",
+            "street_address": ["123 Main St"],  # Must be an array
+            "city": "San Mateo",
+            "state": "CA",
+            "postal_code": "33345",
+            "country": "US"
         },
         "identity": {
             "given_name": "John",
             "family_name": "Doe",
             "date_of_birth": "1990-01-01",
             "tax_id_type": "USA_SSN",
-            "tax_id": "123-45-6789",
+            "tax_id": "661-010-666",
             "country_of_citizenship": "USA",
             "country_of_birth": "USA",
             "country_of_tax_residence": "USA",
-            "funding_source": ["employment_income"],
+            "funding_source": ["employment_income", "savings"],  # Valid funding sources
             "annual_income_min": "10000",
-            "annual_income_max": "50000",
-            "total_net_worth_min": "50000",
-            "total_net_worth_max": "100000",
+            "annual_income_max": "10000",
+            "total_net_worth_min": "10000",
+            "total_net_worth_max": "10000",
             "liquid_net_worth_min": "10000",
-            "liquid_net_worth_max": "50000",
+            "liquid_net_worth_max": "10000",
             "liquidity_needs": "does_not_matter",
             "investment_experience_with_stocks": "over_5_years",
             "investment_experience_with_options": "over_5_years",
-            "risk_tolerance": "moderate",
-            "investment_objective": "growth",
-            "investment_time_horizon": "3_to_5_years",
-            "marital_status": "SINGLE",
-            "number_of_dependents": 0,
+            "risk_tolerance": "conservative",
+            "investment_objective": "market_speculation",
+            "investment_time_horizon": "more_than_10_years",
+            "marital_status": "MARRIED",
+            "number_of_dependents": 5
         },
         "disclosures": {
             "is_control_person": False,
             "is_affiliated_exchange_or_finra": False,
             "is_affiliated_exchange_or_iiroc": False,
             "is_politically_exposed": False,
-            "immediate_family_exposed": False,
+            "immediate_family_exposed": False
         },
         "agreements": [
             {
                 "agreement": "customer_agreement",
                 "signed_at": "2024-12-08T10:12:00Z",
-                "ip_address": "127.0.0.1",
+                "ip_address": "127.0.0.1"
+            },
+            {
+                "agreement": "options_agreement",
+                "signed_at": "2024-12-08T10:12:00Z",
+                "ip_address": "127.0.0.1"
             },
             {
                 "agreement": "margin_agreement",
                 "signed_at": "2024-12-08T10:12:00Z",
-                "ip_address": "127.0.0.1",
-            },
+                "ip_address": "127.0.0.1"
+            }
         ],
+        "documents": [
+            {
+                "document_type": "identity_verification",
+                "document_sub_type": "passport",
+                "content": "/9j/Cg==",  # Base64-encoded content
+                "mime_type": "image/jpeg"
+            }
+        ],
+        "trusted_contact": {
+            "given_name": "Jane",
+            "family_name": "Smith",
+            "email_address": "trusted.contact@example.com"
+        },
+        "additional_information": "",
+        "account_type": "individual"
     }
 
     # Test account creation
