@@ -1390,15 +1390,15 @@ def dashboard():
 
     # Step 1: Fetch the alpaca_account_id from the URL or database
     account_id = request.args.get('account_id')  # Attempt to get it from the URL
+    print(f"Debug: Account ID from URL: {account_id}")
+
     if not account_id:
         try:
-            # Fallback to database if not provided in the URL
+            print("Debug: Attempting to fetch account_id from the database")
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor(dictionary=True)
-            print(f"Debug: Fetching account_id for user {current_user.id}")
             cursor.execute("SELECT alpaca_account_id FROM users WHERE id = %s", (current_user.id,))
             user_data = cursor.fetchone()
-            print(f"Debug: Query result for user_data: {user_data}")
             cursor.close()
             conn.close()
 
@@ -1408,14 +1408,10 @@ def dashboard():
                 return redirect(url_for('alpaca_account'))
 
             account_id = user_data['alpaca_account_id']
+            print(f"Debug: Account ID from database: {account_id}")
         except mysql.connector.Error as db_error:
             print(f"Debug: Database error occurred: {db_error}")
             return render_template('dashboard.html', error="A database error occurred. Please try again later.")
-        finally:
-            if 'cursor' in locals():
-                cursor.close()
-            if 'conn' in locals():
-                conn.close()
 
     # Step 2: Fetch account details from Alpaca API
     try:
@@ -1424,13 +1420,13 @@ def dashboard():
             "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
             "Accept": "application/json"
         }
-        print(f"Debug: Making API call to {alpaca_api_url}")
-        response = requests.get(alpaca_api_url, headers=headers)
+        print(f"Debug: Alpaca API URL: {alpaca_api_url}")
+        print(f"Debug: Headers: {headers}")
 
+        response = requests.get(alpaca_api_url, headers=headers)
         print(f"Debug: API Response Status Code: {response.status_code}")
         print(f"Debug: API Response Body: {response.text}")
 
-        # Handle specific status codes
         if response.status_code == 200:
             account_details = response.json()
             print(f"Debug: Successfully fetched account details: {account_details}")
