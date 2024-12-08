@@ -73,10 +73,6 @@
             <input type="text" id="country_of_citizenship" name="country_of_citizenship" class="form-control" placeholder="US" required>
         </div>
         <div class="mb-3">
-            <label for="country_of_birth" class="form-label">Country of Birth</label>
-            <input type="text" id="country_of_birth" name="country_of_birth" class="form-control" placeholder="US" required>
-        </div>
-        <div class="mb-3">
             <label for="country_of_tax_residence" class="form-label">Country of Tax Residence</label>
             <input type="text" id="country_of_tax_residence" name="country_of_tax_residence" class="form-control" placeholder="US" required>
         </div>
@@ -89,42 +85,91 @@
             </select>
         </div>
 
-        <!-- Financial Information -->
+        <!-- Financial and Investment Information -->
         <div class="mb-3">
-            <label for="annual_income_min" class="form-label">Annual Income (Min)</label>
-            <input type="number" id="annual_income_min" name="annual_income_min" class="form-control" required>
+            <label for="liquidity_needs" class="form-label">Liquidity Needs</label>
+            <select id="liquidity_needs" name="liquidity_needs" class="form-control" required>
+                <option value="does_not_matter">Does Not Matter</option>
+                <option value="immediate">Immediate</option>
+            </select>
         </div>
         <div class="mb-3">
-            <label for="annual_income_max" class="form-label">Annual Income (Max)</label>
-            <input type="number" id="annual_income_max" name="annual_income_max" class="form-control" required>
+            <label for="investment_experience_with_stocks" class="form-label">Investment Experience with Stocks</label>
+            <select id="investment_experience_with_stocks" name="investment_experience_with_stocks" class="form-control" required>
+                <option value="none">None</option>
+                <option value="less_than_5_years">Less than 5 years</option>
+                <option value="over_5_years">Over 5 years</option>
+            </select>
         </div>
         <div class="mb-3">
-            <label for="total_net_worth_min" class="form-label">Total Net Worth (Min)</label>
-            <input type="number" id="total_net_worth_min" name="total_net_worth_min" class="form-control" required>
+            <label for="investment_experience_with_options" class="form-label">Investment Experience with Options</label>
+            <select id="investment_experience_with_options" name="investment_experience_with_options" class="form-control" required>
+                <option value="none">None</option>
+                <option value="less_than_5_years">Less than 5 years</option>
+                <option value="over_5_years">Over 5 years</option>
+            </select>
         </div>
         <div class="mb-3">
-            <label for="total_net_worth_max" class="form-label">Total Net Worth (Max)</label>
-            <input type="number" id="total_net_worth_max" name="total_net_worth_max" class="form-control" required>
+            <label for="risk_tolerance" class="form-label">Risk Tolerance</label>
+            <select id="risk_tolerance" name="risk_tolerance" class="form-control" required>
+                <option value="conservative">Conservative</option>
+                <option value="moderate">Moderate</option>
+                <option value="aggressive">Aggressive</option>
+            </select>
         </div>
         <div class="mb-3">
-            <label for="liquid_net_worth_min" class="form-label">Liquid Net Worth (Min)</label>
-            <input type="number" id="liquid_net_worth_min" name="liquid_net_worth_min" class="form-control" required>
+            <label for="investment_objective" class="form-label">Investment Objective</label>
+            <select id="investment_objective" name="investment_objective" class="form-control" required>
+                <option value="capital_preservation">Capital Preservation</option>
+                <option value="growth">Growth</option>
+                <option value="market_speculation">Market Speculation</option>
+            </select>
         </div>
         <div class="mb-3">
-            <label for="liquid_net_worth_max" class="form-label">Liquid Net Worth (Max)</label>
-            <input type="number" id="liquid_net_worth_max" name="liquid_net_worth_max" class="form-control" required>
+            <label for="investment_time_horizon" class="form-label">Investment Time Horizon</label>
+            <select id="investment_time_horizon" name="investment_time_horizon" class="form-control" required>
+                <option value="less_than_1_year">Less than 1 year</option>
+                <option value="1_to_3_years">1 to 3 years</option>
+                <option value="3_to_5_years">3 to 5 years</option>
+                <option value="more_than_10_years">More than 10 years</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="marital_status" class="form-label">Marital Status</label>
+            <select id="marital_status" name="marital_status" class="form-control" required>
+                <option value="SINGLE">Single</option>
+                <option value="MARRIED">Married</option>
+                <option value="DIVORCED">Divorced</option>
+                <option value="WIDOWED">Widowed</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="number_of_dependents" class="form-label">Number of Dependents</label>
+            <input type="number" id="number_of_dependents" name="number_of_dependents" class="form-control" required>
         </div>
 
-        <!-- Agreements -->
+        <!-- Disclosures -->
         <div class="mb-3">
-            <label class="form-label">Agreements</label>
+            <label class="form-label">Disclosures</label>
             <div>
-                <input type="checkbox" id="customer_agreement" name="agreements" value="customer_agreement" required>
-                <label for="customer_agreement">I accept the Customer Agreement.</label>
+                <input type="checkbox" id="is_control_person" name="is_control_person" value="true" required>
+                <label for="is_control_person">Are you a control person?</label>
             </div>
             <div>
-                <input type="checkbox" id="margin_agreement" name="agreements" value="margin_agreement" required>
-                <label for="margin_agreement">I accept the Margin Agreement.</label>
+                <input type="checkbox" id="is_affiliated_exchange_or_finra" name="is_affiliated_exchange_or_finra" value="true" required>
+                <label for="is_affiliated_exchange_or_finra">Are you affiliated with FINRA or exchanges?</label>
+            </div>
+            <div>
+                <input type="checkbox" id="is_affiliated_exchange_or_iiroc" name="is_affiliated_exchange_or_iiroc" value="true" required>
+                <label for="is_affiliated_exchange_or_iiroc">Are you affiliated with IIROC?</label>
+            </div>
+            <div>
+                <input type="checkbox" id="is_politically_exposed" name="is_politically_exposed" value="true" required>
+                <label for="is_politically_exposed">Are you politically exposed?</label>
+            </div>
+            <div>
+                <input type="checkbox" id="immediate_family_exposed" name="immediate_family_exposed" value="true" required>
+                <label for="immediate_family_exposed">Is your immediate family politically exposed?</label>
             </div>
         </div>
 
@@ -133,6 +178,7 @@
 
     <p id="responseMessage" class="mt-3"></p>
 </div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -174,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tax_id_type: formData.get('tax_id_type'),
                 country_of_citizenship: formData.get('country_of_citizenship'),
                 country_of_birth: formData.get('country_of_birth'),
-                country_of_tax_residence: formData.get('country_of_tax_residence'), // Include this field
+                country_of_tax_residence: formData.get('country_of_tax_residence'),
                 funding_source: fundingSourceArray,
                 annual_income_min: formData.get('annual_income_min'),
                 annual_income_max: formData.get('annual_income_max'),
@@ -182,6 +228,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 total_net_worth_max: formData.get('total_net_worth_max'),
                 liquid_net_worth_min: formData.get('liquid_net_worth_min'),
                 liquid_net_worth_max: formData.get('liquid_net_worth_max'),
+                liquidity_needs: formData.get('liquidity_needs'),
+                investment_experience_with_stocks: formData.get('investment_experience_with_stocks'),
+                investment_experience_with_options: formData.get('investment_experience_with_options'),
+                risk_tolerance: formData.get('risk_tolerance'),
+                investment_objective: formData.get('investment_objective'),
+                investment_time_horizon: formData.get('investment_time_horizon'),
+                marital_status: formData.get('marital_status'),
+                number_of_dependents: formData.get('number_of_dependents'),
+            },
+            disclosures: {
+                is_control_person: formData.get('is_control_person') === 'true',
+                is_affiliated_exchange_or_finra: formData.get('is_affiliated_exchange_or_finra') === 'true',
+                is_affiliated_exchange_or_iiroc: formData.get('is_affiliated_exchange_or_iiroc') === 'true',
+                is_politically_exposed: formData.get('is_politically_exposed') === 'true',
+                immediate_family_exposed: formData.get('immediate_family_exposed') === 'true',
             },
             agreements,
         };
@@ -211,6 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 
 </script>
 
