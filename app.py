@@ -1387,10 +1387,11 @@ def alpaca_account():
 @login_required
 def dashboard():
     print("Debug: Entering /dashboard route")
+    error_report = {}  # Initialize an error report dictionary
 
     # Step 1: Fetch the alpaca_account_id from the URL or database
     account_id = request.args.get('account_id')  # Attempt to get it from the URL
-    print(f"Debug: Account ID from URL: {account_id}")
+    error_report['account_id_from_url'] = account_id
 
     if not account_id:
         try:
@@ -1403,15 +1404,17 @@ def dashboard():
             conn.close()
 
             if not user_data or not user_data.get('alpaca_account_id'):
-                print("Debug: No account_id found for the user. Redirecting to /alpaca")
+                print("Debug: No account_id found for the user.")
+                error_report['database_query_result'] = user_data
                 flash("No linked Alpaca account found. Please create an account.", "warning")
-                return redirect(url_for('alpaca_account'))
+                return render_template('dashboard.html', error="No linked Alpaca account found.", error_report=error_report)
 
             account_id = user_data['alpaca_account_id']
-            print(f"Debug: Account ID from database: {account_id}")
+            error_report['account_id_from_database'] = account_id
         except mysql.connector.Error as db_error:
+            error_report['database_error'] = str(db_error)
             print(f"Debug: Database error occurred: {db_error}")
-            return render_template('dashboard.html', error="A database error occurred. Please try again later.")
+            return render_template('dashboard.html', error="A database error occurred. Please try again later.", error_report=error_report)
 
     # Step 2: Fetch account details from Alpaca API
     try:
@@ -1420,34 +1423,40 @@ def dashboard():
             "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
             "Accept": "application/json"
         }
-        print(f"Debug: Alpaca API URL: {alpaca_api_url}")
-        print(f"Debug: Headers: {headers}")
+        error_report['alpaca_api_url'] = alpaca_api_url
+        error_report['headers'] = headers
 
+        print(f"Debug: Making API call to {alpaca_api_url}")
         response = requests.get(alpaca_api_url, headers=headers)
+
+        error_report['api_response_status'] = response.status_code
+        error_report['api_response_body'] = response.text
+
         print(f"Debug: API Response Status Code: {response.status_code}")
         print(f"Debug: API Response Body: {response.text}")
 
         if response.status_code == 200:
             account_details = response.json()
             print(f"Debug: Successfully fetched account details: {account_details}")
+            return render_template('dashboard.html', account=account_details)
         elif response.status_code == 404:
+            error_report['error_message'] = "The associated Alpaca account was not found."
             print("Debug: Account not found in Alpaca. Status 404.")
-            return render_template('dashboard.html', error="The associated Alpaca account was not found.")
+            return render_template('dashboard.html', error="The associated Alpaca account was not found.", error_report=error_report)
         elif response.status_code == 401:
+            error_report['error_message'] = "Unauthorized access to Alpaca API."
             print("Debug: Unauthorized access. Status 401.")
-            return render_template('dashboard.html', error="Unauthorized access to Alpaca API. Check your credentials.")
+            return render_template('dashboard.html', error="Unauthorized access to Alpaca API. Check your credentials.", error_report=error_report)
         else:
             error_message = response.json().get('message', 'Unknown error occurred.')
+            error_report['error_message'] = error_message
             print(f"Debug: API error occurred. Error Message: {error_message}")
-            return render_template('dashboard.html', error=f"Failed to fetch account details: {error_message}")
+            return render_template('dashboard.html', error=f"Failed to fetch account details: {error_message}", error_report=error_report)
 
     except requests.exceptions.RequestException as api_error:
+        error_report['request_exception'] = str(api_error)
         print(f"Debug: Exception during API request: {api_error}")
-        return render_template('dashboard.html', error="An error occurred while communicating with Alpaca. Please try again later.")
-
-    # Step 3: Render the dashboard with the fetched account details
-    return render_template('dashboard.html', account=account_details)
-
+        return render_template('dashboard.html', error="An error occurred while communicating with Alpaca. Please try again later.", error_report=error_report)
 
 
 @app.route('/fund-account', methods=['POST'])
