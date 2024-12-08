@@ -16,27 +16,13 @@
 </div>
 
 <script>
-    console.log("Debug: Entering dashboard script.");
-
-    const accountId = "{{ account_id | default('') }}";  // Pass `account_id` from Flask to JavaScript
-    console.log(`Debug: Retrieved account_id from template: ${accountId}`);
-
     async function fetchAccountDetails() {
+        console.log("Debug: Fetching account details from the backend.");
         const accountInfoElement = document.getElementById('accountInfo');
         const actionLinksElement = document.getElementById('actionLinks');
 
-        if (!accountId) {
-            console.error("Debug: No account ID provided.");
-            accountInfoElement.classList.remove('alert-info');
-            accountInfoElement.classList.add('alert-danger');
-            accountInfoElement.textContent = "No account ID provided. Unable to fetch account details.";
-            return;
-        }
-
         try {
-            console.log(`Debug: Fetching account details for account_id: ${accountId}`);
-            const response = await fetch(`/api/accounts/${accountId}`);
-
+            const response = await fetch('/api/accounts');  // Replace with the correct API endpoint
             if (response.ok) {
                 const account = await response.json();
                 console.log("Debug: Successfully fetched account details:", account);
@@ -72,4 +58,5 @@
     // Fetch account details on page load
     fetchAccountDetails();
 </script>
+
 {% endblock %}
