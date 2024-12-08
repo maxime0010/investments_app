@@ -1,15 +1,20 @@
-import json
 import os
-from datetime import datetime
+import json
 from alpaca.broker.client import BrokerClient
+import logging
 
-# Initialize the broker client
+# Configure logging
+logging.basicConfig(level=logging.INFO)  # Set logging level to INFO
+logger = logging.getLogger(__name__)  # Create a logger instance for this module
+
+# Initialize API keys
 API_KEY = os.getenv("ALPACA_API")
 API_SECRET = os.getenv("ALPACA_SECRET")
 
 if not API_KEY or not API_SECRET:
     raise ValueError("API keys are missing. Please set ALPACA_API and ALPACA_SECRET environment variables.")
 
+# Initialize the broker client
 broker_client = BrokerClient(api_key=API_KEY, secret_key=API_SECRET)
 
 def create_account(data):
@@ -17,31 +22,27 @@ def create_account(data):
     Create an Alpaca account using the Broker API.
     
     Args:
-        data (dict): A dictionary containing contact, identity, and other required information.
+        data (dict): A dictionary containing contact and identity information.
     
     Returns:
         dict: The response from the Alpaca API or error details.
     """
     try:
-        # Ensure the payload matches Alpaca API requirements
-        logger.info(f"Sending payload: {json.dumps(data, indent=2)}")
-
-        # Use the json= argument to send structured data
+        logger.info(f"Payload: {json.dumps(data, indent=2)}")  # Log the payload for debugging
         response = broker_client.post("/v1/accounts", json=data)
-
         logger.info(f"Account created successfully: {response}")
         return response
     except Exception as e:
-        logger.error(f"Error creating account: {str(e)}")
+        logger.error(f"Error creating account: {e}")
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    # Test data
+    # Test data for creating an account
     test_data = {
         "contact": {
-            "email_address": "test1@gmail.com",
-            "phone_number": "7065912538",
-            "street_address": ["123 Main St"],  # Must be an array of strings
+            "email_address": "example@example.com",
+            "phone_number": "1234567890",
+            "street_address": ["123 Main St"],
             "city": "New York",
             "state": "NY",
             "postal_code": "10001",
@@ -56,7 +57,7 @@ if __name__ == "__main__":
             "country_of_citizenship": "USA",
             "country_of_birth": "USA",
             "country_of_tax_residence": "USA",
-            "funding_source": ["employment_income"],  # Example funding source
+            "funding_source": ["employment_income"],
             "annual_income_min": "10000",
             "annual_income_max": "50000",
             "total_net_worth_min": "50000",
@@ -82,32 +83,17 @@ if __name__ == "__main__":
         "agreements": [
             {
                 "agreement": "customer_agreement",
-                "signed_at": datetime.utcnow().isoformat() + "Z",
+                "signed_at": "2024-12-08T10:12:00Z",
                 "ip_address": "127.0.0.1"
             },
             {
                 "agreement": "margin_agreement",
-                "signed_at": datetime.utcnow().isoformat() + "Z",
+                "signed_at": "2024-12-08T10:12:00Z",
                 "ip_address": "127.0.0.1"
             }
-        ],
-        "documents": [
-            {
-                "document_type": "identity_verification",
-                "document_sub_type": "passport",
-                "content": "/9j/Cg==",  # Base64 encoded document content
-                "mime_type": "image/jpeg"
-            }
-        ],
-        "trusted_contact": {
-            "given_name": "Jane",
-            "family_name": "Smith",
-            "email_address": "trusted.contact@example.com"
-        },
-        "additional_information": "No additional info",
-        "account_type": "individual"
+        ]
     }
 
-    # Create account
+    # Test account creation
     response = create_account(test_data)
     print(f"Response: {response}")
