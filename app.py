@@ -1445,6 +1445,54 @@ def dashboard():
         return render_template('dashboard.html', error="An error occurred while fetching account details.")
 
 
+@app.route('/fund-account', methods=['GET'])
+@login_required
+def fund_account():
+    account_id = request.args.get('account_id')
+    if not account_id:
+        flash('Account ID is required to fund your account.', 'warning')
+        return redirect(url_for('dashboard'))
+
+    return render_template('fund_account.html', account_id=account_id)
+
+
+@app.route('/trading', methods=['GET'])
+@login_required
+def trading():
+    account_id = request.args.get('account_id')
+    if not account_id:
+        flash('Account ID is required to start trading.', 'warning')
+        return redirect(url_for('dashboard'))
+
+    return render_template('trading.html', account_id=account_id)
+
+
+@app.route('/account-details', methods=['GET'])
+@login_required
+def account_details():
+    account_id = request.args.get('account_id')
+    if not account_id:
+        flash('Account ID is required to view account details.', 'warning')
+        return redirect(url_for('dashboard'))
+
+    # Fetch account details from Alpaca API
+    try:
+        alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}"
+        headers = {
+            "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
+        }
+        response = requests.get(alpaca_api_url, headers=headers)
+
+        if response.status_code == 200:
+            account_details = response.json()
+        else:
+            account_details = {"error": f"Failed to fetch account details: {response.text}"}
+
+        return render_template('account_details.html', account=account_details)
+    except Exception as e:
+        print(f"Error fetching account details: {e}")
+        return render_template('account_details.html', error="An error occurred while fetching account details.")
+
 
 
 if __name__ == '__main__':
