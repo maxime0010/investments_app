@@ -1454,21 +1454,22 @@ def fund_account():
         return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
-        # Process the funding form submission
         amount = request.form.get('amount')
-        funding_source = request.form.get('funding_source')
-        if not amount or not funding_source:
-            flash('Amount and Funding Source are required.', 'danger')
+        funding_source = request.form.get('funding_source', 'sandbox')
+        direction = request.form.get('direction', 'INCOMING')  # Default to deposit
+
+        if not amount:
+            flash('Amount is required.', 'danger')
             return redirect(url_for('fund_account', account_id=account_id))
 
-        # Example payload for ACH funding
         payload = {
-            "amount": amount,
+            "amount": float(amount),
             "funding_source": funding_source,
-            "direction": "INCOMING",
+            "direction": direction,
         }
+
         try:
-            # Simulate sending the funding request to Alpaca API
+            # Simulate funding using Transfers API
             alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}/transfers"
             headers = {
                 "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
@@ -1479,9 +1480,10 @@ def fund_account():
             if response.status_code == 200:
                 flash('Funding request submitted successfully!', 'success')
             else:
-                flash(f"Error: {response.json().get('message', 'Failed to fund account')}", 'danger')
+                flash(f"Error: {response.json().get('message', 'Failed to process funding')}", 'danger')
+
         except Exception as e:
-            print(f"Error during funding: {e}")
+            print(f"Error during sandbox funding: {e}")
             flash('An error occurred while processing the funding request.', 'danger')
 
         return redirect(url_for('dashboard', account_id=account_id))
