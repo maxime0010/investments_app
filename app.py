@@ -1420,7 +1420,7 @@ def dashboard():
     try:
         alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}"
         headers = {
-            "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
+            "Authorization": f"Basic {os.getenv('ALPACA_API')}:{os.getenv('ALPACA_SECRET')}",
             "Accept": "application/json"
         }
         error_report['alpaca_api_url'] = alpaca_api_url
@@ -1513,7 +1513,7 @@ def trading():
             # Place a trade via Alpaca API
             alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/trading/accounts/{account_id}/orders"
             headers = {
-                "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
+                "Authorization": f"Basic {os.getenv('ALPACA_API')}:{os.getenv('ALPACA_SECRET')}",
                 "Content-Type": "application/json"
             }
             response = requests.post(alpaca_api_url, json=payload, headers=headers)
@@ -1543,7 +1543,7 @@ def account_details():
     try:
         alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}"
         headers = {
-            "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
+            "Authorization": f"Basic {os.getenv('ALPACA_API')}:{os.getenv('ALPACA_SECRET')}",
         }
         response = requests.get(alpaca_api_url, headers=headers)
 
