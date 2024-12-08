@@ -1395,54 +1395,57 @@ def alpaca_account():
 def dashboard():
     print("Debug: Entering /dashboard route")
 
-    # Retrieve account ID from the database for the logged-in user
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
-
+    # Retrieve the account ID associated with the current user
     try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
         print(f"Debug: Fetching account_id for user {current_user.id}")
         cursor.execute("SELECT alpaca_account_id FROM users WHERE id = %s", (current_user.id,))
         user_data = cursor.fetchone()
-        print(f"Debug: Query result: {user_data}")
 
+        print(f"Debug: Query result for user_data: {user_data}")
         if not user_data or not user_data.get('alpaca_account_id'):
             print("Debug: No account_id found for the user. Redirecting to /alpaca")
             return redirect(url_for('alpaca_account'))
 
         account_id = user_data['alpaca_account_id']
-        print(f"Debug: Found account_id: {account_id}")
+        print(f"Debug: Found alpaca_account_id: {account_id}")
 
+    except mysql.connector.Error as db_error:
+        print(f"Debug: Database error occurred: {db_error}")
+        return render_template('dashboard.html', error="A database error occurred. Please try again later.")
     finally:
         cursor.close()
         conn.close()
 
     try:
-        # Construct API request
+        # Construct the API request to fetch account details
         alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}"
         headers = {
             "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
         }
-        print(f"Debug: Fetching account details from URL: {alpaca_api_url}")
-        print(f"Debug: Using headers: {headers}")
-
-        # Make API call
+        print(f"Debug: Making API call to {alpaca_api_url}")
         response = requests.get(alpaca_api_url, headers=headers)
+
         print(f"Debug: API Response Status Code: {response.status_code}")
         print(f"Debug: API Response Body: {response.text}")
 
+        # Check the API response
         if response.status_code == 200:
             account_details = response.json()
             print(f"Debug: Successfully fetched account details: {account_details}")
         else:
-            account_details = {"error": f"Failed to fetch account details: {response.text}"}
-            print(f"Debug: Failed to fetch account details. Response: {response.text}")
+            error_message = response.json().get('message', response.text)
+            account_details = {"error": f"Failed to fetch account details: {error_message}"}
+            print(f"Debug: API error occurred. Response: {error_message}")
 
-        # Render the dashboard with account details
-        return render_template('dashboard.html', account=account_details)
+    except requests.exceptions.RequestException as api_error:
+        print(f"Debug: Exception during API request: {api_error}")
+        return render_template('dashboard.html', error="An error occurred while communicating with Alpaca. Please try again later.")
 
-    except Exception as e:
-        print(f"Debug: Exception occurred while fetching account details: {e}")
-        return render_template('dashboard.html', error="An error occurred while fetching account details.")
+    # Render the dashboard with account details
+    return render_template('dashboard.html', account=account_details)
 
 
 @app.route('/fund-account', methods=['GET', 'POST'])
