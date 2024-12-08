@@ -27,7 +27,6 @@
             <label for="street_address" class="form-label">Street Address</label>
             <input type="text" id="street_address" name="street_address" class="form-control" placeholder="123 Main St" required>
         </div>
-        <!-- Other Contact Fields -->
         <div class="mb-3">
             <label for="city" class="form-label">City</label>
             <input type="text" id="city" name="city" class="form-control" placeholder="New York" required>
@@ -59,6 +58,17 @@
             <input type="date" id="date_of_birth" name="date_of_birth" class="form-control" required>
         </div>
         <div class="mb-3">
+            <label for="tax_id" class="form-label">Tax ID</label>
+            <input type="text" id="tax_id" name="tax_id" class="form-control" placeholder="123-45-6789" required>
+        </div>
+        <div class="mb-3">
+            <label for="tax_id_type" class="form-label">Tax ID Type</label>
+            <select id="tax_id_type" name="tax_id_type" class="form-control" required>
+                <option value="USA_SSN">USA SSN</option>
+                <option value="ITIN">ITIN</option>
+            </select>
+        </div>
+        <div class="mb-3">
             <label for="country_of_citizenship" class="form-label">Country of Citizenship</label>
             <input type="text" id="country_of_citizenship" name="country_of_citizenship" class="form-control" placeholder="US" required>
         </div>
@@ -83,6 +93,22 @@
         <div class="mb-3">
             <label for="annual_income_max" class="form-label">Annual Income (Max)</label>
             <input type="number" id="annual_income_max" name="annual_income_max" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="total_net_worth_min" class="form-label">Total Net Worth (Min)</label>
+            <input type="number" id="total_net_worth_min" name="total_net_worth_min" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="total_net_worth_max" class="form-label">Total Net Worth (Max)</label>
+            <input type="number" id="total_net_worth_max" name="total_net_worth_max" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="liquid_net_worth_min" class="form-label">Liquid Net Worth (Min)</label>
+            <input type="number" id="liquid_net_worth_min" name="liquid_net_worth_min" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="liquid_net_worth_max" class="form-label">Liquid Net Worth (Max)</label>
+            <input type="number" id="liquid_net_worth_max" name="liquid_net_worth_max" class="form-control" required>
         </div>
 
         <!-- Agreements -->
