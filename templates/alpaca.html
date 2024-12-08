@@ -77,6 +77,10 @@
             <input type="text" id="country_of_birth" name="country_of_birth" class="form-control" placeholder="US" required>
         </div>
         <div class="mb-3">
+            <label for="country_of_tax_residence" class="form-label">Country of Tax Residence</label>
+            <input type="text" id="country_of_tax_residence" name="country_of_tax_residence" class="form-control" placeholder="US" required>
+        </div>
+        <div class="mb-3">
             <label for="funding_source" class="form-label">Funding Source</label>
             <select id="funding_source" name="funding_source" class="form-control" multiple required>
                 <option value="employment_income">Employment Income</option>
@@ -131,83 +135,83 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('submitButton').addEventListener('click', async () => {
-            const form = document.getElementById('alpacaForm');
-            const formData = new FormData(form);
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('submitButton').addEventListener('click', async () => {
+        const form = document.getElementById('alpacaForm');
+        const formData = new FormData(form);
 
-            // Convert multi-line inputs or special fields as needed
-            const streetAddressArray = [formData.get('street_address')];
-            const fundingSourceArray = Array.from(formData.getAll('funding_source'));
+        const streetAddressArray = [formData.get('street_address')];
+        const fundingSourceArray = Array.from(formData.getAll('funding_source'));
 
-            const agreements = [
-                {
-                    agreement: 'customer_agreement',
-                    signed_at: new Date().toISOString(),
-                    ip_address: '127.0.0.1'
-                },
-                {
-                    agreement: 'margin_agreement',
-                    signed_at: new Date().toISOString(),
-                    ip_address: '127.0.0.1'
-                }
-            ];
-
-            // Build the payload
-            const payload = {
-                contact: {
-                    email_address: formData.get('email_address'),
-                    phone_number: formData.get('phone_number'),
-                    street_address: streetAddressArray,
-                    city: formData.get('city'),
-                    state: formData.get('state'),
-                    postal_code: formData.get('postal_code'),
-                    country: formData.get('country'),
-                },
-                identity: {
-                    given_name: formData.get('given_name'),
-                    family_name: formData.get('family_name'),
-                    date_of_birth: formData.get('date_of_birth'),
-                    tax_id: formData.get('tax_id'), // Ensure tax_id is included
-                    tax_id_type: formData.get('tax_id_type'), // Ensure tax_id_type is included
-                    country_of_citizenship: formData.get('country_of_citizenship'),
-                    country_of_birth: formData.get('country_of_birth'),
-                    funding_source: fundingSourceArray,
-                    annual_income_min: formData.get('annual_income_min'),
-                    annual_income_max: formData.get('annual_income_max'),
-                    total_net_worth_min: formData.get('total_net_worth_min'),
-                    total_net_worth_max: formData.get('total_net_worth_max'),
-                    liquid_net_worth_min: formData.get('liquid_net_worth_min'),
-                    liquid_net_worth_max: formData.get('liquid_net_worth_max'),
-                },
-                agreements,
-            };
-
-            console.log('Payload:', payload); // Debugging
-
-            try {
-                const response = await fetch('/create_account', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-
-                const messageElement = document.getElementById('responseMessage');
-                if (response.ok) {
-                    const result = await response.json();
-                    messageElement.textContent = `Account created successfully: ${JSON.stringify(result)}`;
-                    messageElement.className = 'text-success';
-                } else {
-                    const result = await response.json();
-                    messageElement.textContent = `Error: ${result.error || 'Unknown error'}`;
-                    messageElement.className = 'text-danger';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('responseMessage').textContent = `Error: ${error.message}`;
+        const agreements = [
+            {
+                agreement: 'customer_agreement',
+                signed_at: new Date().toISOString(),
+                ip_address: '127.0.0.1'
+            },
+            {
+                agreement: 'margin_agreement',
+                signed_at: new Date().toISOString(),
+                ip_address: '127.0.0.1'
             }
-        });
+        ];
+
+        const payload = {
+            contact: {
+                email_address: formData.get('email_address'),
+                phone_number: formData.get('phone_number'),
+                street_address: streetAddressArray,
+                city: formData.get('city'),
+                state: formData.get('state'),
+                postal_code: formData.get('postal_code'),
+                country: formData.get('country'),
+            },
+            identity: {
+                given_name: formData.get('given_name'),
+                family_name: formData.get('family_name'),
+                date_of_birth: formData.get('date_of_birth'),
+                tax_id: formData.get('tax_id'),
+                tax_id_type: formData.get('tax_id_type'),
+                country_of_citizenship: formData.get('country_of_citizenship'),
+                country_of_birth: formData.get('country_of_birth'),
+                country_of_tax_residence: formData.get('country_of_tax_residence'), // Include this field
+                funding_source: fundingSourceArray,
+                annual_income_min: formData.get('annual_income_min'),
+                annual_income_max: formData.get('annual_income_max'),
+                total_net_worth_min: formData.get('total_net_worth_min'),
+                total_net_worth_max: formData.get('total_net_worth_max'),
+                liquid_net_worth_min: formData.get('liquid_net_worth_min'),
+                liquid_net_worth_max: formData.get('liquid_net_worth_max'),
+            },
+            agreements,
+        };
+
+        console.log('Payload:', payload); // Debugging
+
+        try {
+            const response = await fetch('/create_account', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const messageElement = document.getElementById('responseMessage');
+            if (response.ok) {
+                const result = await response.json();
+                messageElement.textContent = `Account created successfully: ${JSON.stringify(result)}`;
+                messageElement.className = 'text-success';
+            } else {
+                const result = await response.json();
+                messageElement.textContent = `Error: ${result.error || 'Unknown error'}`;
+                messageElement.className = 'text-danger';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('responseMessage').textContent = `Error: ${error.message}`;
+        }
     });
+});
+
 </script>
 
 {% endblock %}
