@@ -1395,7 +1395,7 @@ def alpaca_account():
 def dashboard():
     print("Debug: Entering /dashboard route")
 
-    # Retrieve the account ID associated with the current user
+    # Retrieve account ID associated with the current user
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
@@ -1403,8 +1403,8 @@ def dashboard():
         print(f"Debug: Fetching account_id for user {current_user.id}")
         cursor.execute("SELECT alpaca_account_id FROM users WHERE id = %s", (current_user.id,))
         user_data = cursor.fetchone()
-
         print(f"Debug: Query result for user_data: {user_data}")
+
         if not user_data or not user_data.get('alpaca_account_id'):
             print("Debug: No account_id found for the user. Redirecting to /alpaca")
             return redirect(url_for('alpaca_account'))
@@ -1418,6 +1418,10 @@ def dashboard():
     finally:
         cursor.close()
         conn.close()
+
+    # Render the dashboard and pass the account ID to the template
+    print(f"Debug: Passing account_id {account_id} to the template.")
+    return render_template('dashboard.html', account_id=account_id)
 
     try:
         # Construct the API request to fetch account details
