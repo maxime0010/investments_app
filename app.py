@@ -1445,7 +1445,7 @@ def dashboard():
         return render_template('dashboard.html', error="An error occurred while fetching account details.")
 
 
-@app.route('/fund-account', methods=['GET'])
+@app.route('/fund-account', methods=['GET', 'POST'])
 @login_required
 def fund_account():
     account_id = request.args.get('account_id')
@@ -1453,10 +1453,44 @@ def fund_account():
         flash('Account ID is required to fund your account.', 'warning')
         return redirect(url_for('dashboard'))
 
+    if request.method == 'POST':
+        # Process the funding form submission
+        amount = request.form.get('amount')
+        funding_source = request.form.get('funding_source')
+        if not amount or not funding_source:
+            flash('Amount and Funding Source are required.', 'danger')
+            return redirect(url_for('fund_account', account_id=account_id))
+
+        # Example payload for ACH funding
+        payload = {
+            "amount": amount,
+            "funding_source": funding_source,
+            "direction": "INCOMING",
+        }
+        try:
+            # Simulate sending the funding request to Alpaca API
+            alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}/transfers"
+            headers = {
+                "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
+                "Content-Type": "application/json"
+            }
+            response = requests.post(alpaca_api_url, json=payload, headers=headers)
+
+            if response.status_code == 200:
+                flash('Funding request submitted successfully!', 'success')
+            else:
+                flash(f"Error: {response.json().get('message', 'Failed to fund account')}", 'danger')
+        except Exception as e:
+            print(f"Error during funding: {e}")
+            flash('An error occurred while processing the funding request.', 'danger')
+
+        return redirect(url_for('dashboard', account_id=account_id))
+
     return render_template('fund_account.html', account_id=account_id)
 
 
-@app.route('/trading', methods=['GET'])
+
+@app.route('/trading', methods=['GET', 'POST'])
 @login_required
 def trading():
     account_id = request.args.get('account_id')
@@ -1464,7 +1498,45 @@ def trading():
         flash('Account ID is required to start trading.', 'warning')
         return redirect(url_for('dashboard'))
 
-    return render_template('trading.html', account_id=account_id)
+    # Fetch market data or handle trade submissions
+    market_data = []
+    if request.method == 'POST':
+        # Process trade form submission
+        symbol = request.form.get('symbol')
+        qty = request.form.get('qty')
+        side = request.form.get('side')
+
+        if not symbol or not qty or not side:
+            flash('All fields are required to place a trade.', 'danger')
+            return redirect(url_for('trading', account_id=account_id))
+
+        payload = {
+            "symbol": symbol,
+            "qty": qty,
+            "side": side,
+            "type": "market",
+            "time_in_force": "day"
+        }
+        try:
+            # Place a trade via Alpaca API
+            alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/trading/accounts/{account_id}/orders"
+            headers = {
+                "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
+                "Content-Type": "application/json"
+            }
+            response = requests.post(alpaca_api_url, json=payload, headers=headers)
+
+            if response.status_code == 200:
+                flash('Trade placed successfully!', 'success')
+            else:
+                flash(f"Error: {response.json().get('message', 'Failed to place trade')}", 'danger')
+        except Exception as e:
+            print(f"Error placing trade: {e}")
+            flash('An error occurred while placing the trade.', 'danger')
+
+        return redirect(url_for('trading', account_id=account_id))
+
+    return render_template('trading.html', account_id=account_id, market_data=market_data)
 
 
 @app.route('/account-details', methods=['GET'])
