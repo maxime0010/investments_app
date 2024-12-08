@@ -264,15 +264,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const messageElement = document.getElementById('responseMessage');
-            if (response.ok) {
-                const result = await response.json();
-                messageElement.textContent = `Account created successfully: ${JSON.stringify(result)}`;
-                messageElement.className = 'text-success';
-            } else {
-                const result = await response.json();
-                messageElement.textContent = `Error: ${result.error || 'Unknown error'}`;
-                messageElement.className = 'text-danger';
-            }
+if (response.ok) {
+    const result = await response.json();
+
+    // Redirect to the dashboard with account ID as a query parameter
+    window.location.href = `/dashboard?account_id=${result.id}`;
+} else {
+    const result = await response.json();
+    messageElement.textContent = `Error: ${result.error || 'Unknown error'}`;
+    messageElement.className = 'text-danger';
+}
+
         } catch (error) {
             console.error('Error:', error);
             document.getElementById('responseMessage').textContent = `Error: ${error.message}`;
