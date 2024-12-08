@@ -4,11 +4,29 @@
 
 {% block content %}
 
-    <div class="container">
+        <div class="container">
         <h1>Start Trading</h1>
         <p>Account ID: {{ account_id }}</p>
-        <p>This page will display trading options and tools for your Alpaca account.</p>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="symbol" class="form-label">Stock Symbol</label>
+                <input type="text" id="symbol" name="symbol" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="qty" class="form-label">Quantity</label>
+                <input type="number" id="qty" name="qty" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="side" class="form-label">Order Type</label>
+                <select id="side" name="side" class="form-control" required>
+                    <option value="buy">Buy</option>
+                    <option value="sell">Sell</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Place Trade</button>
+        </form>
     </div>
+
 
 
 {% endblock %}
