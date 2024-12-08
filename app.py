@@ -1386,11 +1386,11 @@ def alpaca_account():
 def dashboard():
     print("Debug: Entering /dashboard route")
 
-    # Retrieve account ID associated with the current user
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
+        # Retrieve account_id for the current user
         print(f"Debug: Fetching account_id for user {current_user.id}")
         cursor.execute("SELECT alpaca_account_id FROM users WHERE id = %s", (current_user.id,))
         user_data = cursor.fetchone()
@@ -1398,6 +1398,7 @@ def dashboard():
 
         if not user_data or not user_data.get('alpaca_account_id'):
             print("Debug: No account_id found for the user. Redirecting to /alpaca")
+            flash("No linked Alpaca account found. Please create an account.", "warning")
             return redirect(url_for('alpaca_account'))
 
         account_id = user_data['alpaca_account_id']
@@ -1410,12 +1411,8 @@ def dashboard():
         cursor.close()
         conn.close()
 
-    # Render the dashboard and pass the account ID to the template
-    print(f"Debug: Passing account_id {account_id} to the template.")
-    return render_template('dashboard.html', account_id=account_id)
-
+    # Fetch account details from Alpaca API
     try:
-        # Construct the API request to fetch account details
         alpaca_api_url = f"https://broker-api.sandbox.alpaca.markets/v1/accounts/{account_id}"
         headers = {
             "Authorization": f"Basic {os.getenv('ALPACA_API_KEY')}:{os.getenv('ALPACA_API_SECRET')}",
@@ -1426,14 +1423,12 @@ def dashboard():
         print(f"Debug: API Response Status Code: {response.status_code}")
         print(f"Debug: API Response Body: {response.text}")
 
-        # Check the API response
         if response.status_code == 200:
             account_details = response.json()
             print(f"Debug: Successfully fetched account details: {account_details}")
         else:
-            error_message = response.json().get('message', response.text)
-            account_details = {"error": f"Failed to fetch account details: {error_message}"}
-            print(f"Debug: API error occurred. Response: {error_message}")
+            account_details = {"error": f"Failed to fetch account details: {response.json().get('message', response.text)}"}
+            print(f"Debug: API error occurred. Response: {response.text}")
 
     except requests.exceptions.RequestException as api_error:
         print(f"Debug: Exception during API request: {api_error}")
