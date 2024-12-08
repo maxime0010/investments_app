@@ -12,9 +12,10 @@
 
         <h2>Actions</h2>
         <ul>
-            <li><a id="fundAccountLink" href="#">Fund Your Account</a></li>
-            <li><a id="startTradingLink" href="#">Start Trading</a></li>
-            <li><a id="viewAccountDetailsLink" href="#">View Account Details</a></li>
+    <li><a href="{{ url_for('fund_account', account_id=account.account_number) }}">Fund Your Account</a></li>
+    <li><a href="{{ url_for('trading', account_id=account.account_number) }}">Start Trading</a></li>
+    <li><a href="{{ url_for('account_details', account_id=account.account_number) }}">View Account Details</a></li>
+
         </ul>
     </div>
 
