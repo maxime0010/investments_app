@@ -156,7 +156,7 @@ def get_top_stocks(latest_date):
                a.expected_return_combined_criteria, a.num_combined_criteria, MAX(p.ranking) as ranking, 
                MAX(a.avg_combined_criteria) as target_price, s.indices
         FROM portfolio20241124 p
-        JOIN analysis10 a ON p.ticker = a.ticker
+        JOIN analysis365 a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         JOIN stock s ON s.ticker = p.ticker
         WHERE p.date = %s AND a.date = %s
@@ -234,7 +234,7 @@ def stock_detail(ticker):
         # Fetch the most recent analysis data for the stock
         cursor.execute("""
             SELECT last_closing_price, avg_combined_criteria, expected_return_combined_criteria
-            FROM analysis10
+            FROM analysis365
             WHERE ticker = %s
             ORDER BY date DESC
             LIMIT 1
@@ -926,8 +926,8 @@ def coverage():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Step 1: Fetch the most recent date from analysis10 table
-    cursor.execute("SELECT MAX(date) AS latest_date FROM analysis10")
+    # Step 1: Fetch the most recent date from analysis365 table
+    cursor.execute("SELECT MAX(date) AS latest_date FROM analysis365")
     latest_date = cursor.fetchone()['latest_date']
 
     # Step 2: Fetch stocks only for the latest date
@@ -937,7 +937,7 @@ def coverage():
                a.avg_combined_criteria,  
                a.num_analysts, a.num_recent_analysts, a.num_high_success_analysts,
                a.expected_return_combined_criteria
-        FROM analysis10 a
+        FROM analysis365 a
         JOIN stock s ON a.ticker = s.ticker
         WHERE a.date = %s  -- Only select records from the most recent date
         ORDER BY s.name ASC
@@ -989,13 +989,13 @@ def stock_simulation(ticker):
     cursor = conn.cursor(dictionary=True)
 
     # Fetch the unique tickers for the dropdown
-    cursor.execute("SELECT DISTINCT ticker FROM analysis10 ORDER BY ticker")
+    cursor.execute("SELECT DISTINCT ticker FROM analysis365 ORDER BY ticker")
     tickers = [row['ticker'] for row in cursor.fetchall()]
 
-    # Fetch stock prices and price targets from the analysis10 table
+    # Fetch stock prices and price targets from the analysis365 table
     cursor.execute("""
         SELECT date, last_closing_price, avg_combined_criteria
-        FROM analysis10
+        FROM analysis365
         WHERE ticker = %s AND date >= '2019-09-01' AND last_closing_price > 0 AND avg_combined_criteria > 0
         ORDER BY date
     """, (ticker,))
