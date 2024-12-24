@@ -31,6 +31,7 @@
                 <th scope="col">Stock Prices (2022)</th>
                 <th scope="col">Stock Prices (2023)</th>
                 <th scope="col">Stock Prices (2024)</th>
+                <th scope="col">In Company Profile?</th>
             </tr>
         </thead>
         <tbody>
@@ -59,6 +60,7 @@
                 <td>{{ entry.get('prices_2022', '-') }}</td>
                 <td>{{ entry.get('prices_2023', '-') }}</td>
                 <td>{{ entry.get('prices_2024', '-') }}</td>
+                <td>{{ 'Yes' if entry.get('in_company_profile') else 'No' }}</td>
             </tr>
             {% endfor %}
         </tbody>
