@@ -1021,45 +1021,57 @@ def data_overview():
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch all unique tickers from the `tickers` table
-    cursor.execute("SELECT DISTINCT ticker FROM tickers")
-    tickers = [row['ticker'] for row in cursor.fetchall()]
-
-    # Define the years of interest
-    years = list(range(2014, 2025))
-
-    # Fetch the number of analyst ratings for each year
+    # Fetch the number of analyst ratings for each year from 2014 to 2024
     query_ratings = """
-        SELECT r.ticker, YEAR(r.date) AS year, COUNT(*) AS count
+        SELECT r.ticker,
+               SUM(CASE WHEN YEAR(r.date) = 2014 THEN 1 ELSE 0 END) AS ratings_2014,
+               SUM(CASE WHEN YEAR(r.date) = 2015 THEN 1 ELSE 0 END) AS ratings_2015,
+               ...
+               SUM(CASE WHEN YEAR(r.date) = 2024 THEN 1 ELSE 0 END) AS ratings_2024
         FROM ratings r
-        WHERE YEAR(r.date) BETWEEN 2014 AND 2024
-        GROUP BY r.ticker, YEAR(r.date)
+        GROUP BY r.ticker
     """
     cursor.execute(query_ratings)
     ratings_data = cursor.fetchall()
 
-    # Fetch the number of stock prices for each year
+    # Fetch the number of stock prices for each year from 2014 to 2024
     query_prices = """
-        SELECT p.ticker, YEAR(p.date) AS year, COUNT(*) AS count
+        SELECT p.ticker,
+               SUM(CASE WHEN YEAR(p.date) = 2014 THEN 1 ELSE 0 END) AS prices_2014,
+               SUM(CASE WHEN YEAR(p.date) = 2015 THEN 1 ELSE 0 END) AS prices_2015,
+               ...
+               SUM(CASE WHEN YEAR(p.date) = 2024 THEN 1 ELSE 0 END) AS prices_2024
         FROM daily_stock_prices p
-        WHERE YEAR(p.date) BETWEEN 2014 AND 2024
-        GROUP BY p.ticker, YEAR(p.date)
+        GROUP BY p.ticker
     """
     cursor.execute(query_prices)
     prices_data = cursor.fetchall()
 
-    # Convert data into dictionaries for easier lookup
-    ratings_dict = {(row['ticker'], row['year']): row['count'] for row in ratings_data}
-    prices_dict = {(row['ticker'], row['year']): row['count'] for row in prices_data}
+    # Fetch tickers from the company_profile table
+    cursor.execute("SELECT DISTINCT ticker FROM company_profile")
+    company_profile_tickers = {row['ticker'] for row in cursor.fetchall()}
 
-    # Combine the data
+    # Combine ratings and prices data into a single list
     data_overview = []
-    for ticker in tickers:
-        entry = {'ticker': ticker}
-        for year in years:
-            entry[f'ratings_{year}'] = ratings_dict.get((ticker, year), 0)
-            entry[f'prices_{year}'] = prices_dict.get((ticker, year), 0)
-        data_overview.append(entry)
+    ticker_set = set([row['ticker'] for row in ratings_data] + [row['ticker'] for row in prices_data])
+
+    for ticker in ticker_set:
+        # Find the matching ratings and prices data for each ticker
+        ratings = next((r for r in ratings_data if r['ticker'] == ticker), {})
+        prices = next((p for p in prices_data if p['ticker'] == ticker), {})
+
+        data_overview.append({
+            'ticker': ticker,
+            'ratings_2014': ratings.get('ratings_2014', 0),
+            'ratings_2015': ratings.get('ratings_2015', 0),
+            # ... other ratings fields
+            'ratings_2024': ratings.get('ratings_2024', 0),
+            'prices_2014': prices.get('prices_2014', 0),
+            'prices_2015': prices.get('prices_2015', 0),
+            # ... other prices fields
+            'prices_2024': prices.get('prices_2024', 0),
+            'in_company_profile': ticker in company_profile_tickers
+        })
 
     cursor.close()
     conn.close()
