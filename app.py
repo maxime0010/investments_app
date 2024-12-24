@@ -1026,7 +1026,14 @@ def data_overview():
         SELECT r.ticker,
                SUM(CASE WHEN YEAR(r.date) = 2014 THEN 1 ELSE 0 END) AS ratings_2014,
                SUM(CASE WHEN YEAR(r.date) = 2015 THEN 1 ELSE 0 END) AS ratings_2015,
-               ...
+               SUM(CASE WHEN YEAR(r.date) = 2016 THEN 1 ELSE 0 END) AS ratings_2016,
+               SUM(CASE WHEN YEAR(r.date) = 2017 THEN 1 ELSE 0 END) AS ratings_2017,
+               SUM(CASE WHEN YEAR(r.date) = 2018 THEN 1 ELSE 0 END) AS ratings_2018,
+               SUM(CASE WHEN YEAR(r.date) = 2019 THEN 1 ELSE 0 END) AS ratings_2019,
+               SUM(CASE WHEN YEAR(r.date) = 2020 THEN 1 ELSE 0 END) AS ratings_2020,
+               SUM(CASE WHEN YEAR(r.date) = 2021 THEN 1 ELSE 0 END) AS ratings_2021,
+               SUM(CASE WHEN YEAR(r.date) = 2022 THEN 1 ELSE 0 END) AS ratings_2022,
+               SUM(CASE WHEN YEAR(r.date) = 2023 THEN 1 ELSE 0 END) AS ratings_2023,
                SUM(CASE WHEN YEAR(r.date) = 2024 THEN 1 ELSE 0 END) AS ratings_2024
         FROM ratings r
         GROUP BY r.ticker
@@ -1039,7 +1046,14 @@ def data_overview():
         SELECT p.ticker,
                SUM(CASE WHEN YEAR(p.date) = 2014 THEN 1 ELSE 0 END) AS prices_2014,
                SUM(CASE WHEN YEAR(p.date) = 2015 THEN 1 ELSE 0 END) AS prices_2015,
-               ...
+               SUM(CASE WHEN YEAR(p.date) = 2016 THEN 1 ELSE 0 END) AS prices_2016,
+               SUM(CASE WHEN YEAR(p.date) = 2017 THEN 1 ELSE 0 END) AS prices_2017,
+               SUM(CASE WHEN YEAR(p.date) = 2018 THEN 1 ELSE 0 END) AS prices_2018,
+               SUM(CASE WHEN YEAR(p.date) = 2019 THEN 1 ELSE 0 END) AS prices_2019,
+               SUM(CASE WHEN YEAR(p.date) = 2020 THEN 1 ELSE 0 END) AS prices_2020,
+               SUM(CASE WHEN YEAR(p.date) = 2021 THEN 1 ELSE 0 END) AS prices_2021,
+               SUM(CASE WHEN YEAR(p.date) = 2022 THEN 1 ELSE 0 END) AS prices_2022,
+               SUM(CASE WHEN YEAR(p.date) = 2023 THEN 1 ELSE 0 END) AS prices_2023,
                SUM(CASE WHEN YEAR(p.date) = 2024 THEN 1 ELSE 0 END) AS prices_2024
         FROM daily_stock_prices p
         GROUP BY p.ticker
@@ -1064,11 +1078,25 @@ def data_overview():
             'ticker': ticker,
             'ratings_2014': ratings.get('ratings_2014', 0),
             'ratings_2015': ratings.get('ratings_2015', 0),
-            # ... other ratings fields
+            'ratings_2016': ratings.get('ratings_2016', 0),
+            'ratings_2017': ratings.get('ratings_2017', 0),
+            'ratings_2018': ratings.get('ratings_2018', 0),
+            'ratings_2019': ratings.get('ratings_2019', 0),
+            'ratings_2020': ratings.get('ratings_2020', 0),
+            'ratings_2021': ratings.get('ratings_2021', 0),
+            'ratings_2022': ratings.get('ratings_2022', 0),
+            'ratings_2023': ratings.get('ratings_2023', 0),
             'ratings_2024': ratings.get('ratings_2024', 0),
             'prices_2014': prices.get('prices_2014', 0),
             'prices_2015': prices.get('prices_2015', 0),
-            # ... other prices fields
+            'prices_2016': prices.get('prices_2016', 0),
+            'prices_2017': prices.get('prices_2017', 0),
+            'prices_2018': prices.get('prices_2018', 0),
+            'prices_2019': prices.get('prices_2019', 0),
+            'prices_2020': prices.get('prices_2020', 0),
+            'prices_2021': prices.get('prices_2021', 0),
+            'prices_2022': prices.get('prices_2022', 0),
+            'prices_2023': prices.get('prices_2023', 0),
             'prices_2024': prices.get('prices_2024', 0),
             'in_company_profile': ticker in company_profile_tickers
         })
@@ -1077,6 +1105,7 @@ def data_overview():
     conn.close()
 
     return render_template('data.html', data_overview=data_overview)
+
 
 
 @app.errorhandler(404)
