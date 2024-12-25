@@ -1061,18 +1061,28 @@ def data_overview():
     cursor.execute(query_prices)
     prices_data = cursor.fetchall()
 
+    # Fetch the count of rows for each ticker in the income_statements table
+    query_income_statement = """
+        SELECT ticker, COUNT(*) AS income_statement_count
+        FROM income_statements
+        GROUP BY ticker
+    """
+    cursor.execute(query_income_statement)
+    income_statement_data = {row['ticker']: row['income_statement_count'] for row in cursor.fetchall()}
+
     # Fetch tickers from the company_profile table
     cursor.execute("SELECT DISTINCT ticker FROM company_profiles")
     company_profile_tickers = {row['ticker'] for row in cursor.fetchall()}
 
-    # Combine ratings and prices data into a single list
+    # Combine ratings, prices, and income statement data into a single list
     data_overview = []
-    ticker_set = set([row['ticker'] for row in ratings_data] + [row['ticker'] for row in prices_data])
+    ticker_set = set([row['ticker'] for row in ratings_data] + [row['ticker'] for row in prices_data] + list(income_statement_data.keys()))
 
     for ticker in ticker_set:
         # Find the matching ratings and prices data for each ticker
         ratings = next((r for r in ratings_data if r['ticker'] == ticker), {})
         prices = next((p for p in prices_data if p['ticker'] == ticker), {})
+        income_statement_count = income_statement_data.get(ticker, 0)
 
         data_overview.append({
             'ticker': ticker,
@@ -1098,6 +1108,7 @@ def data_overview():
             'prices_2022': prices.get('prices_2022', 0),
             'prices_2023': prices.get('prices_2023', 0),
             'prices_2024': prices.get('prices_2024', 0),
+            'income_statement_count': income_statement_count,
             'in_company_profile': ticker in company_profile_tickers
         })
 
