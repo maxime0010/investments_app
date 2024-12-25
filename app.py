@@ -1070,19 +1070,34 @@ def data_overview():
     cursor.execute(query_income_statement)
     income_statement_data = {row['ticker']: row['income_statement_count'] for row in cursor.fetchall()}
 
+    # Fetch the count of rows for each ticker in the balance_sheets table
+    query_balance_sheet = """
+        SELECT ticker, COUNT(*) AS balance_sheet_count
+        FROM balance_sheets
+        GROUP BY ticker
+    """
+    cursor.execute(query_balance_sheet)
+    balance_sheet_data = {row['ticker']: row['balance_sheet_count'] for row in cursor.fetchall()}
+
     # Fetch tickers from the company_profile table
     cursor.execute("SELECT DISTINCT ticker FROM company_profiles")
     company_profile_tickers = {row['ticker'] for row in cursor.fetchall()}
 
-    # Combine ratings, prices, and income statement data into a single list
+    # Combine all data into a single list
     data_overview = []
-    ticker_set = set([row['ticker'] for row in ratings_data] + [row['ticker'] for row in prices_data] + list(income_statement_data.keys()))
+    ticker_set = set(
+        [row['ticker'] for row in ratings_data] +
+        [row['ticker'] for row in prices_data] +
+        list(income_statement_data.keys()) +
+        list(balance_sheet_data.keys())
+    )
 
     for ticker in ticker_set:
-        # Find the matching ratings and prices data for each ticker
+        # Find the matching data for each ticker
         ratings = next((r for r in ratings_data if r['ticker'] == ticker), {})
         prices = next((p for p in prices_data if p['ticker'] == ticker), {})
         income_statement_count = income_statement_data.get(ticker, 0)
+        balance_sheet_count = balance_sheet_data.get(ticker, 0)
 
         data_overview.append({
             'ticker': ticker,
@@ -1109,6 +1124,7 @@ def data_overview():
             'prices_2023': prices.get('prices_2023', 0),
             'prices_2024': prices.get('prices_2024', 0),
             'income_statement_count': income_statement_count,
+            'balance_sheet_count': balance_sheet_count,
             'in_company_profile': ticker in company_profile_tickers
         })
 
