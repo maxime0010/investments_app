@@ -1,7 +1,3 @@
-{% extends "base.html" %}
-
-{% block title %}Data Overview - Good Life{% endblock %}
-
 {% block content %}
 <div class="container my-5">
     <h1 class="mb-4">Data Overview</h1>
@@ -31,6 +27,7 @@
                 <th scope="col">Stock Prices (2022)</th>
                 <th scope="col">Stock Prices (2023)</th>
                 <th scope="col">Stock Prices (2024)</th>
+                <th scope="col">Income Statement Count</th>
                 <th scope="col">In Company Profile?</th>
             </tr>
         </thead>
@@ -60,6 +57,7 @@
                 <td>{{ entry.get('prices_2022', '-') }}</td>
                 <td>{{ entry.get('prices_2023', '-') }}</td>
                 <td>{{ entry.get('prices_2024', '-') }}</td>
+                <td>{{ entry.get('income_statement_count', '-') }}</td>
                 <td>{{ 'Yes' if entry.get('in_company_profile') else 'No' }}</td>
             </tr>
             {% endfor %}
