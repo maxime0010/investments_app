@@ -1062,7 +1062,7 @@ def data_overview():
     prices_data = cursor.fetchall()
 
     # Fetch tickers from the company_profile table
-    cursor.execute("SELECT DISTINCT ticker FROM company_profile")
+    cursor.execute("SELECT DISTINCT ticker FROM company_profiles")
     company_profile_tickers = {row['ticker'] for row in cursor.fetchall()}
 
     # Combine ratings and prices data into a single list
