@@ -1361,6 +1361,38 @@ def performance():
                            simulation_values=simulation_values, 
                            sp500_values_simulation=sp500_values_simulation)
 
+@app.route('/performance_portfolios')
+def performance_portfolios():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Fetch actual portfolio values and S&P 500 data from portfolio table and daily_indice_prices table
+    cursor.execute("""
+        SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+               (SELECT close 
+                FROM daily_indice_prices sp 
+                WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+        FROM portfolio p
+        GROUP BY p.date
+        ORDER BY p.date
+    """)
+    portfolio_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # Extract data for chart display
+    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
+    simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
+    sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
+
+    return render_template('performance_portfolios.html', 
+                           dates_simulation=dates_simulation, 
+                           simulation_values=simulation_values, 
+                           sp500_values_simulation=sp500_values_simulation)
+
+
 @app.route("/create_account", methods=["POST"])
 @login_required
 def api_create_account():
