@@ -1361,7 +1361,7 @@ def performance():
                            simulation_values=simulation_values, 
                            sp500_values_simulation=sp500_values_simulation)
 
-@app.route('/performance_portfolios', methods=['GET', 'POST'])
+@app.route('/performance_portfolios', methods=['GET'])
 def performance_portfolios():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -1370,43 +1370,48 @@ def performance_portfolios():
     cursor.execute("SELECT DISTINCT portfolio_id FROM portfolio")
     portfolios = cursor.fetchall()
 
-    # Get selected portfolio IDs (if any)
-    selected_portfolios = request.form.getlist('portfolio_ids')
-
-    # If no portfolios are selected, default to all
-    if not selected_portfolios:
-        selected_portfolios = [str(portfolio['portfolio_id']) for portfolio in portfolios]
-
-    # Fetch data for selected portfolios
-    format_ids = ', '.join(['%s'] * len(selected_portfolios))
-    query = f"""
-        SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+    # Fetch data for all portfolios
+    query = """
+        SELECT p.portfolio_id, p.date, p.total_value AS portfolio_value, 
                (SELECT close 
                 FROM daily_indice_prices sp 
                 WHERE sp.ticker = 'SPY' AND sp.date <= p.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
         FROM portfolio p
-        WHERE p.portfolio_id IN ({format_ids}) AND p.type = 'buy'
-        GROUP BY p.date
+        WHERE p.type = 'buy'
         ORDER BY p.date
     """
-    cursor.execute(query, selected_portfolios)
+    cursor.execute(query)
     portfolio_data = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    # Extract data for chart display
-    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
-    simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
-    sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
+    # Organize data for rendering
+    portfolios_data = {}
+    sp500_data = {}
+    for row in portfolio_data:
+        portfolio_id = row['portfolio_id']
+        date = row['date'].strftime('%Y-%m-%d')
+        portfolio_value = row['portfolio_value']
+        sp500_value = row['sp500_value']
 
-    return render_template('performance_portfolios.html', 
+        if portfolio_id not in portfolios_data:
+            portfolios_data[portfolio_id] = {'dates': [], 'values': []}
+        portfolios_data[portfolio_id]['dates'].append(date)
+        portfolios_data[portfolio_id]['values'].append(portfolio_value)
+
+        if date not in sp500_data:
+            sp500_data[date] = sp500_value
+
+    sp500_dates = list(sp500_data.keys())
+    sp500_values = list(sp500_data.values())
+
+    return render_template('performance_portfolios.html',
                            portfolios=portfolios,
-                           selected_portfolios=selected_portfolios,
-                           dates_simulation=dates_simulation, 
-                           simulation_values=simulation_values, 
-                           sp500_values_simulation=sp500_values_simulation)
+                           portfolios_data=portfolios_data,
+                           sp500_dates=sp500_dates,
+                           sp500_values=sp500_values)
 
 
 
