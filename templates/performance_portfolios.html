@@ -6,26 +6,10 @@
     <h1>Portfolio Performance compared to S&P 500 (Base Index 100)</h1>
     <br>
 
-    <!-- Portfolio Selection -->
-    <form method="POST" action="{{ url_for('performance_portfolios') }}">
-        <h4>Select Portfolios</h4>
-        {% for portfolio in portfolios %}
-            <div>
-                <input type="checkbox" id="portfolio_{{ portfolio.portfolio_id }}" 
-                       name="portfolio_ids" 
-                       value="{{ portfolio.portfolio_id }}" 
-                       {% if portfolio.portfolio_id in selected_portfolios %}checked{% endif %}>
-                <label for="portfolio_{{ portfolio.portfolio_id }}">Portfolio {{ portfolio.portfolio_id }}</label>
-            </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary">Update Selection</button>
-    </form>
-    <br>
-
     <!-- Display Annualized Return -->
     <div>
         <h4>Annualized Return</h4>
-        <h5>Portfolio: <span id="annualizedReturn">-</span>%</h5>
+        <h5>Selected Portfolio: <span id="annualizedReturn">-</span>%</h5>
         <h5>S&P 500: <span id="sp500AnnualizedReturn">-</span>%</h5>
     </div>
     <br>
@@ -52,41 +36,54 @@
         '12months': 365
     };
 
+    const portfoliosData = {{ portfolios_data | tojson | safe }};
+    const sp500Dates = {{ sp500_dates | tojson | safe }};
+    const sp500Values = {{ sp500_values | tojson | safe }};
+
     function normalizeToIndex100(values) {
         const baseValue = values[0];
         return values.map(value => (value / baseValue) * 100);
     }
 
     function filterData(period) {
-        const fullDates = {{ dates_simulation | tojson | safe }};
-        const fullPortfolioValues = {{ simulation_values | tojson | safe }};
-        const fullSp500Values = {{ sp500_values_simulation | tojson | safe }};
-
-        const endDate = new Date(fullDates[fullDates.length - 1]);
+        const endDate = new Date(sp500Dates[sp500Dates.length - 1]);
         let startDate = new Date(endDate);
         startDate.setDate(endDate.getDate() - periods[period]);
 
-        const filteredDates = [];
-        const filteredPortfolioValues = [];
-        const filteredSp500Values = [];
+        const filteredDates = sp500Dates.filter(date => new Date(date) >= startDate);
+        const filteredSp500Values = sp500Values.slice(-filteredDates.length);
 
-        for (let i = 0; i < fullDates.length; i++) {
-            const currentDate = new Date(fullDates[i]);
-            if (currentDate >= startDate) {
-                filteredDates.push(fullDates[i]);
-                filteredPortfolioValues.push(fullPortfolioValues[i]);
-                filteredSp500Values.push(fullSp500Values[i]);
+        const datasets = [
+            {
+                label: 'S&P 500 (Base Index 100)',
+                data: normalizeToIndex100(filteredSp500Values),
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: true,
+                tension: 0.4
             }
+        ];
+
+        for (const [portfolioId, data] of Object.entries(portfoliosData)) {
+            const portfolioDates = data.dates;
+            const portfolioValues = data.values;
+
+            const filteredPortfolioValues = portfolioValues.slice(-filteredDates.length);
+
+            datasets.push({
+                label: `Portfolio ${portfolioId} (Base Index 100)`,
+                data: normalizeToIndex100(filteredPortfolioValues),
+                borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
+                backgroundColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.2)`,
+                fill: true,
+                tension: 0.4
+            });
         }
 
-        const normalizedPortfolioValues = normalizeToIndex100(filteredPortfolioValues);
-        const normalizedSp500Values = normalizeToIndex100(filteredSp500Values);
-
-        updateChart(filteredDates, normalizedPortfolioValues, normalizedSp500Values);
-        updateAnnualizedReturn(filteredPortfolioValues, filteredSp500Values, filteredDates);
+        updateChart(filteredDates, datasets);
     }
 
-    function updateChart(dates, portfolioValues, sp500Values) {
+    function updateChart(dates, datasets) {
         const ctx = document.getElementById('simulationPerformanceChart').getContext('2d');
 
         if (chart) {
@@ -97,48 +94,26 @@
             type: 'line',
             data: {
                 labels: dates,
-                datasets: [
-                    {
-                        label: 'Portfolio (Base Index 100)',
-                        data: portfolioValues,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'S&P 500 (Base Index 100)',
-                        data: sp500Values,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
+                datasets: datasets
             },
             options: {
                 scales: {
                     x: { type: 'time', time: { unit: 'month' } },
                     y: { beginAtZero: false }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        onClick: (e, legendItem) => {
+                            const index = legendItem.datasetIndex;
+                            const meta = chart.getDatasetMeta(index);
+                            meta.hidden = !meta.hidden;
+                            chart.update();
+                        }
+                    }
                 }
             }
         });
-    }
-
-    function updateAnnualizedReturn(portfolioValues, sp500Values, dates) {
-        const startDate = new Date(dates[0]);
-        const endDate = new Date(dates[dates.length - 1]);
-
-        const portfolioReturn = calculateAnnualizedReturn(portfolioValues[0], portfolioValues[portfolioValues.length - 1], startDate, endDate);
-        const sp500Return = calculateAnnualizedReturn(sp500Values[0], sp500Values[sp500Values.length - 1], startDate, endDate);
-
-        document.getElementById('annualizedReturn').textContent = portfolioReturn.toFixed(1);
-        document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
-    }
-
-    function calculateAnnualizedReturn(startValue, endValue, startDate, endDate) {
-        const years = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
-        return ((endValue / startValue) ** (1 / years) - 1) * 100;
     }
 
     document.addEventListener('DOMContentLoaded', () => filterData('10years'));
