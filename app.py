@@ -1361,22 +1361,36 @@ def performance():
                            simulation_values=simulation_values, 
                            sp500_values_simulation=sp500_values_simulation)
 
-@app.route('/performance_portfolios')
+@app.route('/performance_portfolios', methods=['GET', 'POST'])
 def performance_portfolios():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch actual portfolio values and S&P 500 data from portfolio table and daily_indice_prices table
-    cursor.execute("""
+    # Fetch all portfolio IDs
+    cursor.execute("SELECT DISTINCT portfolio_id FROM portfolio")
+    portfolios = cursor.fetchall()
+
+    # Get selected portfolio IDs (if any)
+    selected_portfolios = request.form.getlist('portfolio_ids')
+
+    # If no portfolios are selected, default to all
+    if not selected_portfolios:
+        selected_portfolios = [str(portfolio['portfolio_id']) for portfolio in portfolios]
+
+    # Fetch data for selected portfolios
+    format_ids = ', '.join(['%s'] * len(selected_portfolios))
+    query = f"""
         SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
                (SELECT close 
                 FROM daily_indice_prices sp 
                 WHERE sp.ticker = 'SPY' AND sp.date <= p.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
         FROM portfolio p
+        WHERE p.portfolio_id IN ({format_ids})
         GROUP BY p.date
         ORDER BY p.date
-    """)
+    """
+    cursor.execute(query, selected_portfolios)
     portfolio_data = cursor.fetchall()
 
     cursor.close()
@@ -1388,9 +1402,12 @@ def performance_portfolios():
     sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
 
     return render_template('performance_portfolios.html', 
+                           portfolios=portfolios,
+                           selected_portfolios=selected_portfolios,
                            dates_simulation=dates_simulation, 
                            simulation_values=simulation_values, 
                            sp500_values_simulation=sp500_values_simulation)
+
 
 
 @app.route("/create_account", methods=["POST"])
