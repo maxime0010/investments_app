@@ -1386,7 +1386,7 @@ def performance_portfolios():
                 WHERE sp.ticker = 'SPY' AND sp.date <= p.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
         FROM portfolio p
-        WHERE p.portfolio_id IN ({format_ids})
+        WHERE p.portfolio_id IN ({format_ids}) AND p.type = 'buy'
         GROUP BY p.date
         ORDER BY p.date
     """
