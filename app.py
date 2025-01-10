@@ -156,7 +156,7 @@ def get_top_stocks(latest_date):
                a.expected_return_combined_criteria, a.num_combined_criteria, MAX(p.ranking) as ranking, 
                MAX(a.avg_combined_criteria) as target_price, s.indices
         FROM portfolio10 p
-        JOIN analysis365 a ON p.ticker = a.ticker
+        JOIN analysis10 a ON p.ticker = a.ticker
         JOIN ratings r ON r.ticker = p.ticker
         JOIN stock s ON s.ticker = p.ticker
         WHERE p.date = %s AND a.date = %s
@@ -234,7 +234,7 @@ def stock_detail(ticker):
         # Fetch the most recent analysis data for the stock
         cursor.execute("""
             SELECT last_closing_price, avg_combined_criteria, expected_return_combined_criteria
-            FROM analysis365
+            FROM analysis10
             WHERE ticker = %s
             ORDER BY date DESC
             LIMIT 1
