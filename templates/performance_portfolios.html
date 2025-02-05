@@ -1,3 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Performance{% endblock %}
+
+{% block content %}
+    <h1>Portfolio Performance compared to S&P 500 (Base Index 100)</h1>
+    <br>
+
+    <!-- Display Annualized Return -->
+    <div>
+        <h4>Annualized Return</h4>
+        <h5>Selected Portfolio: <span id="annualizedReturn">-</span>%</h5>
+        <h5>S&P 500: <span id="sp500AnnualizedReturn">-</span>%</h5>
+    </div>
+    <br>
+
+    <!-- Time Filter Buttons -->
+    <div>
+        <button class="btn btn-primary" onclick="filterData('10years')">Last 10 Years</button>
+        <button class="btn btn-primary" onclick="filterData('3years')">Last 3 Years</button>
+        <button class="btn btn-primary" onclick="filterData('12months')">Last 12 Months</button>
+    </div>
+    <br>
+
+    <!-- Chart.js Canvas -->
+    <canvas id="simulationPerformanceChart"></canvas>
+{% endblock %}
+
 {% block scripts %}
 <script>
     let chart = null;
