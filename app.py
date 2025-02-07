@@ -1342,7 +1342,7 @@ def performance():
                 FROM prices sp 
                 WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-        FROM portfolio10 p
+        FROM portfolio p
         GROUP BY p.date
         ORDER BY p.date
     """)
