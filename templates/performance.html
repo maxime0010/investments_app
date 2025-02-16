@@ -68,7 +68,7 @@
                             <td>{{ detail.ticker }}</td>
                             <td>${{ "{:,.2f}".format(detail.total_value_buy) }}</td>
                             <td>${{ "{:,.2f}".format(detail.total_value_sell or 0) }}</td>
-                            <td class="{% if detail.evolution >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            <td class="{% if detail.evolution is not none and detail.evolution >= 0 %}text-success{% else %}text-danger{% endif %}">
                                 {{ "{:.2f}".format(detail.evolution) }}%
                             </td>
                         </tr>
