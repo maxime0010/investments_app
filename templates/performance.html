@@ -41,7 +41,7 @@
         <tr data-date="{{ portfolio.date }}" class="portfolio-row">
             <td>{{ portfolio.date }}</td>
             <td>${{ "{:,.2f}".format(portfolio.total_value_buy) }}</td>
-            <td>${{ "{:,.2f}".format(portfolio.total_value_sell) }}</td>
+            <td>${{ "{:,.2f}".format(portfolio.total_value_sell or 0)}}</td>
             <td class="{% if portfolio.evolution >= 0 %}text-success{% else %}text-danger{% endif %}">
                 {{ "{:.2f}".format(portfolio.evolution) }}%
             </td>
