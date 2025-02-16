@@ -1342,7 +1342,7 @@ def performance():
                 FROM prices sp 
                 WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
-        FROM portfolio p
+        FROM portfolio10 p
         GROUP BY p.date
         ORDER BY p.date;
     """)
@@ -1354,7 +1354,7 @@ def performance():
                SUM(total_value) AS total_value_buy, 
                SUM(total_value_sell) AS total_value_sell,
                (SUM(total_value_sell) - SUM(total_value)) / SUM(total_value) * 100 AS evolution
-        FROM portfolio
+        FROM portfolio10
         GROUP BY date
         ORDER BY date DESC;
     """)
@@ -1365,7 +1365,7 @@ def performance():
         SELECT date, ticker, total_value AS total_value_buy, 
                total_value_sell, 
                (total_value_sell - total_value) / total_value * 100 AS evolution
-        FROM portfolio
+        FROM portfolio10
         ORDER BY date DESC, ticker ASC;
     """)
     portfolio_details = cursor.fetchall()
