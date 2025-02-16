@@ -1344,9 +1344,31 @@ def performance():
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
         FROM portfolio p
         GROUP BY p.date
-        ORDER BY p.date
+        ORDER BY p.date;
     """)
     portfolio_data = cursor.fetchall()
+
+    # Fetch portfolio summary (one row per date)
+    cursor.execute("""
+        SELECT date, 
+               SUM(total_value) AS total_value_buy, 
+               SUM(total_value_sell) AS total_value_sell,
+               (SUM(total_value_sell) - SUM(total_value)) / SUM(total_value) * 100 AS evolution
+        FROM portfolio
+        GROUP BY date
+        ORDER BY date DESC;
+    """)
+    portfolios = cursor.fetchall()
+
+    # Fetch detailed portfolio per ticker
+    cursor.execute("""
+        SELECT date, ticker, total_value AS total_value_buy, 
+               total_value_sell, 
+               (total_value_sell - total_value) / total_value * 100 AS evolution
+        FROM portfolio
+        ORDER BY date DESC, ticker ASC;
+    """)
+    portfolio_details = cursor.fetchall()
 
     cursor.close()
     conn.close()
@@ -1359,7 +1381,10 @@ def performance():
     return render_template('performance.html', 
                            dates_simulation=dates_simulation, 
                            simulation_values=simulation_values, 
-                           sp500_values_simulation=sp500_values_simulation)
+                           sp500_values_simulation=sp500_values_simulation,
+                           portfolios=portfolios, 
+                           portfolio_details=portfolio_details)
+
 
 @app.route('/performance_portfolios', methods=['GET'])
 def performance_portfolios():
