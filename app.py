@@ -1339,8 +1339,8 @@ def performance():
     cursor.execute("""
         SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
                (SELECT close 
-                FROM prices sp 
-                WHERE sp.ticker = 'SPX' AND sp.date <= p.date 
+                FROM daily_indice_prices sp 
+                WHERE sp.ticker = 'SPY' AND sp.date <= p.date 
                 ORDER BY sp.date DESC LIMIT 1) AS sp500_value
         FROM portfolio10 p
         GROUP BY p.date
