@@ -1352,8 +1352,8 @@ def performance():
     cursor.execute("""
         SELECT date, 
                SUM(total_value) AS total_value_buy, 
-               SUM(total_value_sell) AS total_value_sell,
-               (SUM(total_value_sell) - SUM(total_value)) / SUM(total_value) * 100 AS evolution
+               COALESCE(SUM(total_value_sell), 0) AS total_value_sell,
+               COALESCE((SUM(total_value_sell) - SUM(total_value)) / NULLIF(SUM(total_value), 0) * 100, 0) AS evolution
         FROM portfolio10
         GROUP BY date
         ORDER BY date DESC;
