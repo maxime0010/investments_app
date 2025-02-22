@@ -1335,13 +1335,17 @@ def performance():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch actual portfolio values and S&P 500 data from portfolio10 table
+    # Fetch actual portfolio values and S&P 500 & NASDAQ-100 data from portfolio10 table
     cursor.execute("""
         SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
                (SELECT close 
                 FROM daily_indice_prices sp 
                 WHERE sp.ticker = 'SPY' AND sp.date <= p.date 
-                ORDER BY sp.date DESC LIMIT 1) AS sp500_value
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value,
+               (SELECT close 
+                FROM daily_indice_prices nq 
+                WHERE nq.ticker = 'QQQ' AND nq.date <= p.date 
+                ORDER BY nq.date DESC LIMIT 1) AS nasdaq100_value
         FROM portfolio10 p
         GROUP BY p.date
         ORDER BY p.date;
@@ -1377,13 +1381,16 @@ def performance():
     dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
     simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
     sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
+    nasdaq100_values_simulation = [row['nasdaq100_value'] for row in portfolio_data]
 
     return render_template('performance.html', 
                            dates_simulation=dates_simulation, 
                            simulation_values=simulation_values, 
                            sp500_values_simulation=sp500_values_simulation,
+                           nasdaq100_values_simulation=nasdaq100_values_simulation,
                            portfolios=portfolios, 
                            portfolio_details=portfolio_details)
+
 
 
 @app.route('/performance_portfolios', methods=['GET'])
