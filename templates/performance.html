@@ -159,10 +159,11 @@
         gradientSP500.addColorStop(0, 'rgba(255, 99, 132, 0.4)');
         gradientSP500.addColorStop(1, 'rgba(255, 99, 132, 0.0)');
 
-        // Create gradient for S&P 500 line
+        // Create gradient for NASDAQ-100 line
         const gradientNASDAQ100 = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientNASDAQ100.addColorStop(0, 'rgba(54, 99, 132, 0.4)');
-        gradientNASDAQ100.addColorStop(1, 'rgba(54, 99, 132, 0.0)');
+        gradientNASDAQ100.addColorStop(0, 'rgba(54, 162, 235, 0.4)');
+        gradientNASDAQ100.addColorStop(1, 'rgba(54, 162, 235, 0.0)');
+
 
         // Create a new chart with minimalistic design and smooth curves
         chart = new Chart(ctx, {
@@ -238,7 +239,6 @@
                                     return `Portfolio: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
                                 } else if (tooltipItem.datasetIndex === 1) {
                                     return `S&P 500: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
-                                }
                                 } else if (tooltipItem.datasetIndex === 2) {
                                     return `NASDAQ-100: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
                                 }
