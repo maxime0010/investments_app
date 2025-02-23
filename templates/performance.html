@@ -263,6 +263,7 @@
         const nasdaq100Return = calculateAnnualizedReturn(nasdaq100Values[0], nasdaq100Values[nasdaq100Values.length - 1], startDate, endDate);
 
         document.getElementById('annualizedReturn').textContent = portfolioReturn.toFixed(1);
+        document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
         document.getElementById('nasdaq100AnnualizedReturn').textContent = nasdaq100Return.toFixed(1);
     }
 
