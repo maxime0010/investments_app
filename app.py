@@ -15,6 +15,32 @@ from sib_api_v3_sdk.rest import ApiException
 from itsdangerous import URLSafeTimedSerializer
 from alpaca_client import create_account, fetch_account_details, fund_account
 
+from flask import Flask, request, Response
+
+app = Flask(__name__)
+
+USERNAME = "admin"
+PASSWORD = "maxandben2025"
+
+def check_auth(username, password):
+    return username == USERNAME and password == PASSWORD
+
+def authenticate():
+    return Response(
+        'Accès refusé.\n', 401,
+        {'WWW-Authenticate': 'Basic realm="Espace privé"'}
+    )
+
+def requires_auth(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
 # Helper function to calculate annualized return
 def calculate_annualized_return(start_value, end_value, start_date, end_date):
     # Calculate the time difference in years
@@ -80,9 +106,9 @@ def get_db_connection():
 def get_sandbox_connection():
     return mysql.connector.connect(
         host="sandbox-ben-do-user-4526552-0.i.db.ondigitalocean.com",  # Your sandbox host
-        user=os.getenv("MYSQL_USER"),
+        user="doadmin",
         password=os.getenv("MYSQL_MDP"),
-        database=os.getenv("MYSQL_DB"),
+        database=os.getenv("MYSQL_HOST"),
         port=25060
     )
 
