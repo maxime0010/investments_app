@@ -15,33 +15,6 @@ from sib_api_v3_sdk.rest import ApiException
 from itsdangerous import URLSafeTimedSerializer
 from alpaca_client import create_account, fetch_account_details, fund_account
 
-from flask import Flask, request, Response
-
-
-app = Flask(__name__)
-
-USERNAME = "admin"
-PASSWORD = "maxandben2025"
-
-def check_auth(username, password):
-    return username == USERNAME and password == PASSWORD
-
-def authenticate():
-    return Response(
-        'Accès refusé.\n', 401,
-        {'WWW-Authenticate': 'Basic realm="Espace privé"'}
-    )
-
-def requires_auth(f):
-    from functools import wraps
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        return f(*args, **kwargs)
-    return decorated
-
 # Helper function to calculate annualized return
 def calculate_annualized_return(start_value, end_value, start_date, end_date):
     # Calculate the time difference in years
@@ -83,37 +56,26 @@ host = os.getenv("MYSQL_HOST")
 if not host:
     raise ValueError("No Host found in environment variables")
     
-def get_db_connection(host_override=None):
-    host = host_override or os.getenv("MYSQL_HOST")
-    user = os.getenv("MYSQL_USER", "doadmin")
-    password = os.getenv("MYSQL_MDP")
-    database = os.getenv("MYSQL_DB", "defaultdb")
-    port_raw = os.getenv("MYSQL_PORT", 25060)
+# Database connection configuration
+db_config = {
+    'user': 'doadmin',
+    'password': mdp,
+    'host': host,
+    'database': 'defaultdb',
+    'port': 25060
+}
 
+def get_db_connection():
     try:
-        port = int(port_raw)
-    except ValueError:
-        raise ValueError(f"Invalid port value: {port_raw}")
-
-    if not all([host, user, password, database]):
-        raise ValueError("Missing one or more DB connection values.")
-
-    try:
-        conn = mysql.connector.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=database,
-            port=port
-        )
+        # Reconnect if connection is lost or doesn't exist
+        conn = mysql.connector.connect(**db_config)
         if conn.is_connected():
             return conn
         else:
             raise mysql.connector.Error("Failed to connect to the database.")
     except Error as err:
-        print(f"❌ DB connection error: {err}")
+        print(f"Error: {err}")
         return None
-
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -1682,65 +1644,6 @@ def trading():
         return redirect(url_for('trading', account_id=account_id))
 
     return render_template('trading.html', account_id=account_id, market_data=market_data)
-
-@app.route('/sandbox')
-def sandbox():
-    sandbox_host = 'sandbox-ben-do-user-4526552-0.i.db.ondigitalocean.com'
-    conn = get_db_connection(host_override=sandbox_host)
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-        SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
-               (SELECT close 
-                FROM daily_indice_prices sp 
-                WHERE sp.ticker = 'SPY' AND sp.date <= p.date 
-                ORDER BY sp.date DESC LIMIT 1) AS sp500_value,
-               (SELECT close 
-                FROM daily_indice_prices nq 
-                WHERE nq.ticker = 'QQQ' AND nq.date <= p.date 
-                ORDER BY nq.date DESC LIMIT 1) AS nasdaq100_value
-        FROM portfolio10 p
-        GROUP BY p.date
-        ORDER BY p.date;
-    """)
-    portfolio_data = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT date, 
-               SUM(total_value) AS total_value_buy, 
-               COALESCE(SUM(total_value_sell), 0) AS total_value_sell,
-               COALESCE((SUM(total_value_sell) - SUM(total_value)) / NULLIF(SUM(total_value), 0) * 100, 0) AS evolution
-        FROM portfolio10
-        GROUP BY date
-        ORDER BY date DESC;
-    """)
-    portfolios = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT date, ticker, total_value AS total_value_buy, 
-               total_value_sell, 
-               (total_value_sell - total_value) / total_value * 100 AS evolution
-        FROM portfolio10
-        ORDER BY date DESC, ticker ASC;
-    """)
-    portfolio_details = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
-    simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
-    sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
-    nasdaq100_values_simulation = [row['nasdaq100_value'] for row in portfolio_data]
-
-    return render_template('sandbox.html', 
-                           dates_simulation=dates_simulation, 
-                           simulation_values=simulation_values, 
-                           sp500_values_simulation=sp500_values_simulation,
-                           nasdaq100_values_simulation=nasdaq100_values_simulation,
-                           portfolios=portfolios, 
-                           portfolio_details=portfolio_details)
-
 
 
 @app.route('/account-details', methods=['GET'])
