@@ -77,6 +77,15 @@ def get_db_connection():
         print(f"Error: {err}")
         return None
 
+def get_sandbox_connection():
+    return mysql.connector.connect(
+        host="sandbox-ben-do-user-4526552-0.i.db.ondigitalocean.com",  # Your sandbox host
+        user=os.getenv("MYSQL_USER"),
+        password=os.getenv("MYSQL_MDP"),
+        database=os.getenv("MYSQL_DB"),
+        port=25060
+    )
+
 # Flask-Login setup
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -1644,6 +1653,64 @@ def trading():
         return redirect(url_for('trading', account_id=account_id))
 
     return render_template('trading.html', account_id=account_id, market_data=market_data)
+
+@app.route('/sandbox')
+def sandbox():
+    sandbox_host = 'sandbox-ben-do-user-4526552-0.i.db.ondigitalocean.com'  # your alternate DB host
+    conn = get_sandbox_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
+               (SELECT close 
+                FROM daily_indice_prices sp 
+                WHERE sp.ticker = 'SPY' AND sp.date <= p.date 
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value,
+               (SELECT close 
+                FROM daily_indice_prices nq 
+                WHERE nq.ticker = 'QQQ' AND nq.date <= p.date 
+                ORDER BY nq.date DESC LIMIT 1) AS nasdaq100_value
+        FROM portfolio10 p
+        GROUP BY p.date
+        ORDER BY p.date;
+    """)
+    portfolio_data = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT date, 
+               SUM(total_value) AS total_value_buy, 
+               COALESCE(SUM(total_value_sell), 0) AS total_value_sell,
+               COALESCE((SUM(total_value_sell) - SUM(total_value)) / NULLIF(SUM(total_value), 0) * 100, 0) AS evolution
+        FROM portfolio10
+        GROUP BY date
+        ORDER BY date DESC;
+    """)
+    portfolios = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT date, ticker, total_value AS total_value_buy, 
+               total_value_sell, 
+               (total_value_sell - total_value) / total_value * 100 AS evolution
+        FROM portfolio10
+        ORDER BY date DESC, ticker ASC;
+    """)
+    portfolio_details = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
+    simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
+    sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
+    nasdaq100_values_simulation = [row['nasdaq100_value'] for row in portfolio_data]
+
+    return render_template('sandbox.html', 
+                           dates_simulation=dates_simulation, 
+                           simulation_values=simulation_values, 
+                           sp500_values_simulation=sp500_values_simulation,
+                           nasdaq100_values_simulation=nasdaq100_values_simulation,
+                           portfolios=portfolios, 
+                           portfolio_details=portfolio_details)
 
 
 @app.route('/account-details', methods=['GET'])
