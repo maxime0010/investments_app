@@ -104,12 +104,30 @@ def get_db_connection():
         return None
 
 def get_sandbox_connection():
+    host = "sandbox-ben-do-user-4526552-0.i.db.ondigitalocean.com"
+    user = os.getenv("MYSQL_USER", "doadmin")
+    password = os.getenv("MYSQL_MDP")
+    database = os.getenv("MYSQL_DB", "defaultdb")
+    port = int(os.getenv("MYSQL_PORT", 25060))
+
+    # Debug print (remove after testing)
+    print("🔍 SANDBOX DB CONFIG:", {
+        "host": host,
+        "user": user,
+        "password": "********" if password else None,
+        "database": database,
+        "port": port,
+    })
+
+    if not all([host, user, password, database]):
+        raise ValueError("Missing one or more DB connection values for sandbox.")
+
     return mysql.connector.connect(
-        host="sandbox-ben-do-user-4526552-0.i.db.ondigitalocean.com",  # Your sandbox host
-        user="doadmin",
-        password=os.getenv("MYSQL_MDP"),
-        database="defaultdb",
-        port=25060
+        host=host,
+        user=user,
+        password=password,
+        database=database,
+        port=port
     )
 
 # Flask-Login setup
