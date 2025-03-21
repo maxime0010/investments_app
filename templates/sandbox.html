@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Performance{% endblock %}
+
+{% block content %}
+    <h1>Portfolio Performance compared to S&P 500 & NASDAQ-100 (Base Index 100)</h1>
+    <br>
+    <!-- Display Annualized Return -->
+    <div>
+        <h4>Annualized Return</h4>
+        <h5>Portfolio: <span id="annualizedReturn">-</span>%</h5>
+        <h5>S&P 500: <span id="sp500AnnualizedReturn">-</span>%</h5>
+        <h5>NASDAQ-100: <span id="nasdaq100AnnualizedReturn">-</span>%</h5>
+    </div>
+    <br>
+    <!-- Time Filter Buttons -->
+    <div>
+        <button class="btn btn-primary" onclick="filterData('10years')">Last 10 Years</button>
+        <button class="btn btn-primary" onclick="filterData('3years')">Last 3 Years</button>
+        <button class="btn btn-primary" onclick="filterData('12months')">Last 12 Months</button>
+    </div>
+    <br>
+    <!-- Chart.js Canvas -->
+    <canvas id="simulationPerformanceChart"></canvas>
+
+<br>
+
+<!-- Portfolio Performance Table -->
+<h2>Portfolio Summary</h2>
+<table class="table table-striped" id="portfolioTable">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Total Value Buy</th>
+            <th>Total Value Sell</th>
+            <th>Evolution (%)</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for portfolio in portfolios %}
+        <tr data-date="{{ portfolio.date }}" class="portfolio-row">
+            <td>{{ portfolio.date }}</td>
+            <td>${{ "{:,.2f}".format(portfolio.total_value_buy) }}</td>
+            <td>${{ "{:,.2f}".format(portfolio.total_value_sell or 0)}}</td>
+            <td class="{% if portfolio.evolution is not none and portfolio.evolution >= 0 %}text-success{% else %}text-danger{% endif %}">
+                {{ "{:.2f}".format(portfolio.evolution) }}%
+            </td>
+            <td>
+                <button class="btn btn-info btn-sm toggle-details" data-date="{{ portfolio.date }}">
+                    Expand
+                </button>
+            </td>
+        </tr>
+        <tr class="details-row" id="details-{{ portfolio.date }}" style="display: none;">
+            <td colspan="5">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Total Value Buy</th>
+                            <th>Total Value Sell</th>
+                            <th>Evolution (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detail in portfolio_details if detail.date == portfolio.date %}
+                        <tr>
+                            <td>{{ detail.ticker }}</td>
+                            <td>${{ "{:,.2f}".format(detail.total_value_buy) }}</td>
+                            <td>${{ "{:,.2f}".format(detail.total_value_sell or 0) }}</td>
+                            <td class="{% if detail.evolution is not none and detail.evolution >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                {{ "{:.2f}".format(detail.evolution if detail.evolution is not none else 0) }}%
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let chart = null;
+
+    // Define periods consistently for all calculations (removed 3 months and 1 month periods)
+    const periods = {
+        '10years': 10 * 365,
+        '3years': 3 * 365,
+        '12months': 365
+    };
+
+    // Function to normalize data to index 100 base
+    function normalizeToIndex100(values) {
+        const baseValue = values[0]; // First value as the base (index 100)
+        return values.map(value => (value / baseValue) * 100);
+    }
+
+    function filterData(period) {
+        const fullDates = {{ dates_simulation | tojson | safe }};
+        const fullPortfolioValues = {{ simulation_values | tojson | safe }};
+        const fullSp500Values = {{ sp500_values_simulation | tojson | safe }};
+        const fullNasdaq100Values = {{ nasdaq100_values_simulation | tojson | safe }};
+
+        const endDate = new Date(fullDates[fullDates.length - 1]);
+        let startDate = new Date(endDate);
+        startDate.setDate(endDate.getDate() - periods[period]);
+
+        const filteredDates = [];
+        const filteredPortfolioValues = [];
+        const filteredSp500Values = [];
+        const filteredNasdaq100Values = [];
+
+        for (let i = 0; i < fullDates.length; i++) {
+            const currentDate = new Date(fullDates[i]);
+            if (currentDate >= startDate) {
+                filteredDates.push(fullDates[i]);
+                filteredPortfolioValues.push(fullPortfolioValues[i]);
+                filteredSp500Values.push(fullSp500Values[i]);
+                filteredNasdaq100Values.push(fullNasdaq100Values[i]);
+
+            }
+        }
+
+        // Normalize values to index 100
+        const normalizedPortfolioValues = normalizeToIndex100(filteredPortfolioValues);
+        const normalizedSp500Values = normalizeToIndex100(filteredSp500Values);
+        const normalizedNasdaq100Values = normalizeToIndex100(filteredNasdaq100Values);
+
+        // Update the chart with the normalized values
+        updateChart(filteredDates, normalizedPortfolioValues, normalizedSp500Values, normalizedNasdaq100Values);
+
+        // Recalculate the annualized return
+        updateAnnualizedReturn(filteredPortfolioValues, filteredSp500Values, filteredNasdaq100Values, filteredDates);
+    }
+
+    // Function to update the chart with new data
+    function updateChart(dates, portfolioValues, sp500Values, nasdaq100Values) {
+        const ctx = document.getElementById('simulationPerformanceChart').getContext('2d');
+
+        // Destroy previous chart if it exists
+        if (chart) {
+            chart.destroy();
+        }
+
+        // Create gradient for portfolio line
+        const gradientPortfolio = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientPortfolio.addColorStop(0, 'rgba(75, 192, 192, 0.4)');
+        gradientPortfolio.addColorStop(1, 'rgba(75, 192, 192, 0.0)');
+
+        // Create gradient for S&P 500 line
+        const gradientSP500 = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientSP500.addColorStop(0, 'rgba(255, 99, 132, 0.4)');
+        gradientSP500.addColorStop(1, 'rgba(255, 99, 132, 0.0)');
+
+        // Create gradient for NASDAQ-100 line
+        const gradientNASDAQ100 = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientNASDAQ100.addColorStop(0, 'rgba(54, 162, 235, 0.4)');
+        gradientNASDAQ100.addColorStop(1, 'rgba(54, 162, 235, 0.0)');
+
+
+        // Create a new chart with minimalistic design and smooth curves
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Portfolio (Base Index 100)',
+                        data: portfolioValues,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: gradientPortfolio,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'S&P 500 (Base Index 100)',
+                        data: sp500Values,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: gradientSP500,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'NASDAQ-100 (Base Index 100)',
+                        data: nasdaq100Values,
+                        borderColor: 'rgba(54, 99, 132, 1)',
+                        backgroundColor: gradientNASDAQ100,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'MMM d, yyyy'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(0);
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return 'Date: ' + tooltipItems[0].label;
+                            },
+                            label: function(tooltipItem) {
+                                if (tooltipItem.datasetIndex === 0) {
+                                    return `Portfolio: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
+                                } else if (tooltipItem.datasetIndex === 1) {
+                                    return `S&P 500: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
+                                } else if (tooltipItem.datasetIndex === 2) {
+                                    return `NASDAQ-100: ${tooltipItem.raw.toFixed(2)} (Base Index 100)`;
+                                }
+                            }
+                        },
+                        filter: function(tooltipItem, data) {
+                            return tooltipItem.dataIndex === 0;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Function to calculate and update the annualized return
+    function updateAnnualizedReturn(portfolioValues, sp500Values, nasdaq100Values, dates) {
+        const startDate = new Date(dates[0]);
+        const endDate = new Date(dates[dates.length - 1]);
+
+        const portfolioReturn = calculateAnnualizedReturn(portfolioValues[0], portfolioValues[portfolioValues.length - 1], startDate, endDate);
+        const sp500Return = calculateAnnualizedReturn(sp500Values[0], sp500Values[sp500Values.length - 1], startDate, endDate);
+        const nasdaq100Return = calculateAnnualizedReturn(nasdaq100Values[0], nasdaq100Values[nasdaq100Values.length - 1], startDate, endDate);
+
+        document.getElementById('annualizedReturn').textContent = portfolioReturn.toFixed(1);
+        document.getElementById('sp500AnnualizedReturn').textContent = sp500Return.toFixed(1);
+        document.getElementById('nasdaq100AnnualizedReturn').textContent = nasdaq100Return.toFixed(1);
+    }
+
+    // Helper function to calculate annualized return
+    function calculateAnnualizedReturn(startValue, endValue, startDate, endDate) {
+        const timeDiffInYears = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+        if (timeDiffInYears === 0) return 0;
+        return ((endValue / startValue) ** (1 / timeDiffInYears) - 1) * 100;
+    }
+
+    // Initialize the chart with default data (last 10 years)
+    document.addEventListener('DOMContentLoaded', function () {
+        filterData('10years');
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleButtons = document.querySelectorAll(".toggle-details");
+
+        toggleButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const date = this.getAttribute("data-date");
+                const detailsRow = document.getElementById("details-" + date);
+                detailsRow.style.display = detailsRow.style.display === "none" ? "" : "none";
+            });
+        });
+    });
+</script>
+
+{% endblock %}
