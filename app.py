@@ -108,7 +108,7 @@ def get_sandbox_connection():
         host="sandbox-ben-do-user-4526552-0.i.db.ondigitalocean.com",  # Your sandbox host
         user="doadmin",
         password=os.getenv("MYSQL_MDP"),
-        database=os.getenv("MYSQL_HOST"),
+        database="defaultdb",
         port=25060
     )
 
