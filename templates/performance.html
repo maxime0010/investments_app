@@ -78,28 +78,7 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr>
-                          <td colspan="5">
-                            <pre style="background:#f8f9fa; border:1px solid #ccc; padding:10px;">
-                        DEBUG:
-                        detail.date = {{ detail.date }}
-                        detail.ticker = {{ detail.ticker }}
-                        ratings found = {{
-                          analyst_ratings | selectattr('ticker', 'equalto', detail.ticker) 
-                                          | selectattr('portfolio_date', 'equalto', detail.date) 
-                                          | list | length
-                        }}
-                            </pre>
-                          </td>
-                        </tr>
-                        {% for r in analyst_ratings %}
-                            {% if r.ticker == detail.ticker %}
-                                <div>
-                                    r.ticker = {{ r.ticker }}, r.date = {{ r.portfolio_date }}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-
+                        
                         <!-- Analyst Ratings -->
                         <tr class="analyst-row" style="display: none;" id="analysts-{{ detail.date }}-{{ detail.ticker }}">
                             <td colspan="5">
