@@ -97,7 +97,7 @@
                                     <tbody>
                                         {% set sum_weighted = 0 %}
                                         {% set sum_scores = 0 %}
-                                        {% for rating in analyst_ratings if rating.ticker == detail.ticker and rating.portfolio_date.strftime('%Y-%m-%d') == detail.date.strftime('%Y-%m-%d') %}
+                                        {% for rating in analyst_ratings if rating.ticker == detail.ticker and rating.portfolio_date_str == detail.date_str %}
                                             {% set score = rating.score or 0 %}
                                             {% if rating.price_target and rating.last_price %}
                                               {% set expected = (rating.price_target | float) / (rating.last_price | float) * 100 %}
