@@ -1413,8 +1413,8 @@ def performance():
                            sp500_values_simulation=sp500_values_simulation,
                            nasdaq100_values_simulation=nasdaq100_values_simulation,
                            portfolios=portfolios, 
-                           portfolio_details=portfolio_details)
-                           analyst_ratings=analyst_ratings
+                           portfolio_details=portfolio_details,
+                           analyst_ratings=analyst_ratings)
 
 
 
