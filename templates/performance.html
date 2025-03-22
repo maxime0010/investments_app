@@ -80,56 +80,7 @@
                         </tr>
                         
                         <!-- Analyst Ratings -->
-                        <tr class="analyst-row" style="display: none;" id="analysts-{{ detail.date }}-{{ detail.ticker }}">
-                            <td colspan="5">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Analyst</th>
-                                            <th>Bank</th>
-                                            <th>Date</th>
-                                            <th>Price Target</th>
-                                            <th>Last Price</th>
-                                            <th>Expected Return (%)</th>
-                                            <th>Score</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% set sum_weighted = 0 %}
-                                        {% set sum_scores = 0 %}
-                                        {% for rating in analyst_ratings if rating.ticker == detail.ticker and rating.portfolio_date == detail.date %}
-                                            {% set score = rating.score or 0 %}
-                                            {% if rating.price_target and rating.last_price %}
-                                              {% set expected = (rating.price_target | float) / (rating.last_price | float) * 100 %}
-                                            {% else %}
-                                              {% set expected = 0 %}
-                                            {% endif %}
-                                            {% set sum_weighted = sum_weighted + expected * score %}
-                                            {% set sum_scores = sum_scores + score %}
-                                            <tr>
-                                                <td>{{ rating.analyst_name }}</td>
-                                                <td>{{ rating.analyst }}</td>
-                                                <td>{{ rating.rating_date.strftime('%Y-%m-%d') }}</td>
-                                                <td>${{ "%.2f"|format(rating.price_target) }}</td>
-                                                <td>${{ "%.2f"|format(rating.last_price or 0) }}</td>
-                                                <td>{{ "%.2f"|format(expected) }}%</td>
-                                                <td>{{ score }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                        <tr class="font-weight-bold">
-                                            <td colspan="5">Weighted Avg Expected Return</td>
-                                            <td colspan="2">
-                                                {% if sum_scores > 0 %}
-                                                    {{ "%.2f"|format(sum_weighted / sum_scores) }}%
-                                                {% else %}
-                                                    N/A
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
+                        
                         {% endfor %}
                     </tbody>
                 </table>
