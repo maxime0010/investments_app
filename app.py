@@ -1414,6 +1414,7 @@ def performance():
                            nasdaq100_values_simulation=nasdaq100_values_simulation,
                            portfolios=portfolios, 
                            portfolio_details=portfolio_details)
+                           analyst_ratings=analyst_ratings
 
 
 
