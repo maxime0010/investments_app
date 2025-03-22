@@ -120,7 +120,7 @@
                                         {% set sum_scores = 0 %}
                                         {% for rating in analyst_ratings if rating.ticker == detail.ticker and rating.portfolio_date == detail.date %}
                                             {% set score = rating.score or 0 %}
-                                            {% set expected = (rating.price_target / rating.last_price * 100) if rating.last_price else 0 %}
+                                            {% set expected = ((rating.price_target | float) / (rating.last_price | float) * 100) if rating.last_price else 0 %}
                                             {% set sum_weighted = sum_weighted + expected * score %}
                                             {% set sum_scores = sum_scores + score %}
                                             <tr>
