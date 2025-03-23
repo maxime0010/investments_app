@@ -1412,7 +1412,7 @@ def analyst_ratings_view(date, ticker):
                 ORDER BY d.date DESC
                 LIMIT 1
             ) AS last_price,
-            st.cumulated_points - st.points AS score
+            COALESCE(st.cumulated_points, 0) - COALESCE(st.points, 0) AS score
         FROM ratings r
         JOIN (
             SELECT analyst_name, MAX(date) AS latest_date
