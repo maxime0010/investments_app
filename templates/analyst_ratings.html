@@ -2,6 +2,18 @@
 {% block title %}Analyst Ratings – {{ ticker }}{% endblock %}
 
 {% block content %}
+
+<!-- Debug Info -->
+<div style="background:#f5f5f5; padding:10px; border:1px solid #ccc; font-size:14px;">
+    <p><strong>Debug Info:</strong></p>
+    <p>Ticker: <code>{{ ticker }}</code></p>
+    <p>Date: <code>{{ date }}</code></p>
+    <p>Number of Ratings Fetched: <code>{{ ratings|length }}</code></p>
+    <p>Ratings Data:</p>
+    <pre>{{ ratings | tojson(indent=2) }}</pre>
+</div>
+
+
 <h2>Analyst Ratings for {{ ticker }} on {{ date }}</h2>
 <a href="{{ url_for('performance') }}" class="btn btn-light mb-3">← Back to Performance</a>
 
