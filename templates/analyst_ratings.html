@@ -22,7 +22,6 @@
         {% set sum_weighted = 0 %}
         {% set sum_scores = 0 %}
         {% for r in ratings if r.analyst_name %}
-            <td>{{ r.score }}</td>
             {% set score = r.score or 0 %}
             {% if r.price_target and r.last_price %}
                 {% set expected = (r.price_target | float) / (r.last_price | float) * 100 %}
