@@ -1431,8 +1431,8 @@ def analyst_ratings_view(date, ticker):
             ) latest_st ON st1.ticker = latest_st.ticker AND st1.date = latest_st.max_date
         ) st ON r.ticker = st.ticker
         ORDER BY r.analyst_name ASC
-    """, (ticker, date, ticker))
-
+    """, (ticker, date, ticker, date))
+    
     ratings = cursor.fetchall()
     cursor.close()
     conn.close()
