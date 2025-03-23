@@ -1424,12 +1424,13 @@ def analyst_ratings_view(date, ticker):
             SELECT st1.*
             FROM stock_tracking3 st1
             JOIN (
-                SELECT ticker, analyst_name, MAX(date) AS max_date
+                SELECT ticker, analyst, MAX(date) AS max_date
                 FROM stock_tracking3
                 WHERE date <= %s
-                GROUP BY ticker, analyst_name
-            ) st2 ON st1.ticker = st2.ticker AND st1.analyst_name = st2.analyst_name AND st1.date = st2.max_date
-        ) st ON r.ticker = st.ticker AND r.analyst_name = st.analyst_name
+                GROUP BY ticker, analyst
+            ) latest_st
+            ON st1.ticker = latest_st.ticker AND st1.analyst = latest_st.analyst AND st1.date = latest_st.max_date
+        ) st ON r.ticker = st.ticker AND r.analyst_name = st.analyst
         ORDER BY r.analyst_name ASC
     """, (ticker, date, ticker, date))
 
