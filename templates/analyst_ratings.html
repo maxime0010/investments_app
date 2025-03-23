@@ -3,17 +3,6 @@
 
 {% block content %}
 
-<!-- Debug Info -->
-<div style="background:#f5f5f5; padding:10px; border:1px solid #ccc; font-size:14px;">
-    <p><strong>Debug Info:</strong></p>
-    <p>Ticker: <code>{{ ticker }}</code></p>
-    <p>Date: <code>{{ date }}</code></p>
-    <p>Number of Ratings Fetched: <code>{{ ratings|length }}</code></p>
-    <p>Ratings Data:</p>
-    <pre>{{ ratings | tojson(indent=2) }}</pre>
-</div>
-
-
 <h2>Analyst Ratings for {{ ticker }} on {{ date }}</h2>
 <a href="{{ url_for('performance') }}" class="btn btn-light mb-3">← Back to Performance</a>
 
@@ -32,7 +21,8 @@
     <tbody>
         {% set sum_weighted = 0 %}
         {% set sum_scores = 0 %}
-        {% for r in ratings %}
+        {% for r in ratings if r.analyst_name %}
+            <td>{{ r.score }}</td>
             {% set score = r.score or 0 %}
             {% if r.price_target and r.last_price %}
                 {% set expected = (r.price_target | float) / (r.last_price | float) * 100 %}
