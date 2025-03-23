@@ -1411,7 +1411,7 @@ def analyst_ratings_view(date, ticker):
                 WHERE d.ticker = r.ticker AND d.date <= %s
                 ORDER BY d.date DESC
                 LIMIT 1
-            ) AS last_price
+            ) AS last_price,
             COALESCE(st.cumulated_points, 0) - COALESCE(st.points, 0) AS score
         FROM ratings r
         JOIN (
