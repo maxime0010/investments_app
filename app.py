@@ -1408,10 +1408,10 @@ def analyst_ratings_view(date, ticker):
             (
                 SELECT adjusted_close
                 FROM daily_stock_prices_adjusted d
-                WHERE d.ticker = r.ticker AND d.date <= r.date
+                WHERE d.ticker = r.ticker AND d.date <= %s
                 ORDER BY d.date DESC
                 LIMIT 1
-            ) AS last_price,
+            ) AS last_price
             COALESCE(st.cumulated_points, 0) - COALESCE(st.points, 0) AS score
         FROM ratings r
         JOIN (
@@ -1432,7 +1432,7 @@ def analyst_ratings_view(date, ticker):
             ON st1.ticker = latest_st.ticker AND st1.analyst = latest_st.analyst AND st1.date = latest_st.max_date
         ) st ON r.ticker = st.ticker AND r.analyst_name = st.analyst
         ORDER BY r.analyst_name ASC
-    """, (ticker, date, ticker, date))
+    """, (date, ticker, date, ticker, date))
 
     ratings = cursor.fetchall()
     cursor.close()
