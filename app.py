@@ -1383,15 +1383,6 @@ def performance():
     sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
     nasdaq100_values_simulation = [row['nasdaq100_value'] for row in portfolio_data]
 
-    # Normalize dates to strings for Jinja2 comparisons
-    for r in analyst_ratings:
-        if isinstance(r['portfolio_date'], datetime):
-            r['portfolio_date_str'] = r['portfolio_date'].strftime('%Y-%m-%d')
-    
-    for d in portfolio_details:
-        if isinstance(d['date'], datetime):
-            d['date_str'] = d['date'].strftime('%Y-%m-%d')
-
     
     return render_template('performance.html', 
                            dates_simulation=dates_simulation, 
