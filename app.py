@@ -1411,16 +1411,17 @@ def analyst_ratings_view(date, ticker):
                st.cumulated_points - st.points AS score
         FROM ratings r
         JOIN stock_tracking3 st ON r.ticker = st.ticker AND r.date = st.date
-        WHERE r.ticker = %s
-          AND r.date = (
-              SELECT MAX(date)
-              FROM ratings r2
+        WHERE r.ticker = %s AND r.date <= %s
+          AND NOT EXISTS (
+              SELECT 1 FROM ratings r2
               WHERE r2.ticker = r.ticker
                 AND r2.analyst_name = r.analyst_name
+                AND r2.date > r.date
                 AND r2.date <= %s
           )
         ORDER BY r.analyst_name ASC
-    """, (ticker, date))
+    """, (ticker, date, date))
+
 
 
     ratings = cursor.fetchall()
