@@ -1399,35 +1399,28 @@ def analyst_ratings_view(date, ticker):
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT
-            r.ticker,
-            r.analyst_name,
-            r.analyst,
-            r.date AS rating_date,
-            r.adjusted_pt_current AS price_target,
-            (
-                SELECT adjusted_close
-                FROM daily_stock_prices_adjusted d
-                WHERE d.ticker = r.ticker AND d.date <= r.date
-                ORDER BY d.date DESC
-                LIMIT 1
-            ) AS last_price,
-            st.cumulated_points - st.points AS score
+        SELECT r.ticker, r.analyst_name, r.analyst, r.date AS rating_date,
+               r.adjusted_pt_current AS price_target,
+               (
+                   SELECT adjusted_close
+                   FROM daily_stock_prices_adjusted d
+                   WHERE d.ticker = r.ticker AND d.date <= r.date
+                   ORDER BY d.date DESC
+                   LIMIT 1
+               ) AS last_price,
+               st.cumulated_points - st.points AS score
         FROM ratings r
         JOIN stock_tracking3 st ON r.ticker = st.ticker AND r.date = st.date
-        INNER JOIN (
-            SELECT analyst_name, ticker, MAX(date) AS latest_date
-            FROM ratings
-            WHERE ticker = %s AND date <= %s
-            GROUP BY analyst_name, ticker
-        ) latest
-        ON r.analyst_name = latest.analyst_name
-        AND r.ticker = latest.ticker
-        AND r.date = latest.latest_date
         WHERE r.ticker = %s
+          AND r.date = (
+              SELECT MAX(date)
+              FROM ratings r2
+              WHERE r2.ticker = r.ticker
+                AND r2.analyst_name = r.analyst_name
+                AND r2.date <= %s
+          )
         ORDER BY r.analyst_name ASC
-    """, (ticker, date, ticker))
-
+    """, (ticker, date))
 
 
     ratings = cursor.fetchall()
