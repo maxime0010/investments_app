@@ -1416,15 +1416,18 @@ def analyst_ratings_view(date, ticker):
         FROM ratings r
         JOIN stock_tracking3 st ON r.ticker = st.ticker AND r.date = st.date
         INNER JOIN (
-            SELECT analyst_name, MAX(date) AS latest_date
+            SELECT analyst_name, ticker, MAX(date) AS latest_date
             FROM ratings
             WHERE ticker = %s AND date <= %s
-            GROUP BY analyst_name
+            GROUP BY analyst_name, ticker
         ) latest
-        ON r.analyst_name = latest.analyst_name AND r.date = latest.latest_date
+        ON r.analyst_name = latest.analyst_name
+        AND r.ticker = latest.ticker
+        AND r.date = latest.latest_date
         WHERE r.ticker = %s
         ORDER BY r.analyst_name ASC
     """, (ticker, date, ticker))
+
 
 
     ratings = cursor.fetchall()
