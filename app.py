@@ -1420,7 +1420,16 @@ def analyst_ratings_view(date, ticker):
             WHERE ticker = %s AND date <= %s
             GROUP BY analyst_name
         ) latest ON r.analyst_name = latest.analyst_name AND r.date = latest.latest_date AND r.ticker = %s
-        LEFT JOIN stock_tracking3 st ON r.ticker = st.ticker AND r.date = st.date
+        LEFT JOIN (
+            SELECT st1.*
+            FROM stock_tracking3 st1
+            JOIN (
+                SELECT ticker, MAX(date) AS max_date
+                FROM stock_tracking3
+                WHERE date <= %s
+                GROUP BY ticker
+            ) latest_st ON st1.ticker = latest_st.ticker AND st1.date = latest_st.max_date
+        ) st ON r.ticker = st.ticker
         ORDER BY r.analyst_name ASC
     """, (ticker, date, ticker))
 
