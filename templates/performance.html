@@ -19,6 +19,13 @@
         <button class="btn btn-primary" onclick="filterData('3years')">Last 3 Years</button>
         <button class="btn btn-primary" onclick="filterData('12months')">Last 12 Months</button>
     </div>
+    <!-- Year Filter Buttons -->
+    <div class="mt-3">
+        {% for year in range(2014, 2025) %}
+            <button class="btn btn-outline-primary btn-sm m-1" onclick="filterData('{{ year }}')">{{ year }}</button>
+        {% endfor %}
+    </div>
+
     <br>
     <!-- Chart.js Canvas -->
     <canvas id="simulationPerformanceChart"></canvas>
@@ -114,38 +121,51 @@
         const fullPortfolioValues = {{ simulation_values | tojson | safe }};
         const fullSp500Values = {{ sp500_values_simulation | tojson | safe }};
         const fullNasdaq100Values = {{ nasdaq100_values_simulation | tojson | safe }};
-
+    
+        let startDate;
         const endDate = new Date(fullDates[fullDates.length - 1]);
-        let startDate = new Date(endDate);
-        startDate.setDate(endDate.getDate() - periods[period]);
-
+    
+        if (period === '10years') {
+            startDate = new Date(endDate);
+            startDate.setFullYear(endDate.getFullYear() - 10);
+        } else if (period === '3years') {
+            startDate = new Date(endDate);
+            startDate.setFullYear(endDate.getFullYear() - 3);
+        } else if (period === '12months') {
+            startDate = new Date(endDate);
+            startDate.setFullYear(endDate.getFullYear() - 1);
+        } else if (!isNaN(parseInt(period))) {
+            // Year selected (e.g., "2016")
+            startDate = new Date(`${period}-01-01`);
+            endDate.setFullYear(parseInt(period));
+            endDate.setMonth(11);
+            endDate.setDate(31);
+        }
+    
         const filteredDates = [];
         const filteredPortfolioValues = [];
         const filteredSp500Values = [];
         const filteredNasdaq100Values = [];
-
+    
         for (let i = 0; i < fullDates.length; i++) {
             const currentDate = new Date(fullDates[i]);
-            if (currentDate >= startDate) {
+            if (currentDate >= startDate && currentDate <= endDate) {
                 filteredDates.push(fullDates[i]);
                 filteredPortfolioValues.push(fullPortfolioValues[i]);
                 filteredSp500Values.push(fullSp500Values[i]);
                 filteredNasdaq100Values.push(fullNasdaq100Values[i]);
-
             }
         }
-
+    
         // Normalize values to index 100
         const normalizedPortfolioValues = normalizeToIndex100(filteredPortfolioValues);
         const normalizedSp500Values = normalizeToIndex100(filteredSp500Values);
         const normalizedNasdaq100Values = normalizeToIndex100(filteredNasdaq100Values);
-
-        // Update the chart with the normalized values
+    
         updateChart(filteredDates, normalizedPortfolioValues, normalizedSp500Values, normalizedNasdaq100Values);
-
-        // Recalculate the annualized return
         updateAnnualizedReturn(filteredPortfolioValues, filteredSp500Values, filteredNasdaq100Values, filteredDates);
     }
+
 
     // Function to update the chart with new data
     function updateChart(dates, portfolioValues, sp500Values, nasdaq100Values) {
