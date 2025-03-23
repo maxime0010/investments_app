@@ -45,7 +45,13 @@
                 <td>{{ r.analyst_name }}</td>
                 <td>{{ r.analyst }}</td>
                 <td>{{ r.rating_date.strftime('%Y-%m-%d') if r.rating_date else 'N/A' }}</td>
-                <td>${{ "%.2f"|format(r.price_target) }}</td>
+                <td>
+                  {% if r.price_target is not none %}
+                    ${{ "%.2f"|format(r.price_target) }}
+                  {% else %}
+                    N/A
+                  {% endif %}
+                </td>
                 <td>${{ "%.2f"|format(r.last_price or 0) }}</td>
                 <td>{{ "%.2f"|format(expected) }}%</td>
                 <td>{{ score }}</td>
