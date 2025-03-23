@@ -1374,6 +1374,8 @@ def performance():
     """)
     portfolio_details = cursor.fetchall()
 
+    
+    
     # Fetch analyst ratings per (date, ticker)
     cursor.execute("""
         SELECT
@@ -1382,19 +1384,29 @@ def performance():
             r.analyst,
             r.date AS rating_date,
             r.adjusted_pt_current AS price_target,
-            (SELECT adjusted_close
-             FROM daily_stock_prices_adjusted d
-             WHERE d.ticker = r.ticker AND d.date <= r.date
-             ORDER BY d.date DESC
-             LIMIT 1) AS last_price,
+            (
+                SELECT adjusted_close
+                FROM daily_stock_prices_adjusted d
+                WHERE d.ticker = r.ticker AND d.date <= r.date
+                ORDER BY d.date DESC
+                LIMIT 1
+            ) AS last_price,
             st.cumulated_points - st.points AS score,
-            r.date AS portfolio_date  -- to join later
-        FROM ratings r
+            p.date AS portfolio_date
+        FROM portfolio10 p
+        JOIN (
+            SELECT DISTINCT r1.*
+            FROM ratings r1
+            JOIN (
+                SELECT ticker, analyst_name, MAX(date) AS max_date
+                FROM ratings
+                GROUP BY ticker, analyst_name
+            ) latest
+            ON r1.ticker = latest.ticker AND r1.analyst_name = latest.analyst_name AND r1.date = latest.max_date
+        ) r ON r.ticker = p.ticker AND r.date <= p.date
         JOIN stock_tracking3 st ON r.ticker = st.ticker AND r.date = st.date
-        WHERE r.date IN (
-            SELECT DISTINCT date FROM portfolio10
-        )
-        ORDER BY r.date DESC, r.ticker, r.analyst_name
+        ORDER BY p.date DESC, r.ticker, r.analyst_name
+
     """)
     analyst_ratings = cursor.fetchall()
 
