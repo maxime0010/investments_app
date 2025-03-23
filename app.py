@@ -1374,42 +1374,6 @@ def performance():
     """)
     portfolio_details = cursor.fetchall()
 
-    
-    
-    # Fetch analyst ratings per (date, ticker)
-    cursor.execute("""
-        SELECT
-            r.ticker,
-            r.analyst_name,
-            r.analyst,
-            r.date AS rating_date,
-            r.adjusted_pt_current AS price_target,
-            (
-                SELECT adjusted_close
-                FROM daily_stock_prices_adjusted d
-                WHERE d.ticker = r.ticker AND d.date <= r.date
-                ORDER BY d.date DESC
-                LIMIT 1
-            ) AS last_price,
-            st.cumulated_points - st.points AS score,
-            p.date AS portfolio_date
-        FROM portfolio10 p
-        JOIN (
-            SELECT DISTINCT r1.*
-            FROM ratings r1
-            JOIN (
-                SELECT ticker, analyst_name, MAX(date) AS max_date
-                FROM ratings
-                GROUP BY ticker, analyst_name
-            ) latest
-            ON r1.ticker = latest.ticker AND r1.analyst_name = latest.analyst_name AND r1.date = latest.max_date
-        ) r ON r.ticker = p.ticker AND r.date <= p.date
-        JOIN stock_tracking3 st ON r.ticker = st.ticker AND r.date = st.date
-        ORDER BY p.date DESC, r.ticker, r.analyst_name
-
-    """)
-    analyst_ratings = cursor.fetchall()
-
     cursor.close()
     conn.close()
 
@@ -1435,8 +1399,40 @@ def performance():
                            sp500_values_simulation=sp500_values_simulation,
                            nasdaq100_values_simulation=nasdaq100_values_simulation,
                            portfolios=portfolios, 
-                           portfolio_details=portfolio_details,
-                           analyst_ratings=analyst_ratings)
+                           portfolio_details=portfolio_details)
+
+
+@app.route('/performance/ratings/<date>/<ticker>')
+def analyst_ratings_view(date, ticker):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT
+            r.ticker,
+            r.analyst_name,
+            r.analyst,
+            r.date AS rating_date,
+            r.adjusted_pt_current AS price_target,
+            (
+                SELECT adjusted_close
+                FROM daily_stock_prices_adjusted d
+                WHERE d.ticker = r.ticker AND d.date <= r.date
+                ORDER BY d.date DESC
+                LIMIT 1
+            ) AS last_price,
+            st.cumulated_points - st.points AS score
+        FROM ratings r
+        JOIN stock_tracking3 st ON r.ticker = st.ticker AND r.date = st.date
+        WHERE r.ticker = %s AND r.date <= %s
+        ORDER BY r.analyst_name ASC, r.date DESC
+    """, (ticker, date))
+
+    ratings = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template("analyst_ratings.html", ratings=ratings, ticker=ticker, date=date)
 
 
 
