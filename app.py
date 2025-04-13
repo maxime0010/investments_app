@@ -1389,9 +1389,17 @@ def performance():
                 SELECT ticker, MAX(fiscal_date_ending) AS latest_date
                 FROM income_statements_deltas
                 WHERE statement_type = 'Quarterly'
-                GROUP BY ticker
+                GROUP BY ticker, fiscal_date_ending
             ) d2 ON d1.ticker = d2.ticker AND d1.fiscal_date_ending = d2.latest_date
-        ) d ON p.ticker = d.ticker AND d.fiscal_date_ending <= p.date
+        ) d ON p.ticker = d.ticker
+           AND d.fiscal_date_ending = (
+               SELECT MAX(dsub.fiscal_date_ending)
+               FROM income_statements_deltas dsub
+               WHERE dsub.ticker = p.ticker
+                 AND dsub.fiscal_date_ending <= p.date
+                 AND dsub.statement_type = 'Quarterly'
+           )
+
 
         ORDER BY p.date DESC, p.ticker ASC;
     """)
