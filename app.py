@@ -1337,18 +1337,35 @@ def performance():
 
     # Fetch actual portfolio values and S&P 500 & NASDAQ-100 data from portfolio10 table
     cursor.execute("""
-        SELECT p.date, SUM(p.total_value) AS total_portfolio_value, 
-               (SELECT close 
-                FROM daily_indice_prices sp 
-                WHERE sp.ticker = 'SPY' AND sp.date <= p.date 
-                ORDER BY sp.date DESC LIMIT 1) AS sp500_value,
-               (SELECT close 
-                FROM daily_indice_prices nq 
-                WHERE nq.ticker = 'QQQ' AND nq.date <= p.date 
-                ORDER BY nq.date DESC LIMIT 1) AS nasdaq100_value
+        SELECT
+            p.date,
+            p.ticker,
+            p.total_value AS total_value_buy,
+            p.total_value_sell,
+            (p.total_value_sell - p.total_value) / p.total_value * 100 AS evolution,
+            
+            d.total_revenue,
+            d.operating_income,
+            d.research_and_development,
+            d.operating_expenses,
+            d.ebitda,
+            d.net_income
+        
         FROM portfolio10 p
-        GROUP BY p.date
-        ORDER BY p.date;
+        
+        LEFT JOIN (
+            SELECT d1.*
+            FROM income_statements_deltas d1
+            JOIN (
+                SELECT ticker, MAX(fiscal_date_ending) AS latest_date
+                FROM income_statements_deltas
+                WHERE statement_type = 'Quarterly'
+                GROUP BY ticker
+            ) d2 ON d1.ticker = d2.ticker AND d1.fiscal_date_ending = d2.latest_date
+        ) d ON p.ticker = d.ticker AND d.fiscal_date_ending <= p.date
+        
+        ORDER BY p.date DESC, p.ticker ASC;
+
     """)
     portfolio_data = cursor.fetchall()
 
