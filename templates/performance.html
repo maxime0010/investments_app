@@ -68,6 +68,12 @@
                             <th>Total Value Buy</th>
                             <th>Total Value Sell</th>
                             <th>Evolution (%)</th>
+                            <th>Total Revenue Δ</th>
+                            <th>Operating Income Δ</th>
+                            <th>R&D Δ</th>
+                            <th>Operating Exp. Δ</th>
+                            <th>EBITDA Δ</th>
+                            <th>Net Income Δ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,6 +85,12 @@
                             <td class="{% if detail.evolution is not none and detail.evolution >= 0 %}text-success{% else %}text-danger{% endif %}">
                                 {{ "{:.2f}".format(detail.evolution if detail.evolution is not none else 0) }}%
                             </td>
+                            <td>{{ "{:.2f}".format(detail.total_revenue * 100) if detail.total_revenue is not none else "N/A" }}%</td>
+                            <td>{{ "{:.2f}".format(detail.operating_income * 100) if detail.operating_income is not none else "N/A" }}%</td>
+                            <td>{{ "{:.2f}".format(detail.research_and_development * 100) if detail.research_and_development is not none else "N/A" }}%</td>
+                            <td>{{ "{:.2f}".format(detail.operating_expenses * 100) if detail.operating_expenses is not none else "N/A" }}%</td>
+                            <td>{{ "{:.2f}".format(detail.ebitda * 100) if detail.ebitda is not none else "N/A" }}%</td>
+                            <td>{{ "{:.2f}".format(detail.net_income * 100) if detail.net_income is not none else "N/A" }}%</td>
                             <td>
                               <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('analyst_ratings_view', date=detail.date, ticker=detail.ticker) }}">
                                   Analyst Ratings
