@@ -1335,41 +1335,25 @@ def performance():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch actual portfolio values and S&P 500 & NASDAQ-100 data from portfolio10 table
+    # Fetch chart data: Total portfolio value + S&P 500 & NASDAQ-100
     cursor.execute("""
-        SELECT
-            p.date,
-            p.ticker,
-            p.total_value AS total_value_buy,
-            p.total_value_sell,
-            (p.total_value_sell - p.total_value) / p.total_value * 100 AS evolution,
-            
-            d.total_revenue,
-            d.operating_income,
-            d.research_and_development,
-            d.operating_expenses,
-            d.ebitda,
-            d.net_income
-        
+        SELECT p.date, 
+               SUM(p.total_value) AS total_portfolio_value, 
+               (SELECT close 
+                FROM daily_indice_prices sp 
+                WHERE sp.ticker = 'SPY' AND sp.date <= p.date 
+                ORDER BY sp.date DESC LIMIT 1) AS sp500_value,
+               (SELECT close 
+                FROM daily_indice_prices nq 
+                WHERE nq.ticker = 'QQQ' AND nq.date <= p.date 
+                ORDER BY nq.date DESC LIMIT 1) AS nasdaq100_value
         FROM portfolio10 p
-        
-        LEFT JOIN (
-            SELECT d1.*
-            FROM income_statements_deltas d1
-            JOIN (
-                SELECT ticker, MAX(fiscal_date_ending) AS latest_date
-                FROM income_statements_deltas
-                WHERE statement_type = 'Quarterly'
-                GROUP BY ticker
-            ) d2 ON d1.ticker = d2.ticker AND d1.fiscal_date_ending = d2.latest_date
-        ) d ON p.ticker = d.ticker AND d.fiscal_date_ending <= p.date
-        
-        ORDER BY p.date DESC, p.ticker ASC;
-
+        GROUP BY p.date
+        ORDER BY p.date;
     """)
-    portfolio_data = cursor.fetchall()
+    portfolio_chart_data = cursor.fetchall()
 
-    # Fetch portfolio summary (one row per date)
+    # Portfolio summary by date
     cursor.execute("""
         SELECT date, 
                SUM(total_value) AS total_value_buy, 
@@ -1381,33 +1365,56 @@ def performance():
     """)
     portfolios = cursor.fetchall()
 
-    # Fetch detailed portfolio per ticker
+    # Detailed portfolio with evolution + income statement deltas
     cursor.execute("""
-        SELECT date, ticker, total_value AS total_value_buy, 
-               total_value_sell, 
-               (total_value_sell - total_value) / total_value * 100 AS evolution
-        FROM portfolio10
-        ORDER BY date DESC, ticker ASC;
+        SELECT
+            p.date,
+            p.ticker,
+            p.total_value AS total_value_buy,
+            p.total_value_sell,
+            (p.total_value_sell - p.total_value) / p.total_value * 100 AS evolution,
+
+            d.total_revenue,
+            d.operating_income,
+            d.research_and_development,
+            d.operating_expenses,
+            d.ebitda,
+            d.net_income
+
+        FROM portfolio10 p
+        LEFT JOIN (
+            SELECT d1.*
+            FROM income_statements_deltas d1
+            JOIN (
+                SELECT ticker, MAX(fiscal_date_ending) AS latest_date
+                FROM income_statements_deltas
+                WHERE statement_type = 'Quarterly'
+                GROUP BY ticker
+            ) d2 ON d1.ticker = d2.ticker AND d1.fiscal_date_ending = d2.latest_date
+        ) d ON p.ticker = d.ticker AND d.fiscal_date_ending <= p.date
+
+        ORDER BY p.date DESC, p.ticker ASC;
     """)
     portfolio_details = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    # Extract data for chart display
-    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_data]
-    simulation_values = [row['total_portfolio_value'] for row in portfolio_data]
-    sp500_values_simulation = [row['sp500_value'] for row in portfolio_data]
-    nasdaq100_values_simulation = [row['nasdaq100_value'] for row in portfolio_data]
+    # Chart data prep
+    dates_simulation = [row['date'].strftime('%Y-%m-%d') for row in portfolio_chart_data]
+    simulation_values = [row['total_portfolio_value'] for row in portfolio_chart_data]
+    sp500_values_simulation = [row['sp500_value'] for row in portfolio_chart_data]
+    nasdaq100_values_simulation = [row['nasdaq100_value'] for row in portfolio_chart_data]
 
-    
-    return render_template('performance.html', 
-                           dates_simulation=dates_simulation, 
-                           simulation_values=simulation_values, 
-                           sp500_values_simulation=sp500_values_simulation,
-                           nasdaq100_values_simulation=nasdaq100_values_simulation,
-                           portfolios=portfolios, 
-                           portfolio_details=portfolio_details)
+    return render_template(
+        'performance.html',
+        dates_simulation=dates_simulation,
+        simulation_values=simulation_values,
+        sp500_values_simulation=sp500_values_simulation,
+        nasdaq100_values_simulation=nasdaq100_values_simulation,
+        portfolios=portfolios,
+        portfolio_details=portfolio_details
+    )
 
 
 @app.route('/performance/ratings/<date>/<ticker>')
