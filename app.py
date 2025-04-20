@@ -1454,10 +1454,10 @@ def analyst_ratings_view(date, ticker):
         ) latest ON r.analyst_name = latest.analyst_name AND r.date = latest.latest_date AND r.ticker = %s
         LEFT JOIN (
             SELECT st1.*
-            FROM stock_tracking3 st1
+            FROM stock_tracking4 st1
             JOIN (
                 SELECT ticker, analyst, MAX(date) AS max_date
-                FROM stock_tracking3
+                FROM stock_tracking4
                 WHERE date <= %s
                 GROUP BY ticker, analyst
             ) latest_st
